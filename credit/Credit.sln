@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit", "Credit\Credit.csproj", "{E487A567-2C88-4911-92EC-3B026E7E5336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Api", "Credit.Api\Credit.Api.csproj", "{E487A567-2C88-4911-92EC-3B026E7E5336}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

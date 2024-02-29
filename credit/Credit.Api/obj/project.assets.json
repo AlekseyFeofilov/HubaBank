@@ -229,11 +229,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit/Credit.csproj",
-      "projectName": "Credit",
-      "projectPath": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit/Credit.csproj",
+      "projectUniqueName": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit.Api/Credit.Api.csproj",
+      "projectName": "Credit.Api",
+      "projectPath": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit.Api/Credit.Api.csproj",
       "packagesPath": "/Users/alekseyfeofilov/.nuget/packages/",
-      "outputPath": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit/obj/",
+      "outputPath": "/Users/alekseyfeofilov/RiderProjects/huba/credit/Credit.Api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/alekseyfeofilov/.nuget/NuGet/NuGet.Config"
