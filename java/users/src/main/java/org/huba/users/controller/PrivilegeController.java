@@ -36,9 +36,9 @@ public class PrivilegeController {
         return privilegeService.getAllPrivileges();
     }
 
-    @DeleteMapping("privileges/{uuid}")
-    public void deletePrivilege(@PathVariable UUID uuid) {
-        privilegeService.deletePrivilege(uuid);
+    @DeleteMapping("privileges/{name}")
+    public void deletePrivilege(@PathVariable String name) {
+        privilegeService.deletePrivilege(name);
     }
 
     @PostMapping("privileges")
