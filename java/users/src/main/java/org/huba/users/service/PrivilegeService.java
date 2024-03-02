@@ -1,17 +1,21 @@
 package org.huba.users.service;
 
+import jdk.jshell.execution.Util;
 import lombok.RequiredArgsConstructor;
 import org.huba.users.dto.CreatePrivilegeDto;
 import org.huba.users.dto.EditUserPrivilegeDto;
 import org.huba.users.dto.PrivilegeDto;
 import org.huba.users.dto.ShortPrivilegeDto;
 import org.huba.users.exception.BadRequestException;
+import org.huba.users.exception.ForbiddenException;
 import org.huba.users.exception.NotFoundException;
 import org.huba.users.exception.NotImplementedException;
 import org.huba.users.model.Privilege;
 import org.huba.users.model.User;
 import org.huba.users.repository.PrivilegesRepository;
 import org.huba.users.repository.UserRepository;
+import org.huba.users.utils.JwtProvider;
+import org.huba.users.utils.Utils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 public class PrivilegeService {
     private final UserRepository userRepository;
     private final PrivilegesRepository privilegesRepository;
+    private final JwtProvider jwtProvider;
     public List<ShortPrivilegeDto> getUserPrivilege(@PathVariable UUID uuid) {
         User user = userRepository.findById(uuid).orElseThrow(NotFoundException::new);
         return user.getPrivileges().stream().map(privilege -> {
@@ -34,6 +39,12 @@ public class PrivilegeService {
     }
 
     public void editUserPrivilege(@PathVariable UUID uuid, @RequestBody EditUserPrivilegeDto editUserPrivilegeDto) {
+        User myUser = userRepository.findById(jwtProvider.getId()).orElseThrow(NotFoundException::new);
+
+        if(!Utils.checkAdmin(myUser)) {
+            throw new ForbiddenException();
+        }
+
         User user = userRepository.findById(uuid).orElseThrow(NotFoundException::new);
         user.getPrivileges().clear();
         for(Privilege privilege : privilegesRepository.findAllById(editUserPrivilegeDto.getPrivileges())) {
@@ -43,7 +54,7 @@ public class PrivilegeService {
     }
 
     public List<PrivilegeDto> getAllPrivileges() {
-        return privilegesRepository.getAll().stream().map(privilege -> {
+        return privilegesRepository.findAll().stream().map(privilege -> {
             PrivilegeDto dto = new PrivilegeDto();
             dto.setName(privilege.getName());
             dto.setAdmin(privilege.getAdmin());

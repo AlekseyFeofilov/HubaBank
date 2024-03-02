@@ -42,10 +42,6 @@ public class JwtProvider {
         return UUID.fromString(authentication.getFirstName());
     }
 
-    public String getLogin() {
-        JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getUsername();
-    }
 
     private Claims getClaims(@NonNull String token, @NonNull Key secret) {
         return Jwts.parserBuilder()

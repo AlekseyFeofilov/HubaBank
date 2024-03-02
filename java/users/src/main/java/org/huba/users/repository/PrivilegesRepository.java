@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface PrivilegesRepository extends CrudRepository<Privilege, String> {
-    List<Privilege> getAll();
+    List<Privilege> findAll();
 }
