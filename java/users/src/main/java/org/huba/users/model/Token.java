@@ -1,14 +1,12 @@
 package org.huba.users.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Data;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
+@Data
 @Entity
 public class Token {
     @Id
@@ -16,7 +14,14 @@ public class Token {
 
     private String value;
     @Enumerated(EnumType.STRING)
-    private TokenType tokenType;
-    private Timestamp createdTimestamp;
-    private Timestamp expiredTimestamp;
+    private TokenType type;
+    private Date createdDate;
+    private Date expiredDate;
+    @ManyToOne
+    private User user;
+
+    @PrePersist
+    public void init() {
+        id = UUID.randomUUID();
+    }
 }

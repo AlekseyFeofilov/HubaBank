@@ -7,5 +7,5 @@ import java.util.UUID;
 
 @Data
 public class EditUserPrivilegeDto {
-    private List<UUID> privilegeIds;
+    private List<String> privilegeIds;
 }

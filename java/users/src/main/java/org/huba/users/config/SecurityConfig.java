@@ -76,11 +76,11 @@ public class SecurityConfig {
                         addList("Bearer Authentication"))
                 .components(new Components().addSecuritySchemes
                         ("Bearer Authentication", createAPIKeyScheme()))
-                .info(new Info().title("1")
-                        .description("1")
-                        .version("1.0").contact(new Contact().name("1")
-                                .email( "1").url("1"))
-                        .license(new License().name("1")
-                                .url("1")));
+                .info(new Info().title("Users Service")
+                        .description("User Service for Government Bank of Huba Buba States")
+                        .version("1.0").contact(new Contact().name("UserManager")
+                                .email( "bear@huba.gov").url("huba.gov"))
+                        .license(new License().name("HUBA MIT LICENSE")
+                                .url("hmit.gov")));
     }
 }

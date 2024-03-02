@@ -21,12 +21,12 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("register")
-    public TokenDto register(RegisterDto registerDto) {
+    public TokenDto register(@RequestBody RegisterDto registerDto) {
         return authenticationService.register(registerDto);
     }
 
     @PostMapping("login")
-    public TokenDto login(CredentialsDto credentialsDto) {
+    public TokenDto login(@RequestBody CredentialsDto credentialsDto) {
         return authenticationService.login(credentialsDto);
     }
 

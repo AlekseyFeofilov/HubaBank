@@ -1,5 +1,6 @@
 package org.huba.users.service;
 
+import lombok.RequiredArgsConstructor;
 import org.huba.users.dto.CreatePrivilegeDto;
 import org.huba.users.dto.EditUserPrivilegeDto;
 import org.huba.users.dto.PrivilegeDto;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PrivilegeService {
     public List<ShortPrivilegeDto> getUserPrivilege(@PathVariable UUID uuid) {
         throw new NotImplementedException();

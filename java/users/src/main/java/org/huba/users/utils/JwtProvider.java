@@ -1,10 +1,11 @@
-package org.huba.users.service;
+package org.huba.users.utils;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.huba.users.config.JwtAuthentication;
+import org.huba.users.model.Privilege;
 import org.huba.users.model.User;
 import org.huba.users.utils.MyConstants;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -74,13 +76,17 @@ public class JwtProvider {
         return false;
     }
 
-    private String generateAccessToken(User user) {
+    public String generateAccessToken(User user) {
         final Date accessExpiration = new Date(System.currentTimeMillis() + (MyConstants.ACCESS_TOKEN_EXP));
         return "Bearer " + Jwts.builder()
                 .setSubject(null)
                 .setExpiration(accessExpiration)
                 .signWith(jwtAccessSecret)
                 .claim("id", user.getId())
+                .claim("firstName", user.getFirstName())
+                .claim("secondName", user.getSecondName())
+                .claim("thirdName", user.getThirdName())
+                .claim("privileges", user.getPrivileges().stream().map(Privilege::toClaim).collect(Collectors.toSet()))
                 .compact();
     }
 }

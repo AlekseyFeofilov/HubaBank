@@ -14,4 +14,13 @@ public class Privilege {
     private String name;
     private String description;
     private Boolean admin;
+
+    @Override
+    public String toString() {
+        return name + " " + admin + "\n";
+    }
+
+    public String toClaim() {
+        return name;
+    }
 }

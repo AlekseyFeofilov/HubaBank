@@ -17,6 +17,8 @@ public class User {
     private String secondName; // Фамилия
     private String thirdName; // Отчество
 
+    private String phone;
+
     private String passwordHash;
 
     @ManyToMany
