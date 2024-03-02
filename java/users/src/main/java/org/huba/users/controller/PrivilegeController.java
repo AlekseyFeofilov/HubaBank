@@ -6,6 +6,7 @@ import org.huba.users.dto.EditUserPrivilegeDto;
 import org.huba.users.dto.PrivilegeDto;
 import org.huba.users.dto.ShortPrivilegeDto;
 import org.huba.users.exception.NotImplementedException;
+import org.huba.users.service.PrivilegeService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,28 +19,30 @@ import static org.huba.users.utils.MyConstants.USERS_SPI_URL;
 @RequiredArgsConstructor
 public class PrivilegeController {
 
+    private final PrivilegeService privilegeService;
+
     @GetMapping("user/{uuid}/privileges")
     public List<ShortPrivilegeDto> getUserPrivilege(@PathVariable UUID uuid) {
-        throw new NotImplementedException();
+        return privilegeService.getUserPrivilege(uuid);
     }
 
     @PostMapping("user/{uuid}/privileges")
     public void editUserPrivilege(@PathVariable UUID uuid, @RequestBody EditUserPrivilegeDto editUserPrivilegeDto) {
-        throw new NotImplementedException();
+        privilegeService.editUserPrivilege(uuid, editUserPrivilegeDto);
     }
 
     @GetMapping("privileges")
     public List<PrivilegeDto> getAllPrivileges() {
-        throw new NotImplementedException();
+        return privilegeService.getAllPrivileges();
     }
 
     @DeleteMapping("privileges/{uuid}")
     public void deletePrivilege(@PathVariable UUID uuid) {
-        throw new NotImplementedException();
+        privilegeService.deletePrivilege(uuid);
     }
 
     @PostMapping("privileges")
     public void createPrivileges(CreatePrivilegeDto createPrivilegeDto) {
-        throw new NotImplementedException();
+        privilegeService.createPrivileges(createPrivilegeDto);
     }
 }
