@@ -1,0 +1,28 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета клиента" as ClientService
+participant "Сервис пользователей" as UserService
+participant "Сервис ядро" as CoreService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> ClientService
+    activate ClientService
+
+        note over ClientService
+        {id} получаем из токена
+        end note
+
+        ClientService -> UserService: GET /users/{id}/bills/{billId}/transactions
+        activate UserService
+        return HTTP 200
+    return HTTP 200
+return Экран успеха
+
+@enduml

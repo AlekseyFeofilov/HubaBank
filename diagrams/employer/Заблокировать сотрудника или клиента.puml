@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета сотрудника" as EmployerService
+participant "Сервис пользователей" as UserService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> EmployerService
+    activate EmployerService
+
+        EmployerService -> UserService: POST какой-то метод
+        activate UserService
+        return HTTP 200
+    return HTTP 200
+return Экран успеха
+
+@enduml

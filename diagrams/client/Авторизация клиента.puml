@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета клиента" as ClientService
+participant "Сервис пользователей" as UserService
+participant "Сервис ядро" as CoreService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> ClientService
+    activate ClientService
+
+alt #lightgreen Успешная авторизация
+        ClientService -> UserService: POST /login
+        activate UserService
+        return TokenDto
+
+        note over ClientService
+        {id} получаем из токена
+        end note
+
+        ClientService -> CoreService: GET /users/{id}
+        activate CoreService
+        return HTTP 200:\n возвращаем UserDto
+
+        MobileApp <-- ClientService: HTTP 200:\n возвращаем JWT
+        User <-- MobileApp: Экран кабинета
+else #pink
+        ClientService -> UserService: POST /login
+        activate UserService
+        return HTTP 4xx
+    return HTTP 4xx
+return Экран ошибки
+end
+
+@enduml
