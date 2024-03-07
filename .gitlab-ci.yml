@@ -24,7 +24,7 @@ build:
         - .gradle_home
   artifacts:
     paths:
-      - build/libs/*.jar
+      - core/build/libs/*.jar
     expire_in: 1 week
 
 test:
@@ -52,4 +52,4 @@ test:
   artifacts:
     when: always
     reports:
-      junit: build/reports/tests/test/**
+      junit: core/build/reports/tests/test/**
