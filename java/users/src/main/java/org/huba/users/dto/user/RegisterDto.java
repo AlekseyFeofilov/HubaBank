@@ -1,6 +1,7 @@
-package org.huba.users.dto;
+package org.huba.users.dto.user;
 
 import lombok.Data;
+import org.huba.users.dto.user.FullNameDto;
 
 @Data
 public class RegisterDto {

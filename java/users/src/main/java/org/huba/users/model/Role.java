@@ -2,24 +2,19 @@ package org.huba.users.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.ManyToMany;
 import lombok.Data;
 
+import java.util.Set;
 import java.util.UUID;
 
-@Data
 @Entity
-public class Privilege {
+@Data
+public class Role {
     @Id
     private String name;
     private String description;
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    public String toClaim() {
-        return name;
-    }
+    @ManyToMany
+    private Set<Privilege> privileges;
 }

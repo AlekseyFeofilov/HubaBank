@@ -11,12 +11,12 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan
 public class PostgresConfig {
-//    @Bean
-//    @Primary
-//    public DataSource inMemoryDS() throws Exception {
-//        DataSource embeddedPostgresDS = EmbeddedPostgres.builder()
-//                .start().getPostgresDatabase();
-//
-//        return embeddedPostgresDS;
-//    }
+    @Bean
+    @Primary
+    public DataSource inMemoryDS() throws Exception {
+        DataSource embeddedPostgresDS = EmbeddedPostgres.builder()
+                .start().getPostgresDatabase();
+
+        return embeddedPostgresDS;
+    }
 }

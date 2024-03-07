@@ -1,11 +1,10 @@
 package org.huba.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.huba.users.dto.CreatePrivilegeDto;
-import org.huba.users.dto.EditUserPrivilegeDto;
-import org.huba.users.dto.PrivilegeDto;
-import org.huba.users.dto.ShortPrivilegeDto;
-import org.huba.users.exception.NotImplementedException;
+import org.huba.users.dto.privilege.CreatePrivilegeDto;
+import org.huba.users.dto.user.EditUserPrivilegeDto;
+import org.huba.users.dto.privilege.PrivilegeDto;
+import org.huba.users.dto.privilege.ShortPrivilegeDto;
 import org.huba.users.service.PrivilegeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +25,14 @@ public class PrivilegeController {
         return privilegeService.getUserPrivilege(uuid);
     }
 
-    @PostMapping("user/{uuid}/privileges")
-    public void editUserPrivilege(@PathVariable UUID uuid, @RequestBody EditUserPrivilegeDto editUserPrivilegeDto) {
-        privilegeService.editUserPrivilege(uuid, editUserPrivilegeDto);
+    @PostMapping("user/{uuid}/privileges/addition")
+    public void editUserAdditionPrivilege(@PathVariable UUID uuid, @RequestBody EditUserPrivilegeDto editUserPrivilegeDto) {
+        privilegeService.editUserAdditionPrivilege(uuid, editUserPrivilegeDto);
+    }
+
+    @PostMapping("user/{uuid}/privileges/blocked")
+    public void editUserBlockedPrivilege(@PathVariable UUID uuid, @RequestBody EditUserPrivilegeDto editUserPrivilegeDto) {
+        privilegeService.editUserBlockedPrivilege(uuid, editUserPrivilegeDto);
     }
 
     @GetMapping("privileges")

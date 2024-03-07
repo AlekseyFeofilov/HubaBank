@@ -1,4 +1,4 @@
-package org.huba.users.dto;
+package org.huba.users.dto.user;
 
 import lombok.Data;
 

@@ -1,14 +1,13 @@
 package org.huba.users.service;
 
 import lombok.RequiredArgsConstructor;
-import org.huba.users.dto.CredentialsDto;
-import org.huba.users.dto.RefreshTokenDto;
-import org.huba.users.dto.RegisterDto;
-import org.huba.users.dto.TokenDto;
+import org.huba.users.dto.user.CredentialsDto;
+import org.huba.users.dto.token.RefreshTokenDto;
+import org.huba.users.dto.user.RegisterDto;
+import org.huba.users.dto.token.TokenDto;
 import org.huba.users.exception.AuthException;
 import org.huba.users.exception.BadLoginOrPasswordException;
 import org.huba.users.exception.BadRequestException;
-import org.huba.users.exception.NotImplementedException;
 import org.huba.users.mapper.UserMapper;
 import org.huba.users.model.TokenType;
 import org.huba.users.model.User;

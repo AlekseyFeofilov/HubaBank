@@ -1,6 +1,6 @@
 package org.huba.users.mapper;
 
-import org.huba.users.dto.RegisterDto;
+import org.huba.users.dto.user.RegisterDto;
 import org.huba.users.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

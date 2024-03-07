@@ -36,6 +36,13 @@ public class AdminController {
                 .body(adminService.getAllPrivilegesPage());
     }
 
+    @GetMapping(value = "getAllRolesPage")
+    public ResponseEntity<String> getAllRolesPage() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .header("Content-Type", "text/html;")
+                .body(adminService.getAllRolesPage());
+    }
+
     @PostMapping(value = "createAdminAndEmployeePrivileges")
     public void createAdminAndEmployeePrivileges() {
         adminService.createAdminAndEmployeePrivileges();

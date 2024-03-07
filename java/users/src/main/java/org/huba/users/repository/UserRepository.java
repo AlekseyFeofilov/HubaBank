@@ -15,4 +15,6 @@ public interface UserRepository extends CrudRepository<User, UUID> {
     Optional<User> findByPhone(String phone);
 
     List<User> findAll();
+
+    List<User> findByEmployee(boolean employee);
 }

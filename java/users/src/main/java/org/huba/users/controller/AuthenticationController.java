@@ -1,11 +1,10 @@
 package org.huba.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.huba.users.dto.CredentialsDto;
-import org.huba.users.dto.RefreshTokenDto;
-import org.huba.users.dto.RegisterDto;
-import org.huba.users.dto.TokenDto;
-import org.huba.users.exception.NotImplementedException;
+import org.huba.users.dto.user.CredentialsDto;
+import org.huba.users.dto.token.RefreshTokenDto;
+import org.huba.users.dto.user.RegisterDto;
+import org.huba.users.dto.token.TokenDto;
 import org.huba.users.service.AuthenticationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

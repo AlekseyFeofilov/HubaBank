@@ -5,8 +5,10 @@ import org.huba.users.exception.BadRequestException;
 import org.huba.users.exception.NotFoundException;
 import org.huba.users.exception.NotImplementedException;
 import org.huba.users.model.Privilege;
+import org.huba.users.model.Role;
 import org.huba.users.model.User;
 import org.huba.users.repository.PrivilegesRepository;
+import org.huba.users.repository.RoleRepository;
 import org.huba.users.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class AdminService {
     private final UserRepository userRepository;
     private final PrivilegesRepository privilegesRepository;
+    private final RoleRepository roleRepository;
     private String template = "" +
             "<!doctype html>\n" +
             "<html lang=\"en\">\n" +
@@ -107,10 +110,6 @@ public class AdminService {
         table += "</td>";
 
         table += "<td>";
-        table += "admin";
-        table += "</td>";
-
-        table += "<td>";
         table += "description";
         table += "</td>";
 
@@ -123,11 +122,48 @@ public class AdminService {
             table += "</td>";
 
             table += "<td>";
-            table += privilege.getAdmin();
+            table += privilege.getDescription();
+            table += "</td>";
+
+            table += "</tr>";
+        }
+        table += "</table>";
+        return template.replace("tablePlace", table);
+    }
+
+    public String getAllRolesPage() {
+        String table = "";
+        table += "<table style='border: 1px solid #777777;'>";
+        table += "<tr>";
+
+        table += "<td>";
+        table += "name";
+        table += "</td>";
+
+        table += "<td>";
+        table += "description";
+        table += "</td>";
+
+        table += "<td>";
+        table += "roles";
+        table += "</td>";
+
+        table += "</tr>";
+        for(Role role : roleRepository.findAll()) {
+            table += "<tr>";
+
+            table += "<td>";
+            table += role.getName();
             table += "</td>";
 
             table += "<td>";
-            table += privilege.getDescription();
+            table += role.getDescription();
+            table += "</td>";
+
+            table += "<td>";
+            for(Privilege privilege : role.getPrivileges()) {
+                table += role.getName() + ";";
+            }
             table += "</td>";
 
             table += "</tr>";
@@ -138,13 +174,11 @@ public class AdminService {
 
     public void createAdminAndEmployeePrivileges() {
         Privilege admin = new Privilege();
-        admin.setAdmin(true);
         admin.setDescription("It is admin privilege");
         admin.setName("ADMIN");
         privilegesRepository.save(admin);
 
         Privilege employee = new Privilege();
-        employee.setAdmin(false);
         employee.setDescription("It is employee privilege");
         employee.setName("EMPLOYEE");
         privilegesRepository.save(employee);
