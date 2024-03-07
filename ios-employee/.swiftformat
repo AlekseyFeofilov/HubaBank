@@ -1,0 +1,89 @@
+# File options
+
+--exclude ISpace/Resources
+--exclude ISpace/Supporting\ Files/SwiftGen
+
+# Format options
+
+--swiftversion 5.6
+
+
+# Rules
+
+--disable all
+
+--enable andOperator
+--enable anyObjectProtocol
+--enable blankLineAfterImports
+--enable assertionFailures
+--enable blankLinesAtEndOfScope
+--enable blankLinesAtStartOfScope
+--enable blankLinesBetweenImports
+--enable blankLinesBetweenScopes
+--enable blockComments
+--enable braces
+    --allman false
+--enable consecutiveBlankLines
+--enable consecutiveSpaces
+--enable docComments
+--enable duplicateImports
+--enable elseOnSameLine
+--enable emptyBraces
+--enable enumNamespaces
+--enable fileHeader
+  --header strip
+--enable hoistPatternLet
+--enable indent
+  --indent tab
+  --tabwidth 2
+  --ifdef no-indent
+--enable isEmpty
+--enable leadingDelimiters
+--enable preferKeyPath
+--enable redundantBreak
+--enable redundantExtensionACL
+--enable redundantFileprivate
+--enable redundantInit
+--enable redundantLet
+--enable redundantLetError
+--enable redundantNilInit
+--enable redundantObjc
+--enable redundantOptionalBinding
+--enable redundantParens
+--enable redundantPattern
+--enable redundantRawValues
+--enable redundantReturn
+--enable redundantVoidReturnType
+  --closurevoid preserve
+--enable sortImports
+  --importgrouping testable-bottom
+--enable spaceAroundBraces
+--enable spaceAroundBrackets
+--enable spaceAroundComments
+--enable spaceAroundGenerics
+--enable spaceAroundOperators 
+  --ranges no-space
+--enable spaceAroundParens
+--enable spaceInsideBraces
+--enable spaceInsideBrackets
+--enable spaceInsideComments
+--enable spaceInsideGenerics
+--enable spaceInsideParens
+--enable todos
+--enable trailingClosures
+--enable trailingCommas
+  --commas inline
+--enable trailingSpace
+--enable typeSugar
+--enable unusedArguments
+  --stripunusedargs closure-only
+--enable void
+--enable wrap
+  --maxwidth 130
+--enable wrapArguments
+  --wraparguments after-first
+  --wrapcollections after-first
+  --wrapparameters after-first
+  --wrapconditions preserve
+  --closingparen balanced
+--enable yodaConditions
