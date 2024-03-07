@@ -21,4 +21,5 @@ import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_SCHEME_NAME;
         scheme = "bearer"
 )
 public class SwaggerConfiguration {
+
 }
