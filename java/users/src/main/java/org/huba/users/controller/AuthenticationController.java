@@ -1,8 +1,9 @@
 package org.huba.users.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.huba.users.dto.user.CredentialsDto;
+
 import org.huba.users.dto.token.RefreshTokenDto;
+import org.huba.users.dto.user.CredentialsDto;
 import org.huba.users.dto.user.RegisterDto;
 import org.huba.users.dto.token.TokenDto;
 import org.huba.users.service.AuthenticationService;

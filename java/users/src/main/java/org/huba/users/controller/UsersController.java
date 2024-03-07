@@ -2,12 +2,15 @@ package org.huba.users.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.huba.users.dto.user.UserFullDto;
+import org.huba.users.exception.NotImplementedException;
 import org.huba.users.service.UsersService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.huba.users.utils.MyConstants.USERS_SPI_URL;
 
@@ -30,5 +33,10 @@ public class UsersController {
     @GetMapping("users")
     public List<UserFullDto> getUsers() {
         return usersService.getUsers();
+    }
+
+    @GetMapping("user/{uuid}")
+    public UserFullDto getUserByUUID(@PathVariable UUID uuid) {
+        throw new NotImplementedException();
     }
 }

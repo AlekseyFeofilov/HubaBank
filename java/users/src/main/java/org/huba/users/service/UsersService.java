@@ -52,6 +52,8 @@ public class UsersService {
         UserFullDto dto = new UserFullDto();
         dto.setFullNameDto(new FullNameDto(user.getFirstName(), user.getSecondName(), user.getThirdName()));
         dto.setPrivileges(user.getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()));
+        dto.setAdditionPrivileges(user.getAdditionPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()));
+        dto.setBlockedPrivileges(user.getBlockedPrivileges().stream().map(Privilege::getName).collect(Collectors.toList()));
         dto.setPhone(user.getPhone());
         dto.setEmployee(user.isEmployee());
         dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
