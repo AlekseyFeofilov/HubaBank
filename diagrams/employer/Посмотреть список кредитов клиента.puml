@@ -15,6 +15,10 @@ activate MobileApp
     MobileApp -> EmployerService
     activate EmployerService
 
+        note right EmployerService
+        Прокидываем Bearer токен в header Authorization
+        end note
+
         EmployerService -> LoanService: POST /users/{id}/loans
         activate LoanService
         return HTTP 200

@@ -6,8 +6,8 @@ autonumber
 actor "Пользователь" as User
 participant "Мобильное приложение" as MobileApp
 participant "Сервис кабинета клиента" as ClientService
-participant "Сервис пользователей" as UserService
 participant "Сервис ядро" as CoreService
+participant "Сервис пользователей" as UserService
 
 User -> MobileApp
 activate MobileApp
@@ -15,12 +15,20 @@ activate MobileApp
     MobileApp -> ClientService
     activate ClientService
 
-        note over ClientService
-        {id} получаем из токена
+        note right ClientService
+        {userId} получаем из токена
         end note
 
-        ClientService -> UserService: GET /users/{id}/bills/{billId}/transactions
-        activate UserService
+        note right ClientService
+        Прокидываем Bearer токен в header Authorization
+        end note
+
+        ClientService -> CoreService: GET /users/{userId}/bills/{billId}/transactions
+        activate CoreService
+
+            CoreService -> UserService: GET /users/me
+            activate UserService
+            return HTTP 200: информация о пользователе
         return HTTP 200
     return HTTP 200
 return Экран успеха

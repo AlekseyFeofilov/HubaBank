@@ -20,13 +20,17 @@ alt #lightgreen Успешная авторизация
         activate UserService
         return TokenDto
 
-        note over ClientService
-        {id} получаем из токена
+        note right ClientService
+        {userId} получаем из токена
         end note
 
-        ClientService -> CoreService: GET /users/{id}
+        note right ClientService
+        Прокидываем Bearer токен в header Authorization
+        end note
+
+        ClientService -> CoreService: GET /users/{userId}/bills
         activate CoreService
-        return HTTP 200:\n возвращаем UserDto
+        return HTTP 200:\n возвращаем List<BillDto>
 
         MobileApp <-- ClientService: HTTP 200:\n возвращаем JWT
         User <-- MobileApp: Экран кабинета

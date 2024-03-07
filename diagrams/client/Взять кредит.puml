@@ -6,9 +6,9 @@ autonumber
 actor "Пользователь" as User
 participant "Мобильное приложение" as MobileApp
 participant "Сервис кабинета клиента" as ClientService
-participant "Сервис пользователей" as UserService
-participant "Сервис ядро" as CoreService
 participant "Сервис кредитов" as LoanService
+participant "Сервис ядро" as CoreService
+participant "Сервис пользователей" as UserService
 
 User -> MobileApp
 activate MobileApp
@@ -17,12 +17,9 @@ activate MobileApp
     activate ClientService
 
         note over ClientService
-        {id} получаем из токена
+        В РАЗРАБОТКЕ TODO
         end note
 
-        ClientService -> UserService: DELETE /user/{id}/bill
-        activate UserService
-        return HTTP 200
     return HTTP 200
 return Экран успеха
 
