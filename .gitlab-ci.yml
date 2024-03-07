@@ -49,9 +49,7 @@ test:
     - key: dependencies-cache
       paths:
         - .gradle_home
-  # TODO нужно настроить генерацию отчетов JUnit.
-  #
-  #artifacts:
-  #  when: always
-  #  reports:
-  #    junit: build/test-results/test/**/TEST-*.xml
+  artifacts:
+    when: always
+    reports:
+      junit: build/reports/tests/test/**
