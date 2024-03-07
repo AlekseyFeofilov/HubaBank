@@ -52,4 +52,4 @@ test:
   artifacts:
     when: always
     reports:
-      junit: core/build/reports/tests/test/**
+      junit: core/build/test-results/test/**/TEST-*.xml
