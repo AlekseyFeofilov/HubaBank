@@ -1,0 +1,49 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/me"
+      },
+      "response": {
+        "status": 401
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/me",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530901"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-client-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/me",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530902"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-employer-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
