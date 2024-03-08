@@ -16,6 +16,7 @@ build:core:
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
+        compare_to: $CI_DEFAULT_BRANCH
         paths:
           - 'core/*'
   before_script:
