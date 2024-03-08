@@ -1,8 +1,8 @@
 .deploy:
   stage: deploy
   rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
+#    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+#      when: manual
   script:
     - rm -rf $WORKING_DIR
     - cp -r .infra/deploy/$ENVIRONMENT $WORKING_DIR
