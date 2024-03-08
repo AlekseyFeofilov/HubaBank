@@ -45,7 +45,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех счетов")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetAllBillsThenSuccess() throws Exception {
         mockMvc.perform(get("/bills")
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
@@ -63,7 +63,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех своих счетов")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetBillsThenSuccess() throws Exception {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
@@ -73,7 +73,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех счетов другого клиента")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetBillsOtherClientThenSuccess() throws Exception {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
