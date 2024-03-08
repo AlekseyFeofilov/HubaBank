@@ -6,9 +6,11 @@
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        - '.gitlab-ci.yml'
-        - 'gitlab-ci-template/*'
-        - '$PROJECT_DIR/*'
+        compare_to: 'refs/heads/master'
+        paths:
+          - '.gitlab-ci.yml'
+          - 'gitlab-ci-template/*'
+          - '$PROJECT_DIR/*'
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
