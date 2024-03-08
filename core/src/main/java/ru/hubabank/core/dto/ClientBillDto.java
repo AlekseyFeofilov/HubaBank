@@ -13,7 +13,4 @@ public class ClientBillDto {
 
     @Schema(description = "Баланс счета в копейках")
     private long balance;
-
-    @Schema(description = "Флаг, указывающий на то, что счет закрыт")
-    private boolean closed;
 }

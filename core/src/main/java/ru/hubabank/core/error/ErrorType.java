@@ -10,9 +10,9 @@ import ru.hubabank.core.exception.ServiceException;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ErrorType {
     UNKNOWN(HttpStatus.BAD_REQUEST, 0,
-            "Unknown service exception"),
+            "Неизвестная ошибка"),
     BAD_GATEWAY(HttpStatus.BAD_GATEWAY, 1,
-            "Bad gateway"),
+            "Ошибка подключения к смежным службам"),
 
     CANNOT_NEGATIVE_BILL_BALANCE(HttpStatus.BAD_REQUEST, 100,
             "Баланс счета не может уйти в минус"),
@@ -24,7 +24,9 @@ public enum ErrorType {
             "Транзакция не может быть с нулевой суммой изменения"),
 
     BILL_NOT_FOUND(HttpStatus.NOT_FOUND, 200,
-            "Счет не найден");
+            "Счет не найден"),
+    CLOSED_BILL_OPERATION(HttpStatus.NOT_FOUND, 201,
+            "Нельзя совершать операции над закрытым счетом");
 
     private final HttpStatus status;
     private final int code;

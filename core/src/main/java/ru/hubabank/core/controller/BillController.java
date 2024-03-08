@@ -7,7 +7,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.hubabank.core.dto.BillDto;
 import ru.hubabank.core.dto.ClientBillDto;
+import ru.hubabank.core.mapper.BillMapper;
 import ru.hubabank.core.service.BillService;
+import ru.hubabank.core.service.strategy.UserBillSearchStrategy;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +21,7 @@ import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 public class BillController {
 
     private final BillService billService;
+    private final BillMapper billMapper;
 
     @GetMapping("bills")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -64,11 +67,11 @@ public class BillController {
                     * BILL_READ_OTHERS - доступ к информации о любом счете
                     """
     )
-    public BillDto getBill(
+    public ClientBillDto getBill(
             @PathVariable("userId") UUID userId,
             @PathVariable("billId") UUID billId
     ) {
-        return billService.getBill(userId, billId);
+        return billMapper.mapEntityToClientDto(billService.getBill(UserBillSearchStrategy.of(userId, billId)));
     }
 
     @PostMapping("users/{userId}/bills")

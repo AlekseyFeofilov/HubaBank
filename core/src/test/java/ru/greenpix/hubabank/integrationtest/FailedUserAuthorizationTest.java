@@ -11,7 +11,9 @@ import ru.hubabank.core.HubabankCoreApplication;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.greenpix.hubabank.constants.TestConstants.API_KEY;
 import static ru.greenpix.hubabank.constants.TestConstants.AUTHORIZATION_HEADER;
+import static ru.hubabank.core.constant.HeaderConstants.API_KEY_HEADER;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(
@@ -19,7 +21,7 @@ import static ru.greenpix.hubabank.constants.TestConstants.AUTHORIZATION_HEADER;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-class FailedAuthenticationTest extends AbstractIntegrationTest {
+class FailedUserAuthorizationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,7 +37,7 @@ class FailedAuthenticationTest extends AbstractIntegrationTest {
     @DisplayName("Неуспешная авторизация, если отправлен неверный токен")
     void whenRequestThenUnauthenticatedIfTokenIsInvalid() throws Exception {
         mockMvc.perform(get("/bills")
-                        .header(AUTHORIZATION_HEADER, "token_invalid"))
+                        .header(AUTHORIZATION_HEADER, "invalid_token"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -44,6 +46,14 @@ class FailedAuthenticationTest extends AbstractIntegrationTest {
     void whenRequestThenUnauthenticatedIfUserIsBlocked() throws Exception {
         mockMvc.perform(get("/bills")
                         .header(AUTHORIZATION_HEADER, "token_79009530903"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("Неуспешная авторизация, если отправлен API ключ вместо JWT токена")
+    void whenRequestThenUnauthenticatedIfApiKeySent() throws Exception {
+        mockMvc.perform(get("/bills")
+                        .header(API_KEY_HEADER, API_KEY))
                 .andExpect(status().isUnauthorized());
     }
 }

@@ -8,8 +8,6 @@ import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.repository.BillRepository;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class BalanceService {
@@ -17,10 +15,11 @@ public class BalanceService {
     private final BillRepository billRepository;
 
     @Transactional
-    public void updateBalance(@NotNull UUID userId, @NotNull UUID billId, long balanceChange) {
-        Bill bill = billRepository.findById(billId)
-                .filter(e -> e.getUserId().equals(userId))
-                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
+    public void updateBalance(@NotNull Bill bill, long balanceChange) {
+        if (bill.getClosingInstant() != null) {
+            throw ErrorType.CLOSED_BILL_OPERATION.createException();
+        }
+
         long newBalance = bill.getBalance() + balanceChange;
 
         if (newBalance < 0) {

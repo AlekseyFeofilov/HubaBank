@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.greenpix.hubabank.constants.TestConstants.*;
+import static ru.greenpix.hubabank.constants.TestConstants.API_KEY;
+import static ru.greenpix.hubabank.constants.TestConstants.BILL_ID;
 import static ru.greenpix.hubabank.util.FileUtil.readFromFileToString;
+import static ru.hubabank.core.constant.HeaderConstants.API_KEY_HEADER;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(
@@ -37,7 +37,7 @@ import static ru.greenpix.hubabank.util.FileUtil.readFromFileToString;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc
-class TransactionControllerTest extends AbstractIntegrationTest {
+class TransactionInternalControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,64 +49,13 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     private TransactionRepository transactionRepository;
 
     @Test
-    @DisplayName("Успешный просмотр истории транзакций по своему счету")
-    @Sql({"/sql/insert-client-bill.sql", "/sql/insert-transactions.sql"})
-    void whenGetTransactionHistoryThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(content().json(readFromFileToString("response/transaction-list-response.json")));
-    }
-
-    @Test
-    @DisplayName("Успешный просмотр истории транзакций по чужому счету")
-    @Sql({"/sql/insert-client-bill.sql", "/sql/insert-transactions.sql"})
-    void whenGetTransactionHistoryOtherClientThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
-                .andExpect(status().isOk())
-                .andExpect(content().json(readFromFileToString("response/transaction-list-response.json")));
-    }
-
-    @Test
-    @DisplayName("Неуспешный просмотр истории транзакций по несуществующему счету")
-    void whenGetTransactionHistoryThenNotFoundIfBillIsNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
-                .andExpect(status().isNotFound())
-                .andReturn();
-
-        assertError(result, ErrorType.BILL_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("Неуспешное просмотр истории транзакций по счету, который не принадлежит указанному клиенту")
-    @Sql("/sql/insert-client-bill.sql")
-    void whenGetTransactionHistoryThenNotFoundIfBelongsOtherClient() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
-                .andExpect(status().isNotFound())
-                .andReturn();
-
-        assertError(result, ErrorType.BILL_NOT_FOUND);
-    }
-
-    @Test
-    @DisplayName("Неуспешный просмотр истории транзакций по своему счету без прав")
-    void whenGetTransactionHistoryOtherClientThenForbiddenIfHaveNotPrivilege() throws Exception {
-        mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
     @DisplayName("Успешное зачисление денег на счет")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
     void whenDepositThenSuccess() throws Exception {
         assertThat(transactionRepository.count()).isZero();
 
-        mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/deposit-transaction.json")))
                 .andExpect(status().isOk());
@@ -117,7 +66,7 @@ class TransactionControllerTest extends AbstractIntegrationTest {
         Transaction transaction = transactions.iterator().next();
         assertThat(transaction.getBill().getId()).isEqualTo(UUID.fromString(BILL_ID));
         assertThat(transaction.getBalanceChange()).isEqualTo(1);
-        assertThat(transaction.getReason()).isEqualTo(TransactionReason.TERMINAL);
+        assertThat(transaction.getReason()).isEqualTo(TransactionReason.LOAN);
         assertThat(transaction.getInstant()).isNotNull();
         assertThat(transaction.getBill().getBalance()).isEqualTo(2);
     }
@@ -128,8 +77,8 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     void whenWithdrawThenSuccess() throws Exception {
         assertThat(transactionRepository.count()).isZero();
 
-        mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
                 .andExpect(status().isOk());
@@ -140,39 +89,17 @@ class TransactionControllerTest extends AbstractIntegrationTest {
         Transaction transaction = transactions.iterator().next();
         assertThat(transaction.getBill().getId()).isEqualTo(UUID.fromString(BILL_ID));
         assertThat(transaction.getBalanceChange()).isEqualTo(-1);
-        assertThat(transaction.getReason()).isEqualTo(TransactionReason.TERMINAL);
+        assertThat(transaction.getReason()).isEqualTo(TransactionReason.LOAN);
         assertThat(transaction.getInstant()).isNotNull();
         assertThat(transaction.getBill().getBalance()).isZero();
     }
 
-    @Test
-    @DisplayName("Успешное создание транзакции для чужого счета")
-    @Sql("/sql/insert-client-bill.sql")
-    void whenCreateTransactionOtherClientThenSuccess() throws Exception {
-        assertThat(transactionRepository.count()).isZero();
-
-        mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(readFromFileToString("request/deposit-transaction.json")))
-                .andExpect(status().isOk());
-
-        List<Transaction> transactions = transactionRepository.findAll();
-        assertThat(transactions).hasSize(1);
-
-        Transaction transaction = transactions.iterator().next();
-        assertThat(transaction.getBill().getId()).isEqualTo(UUID.fromString(BILL_ID));
-        assertThat(transaction.getBalanceChange()).isEqualTo(1);
-        assertThat(transaction.getReason()).isEqualTo(TransactionReason.TERMINAL);
-        assertThat(transaction.getInstant()).isNotNull();
-        assertThat(transaction.getBill().getBalance()).isEqualTo(1);
-    }
 
     @Test
     @DisplayName("Неуспешное пополнение на несуществующий счет")
     void whenDepositThenNotFoundIfBillIsNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
                 .andExpect(status().isNotFound())
@@ -187,14 +114,14 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     @DisplayName("Неуспешное пополнение на закрытый счет")
     @Sql("/sql/insert-client-closed-bill.sql")
     void whenDepositThenNotFoundIfBillIsClosed() throws Exception {
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        assertError(result, ErrorType.BILL_NOT_FOUND);
+        assertError(result, ErrorType.CLOSED_BILL_OPERATION);
 
         assertThat(transactionRepository.count()).isZero();
 
@@ -206,8 +133,8 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     @DisplayName("Неуспешное создание транзакции с нулевой суммой изменения")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
     void whenCreateTransactionThenBadRequestIfBalanceChangeIsZero() throws Exception {
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/invalid-transaction.json")))
                 .andExpect(status().isBadRequest())
@@ -225,8 +152,8 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     @DisplayName("Неуспешное снятие суммы больше, чем есть на счете")
     @Sql("/sql/insert-client-bill.sql")
     void whenWithdrawThenBadRequestIfBillBalanceIsLess() throws Exception {
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
+        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+                        .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
                 .andExpect(status().isBadRequest())
@@ -238,16 +165,6 @@ class TransactionControllerTest extends AbstractIntegrationTest {
 
         Bill bill = billRepository.findAll().iterator().next();
         assertThat(bill.getBalance()).isZero();
-    }
-
-    @Test
-    @DisplayName("Неуспешное создание транзакции для чужого счета без прав")
-    void whenCreateTransactionOtherClientThenForbiddenIfHaveNotPrivilege() throws Exception {
-        mockMvc.perform(post("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID + "/transactions")
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(readFromFileToString("request/withdrawal-transaction.json")))
-                .andExpect(status().isForbidden());
     }
 
     @AfterEach

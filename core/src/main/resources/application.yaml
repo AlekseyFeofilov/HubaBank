@@ -20,3 +20,5 @@ spring:
         config:
           user:
             url: ${USER_SERVICE_URL:http://localhost:8081/}
+
+api-key: ${API_KEY:55wSKcrRx4C0paIf4hLbNqhzygviC8G3igpg5kdZs5WqipmNDkeOZ149vGS1DJ9W}
