@@ -29,22 +29,31 @@ core:test:
 
 core:image:
   extends: .build_docker_image
-  needs: []
-#    - core:test
+  needs:
+    - core:test
   variables:
     DOCKERFILE: .infra/dockerfiles/java/Dockerfile
-    IMAGE: hubabank/core
+    IMAGE: core
     PROJECT_DIR: core
 
-user:build:
+users:build:
   extends: .build_java_gradle
   needs: []
   variables:
     PROJECT_DIR: java/users
 
-user:test:
+users:test:
   extends: .test_java_gradle
   needs:
-    - user:build
+    - users:build
   variables:
+    PROJECT_DIR: java/users
+
+users:image:
+  extends: .build_docker_image
+  needs:
+    - users:test
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: users
     PROJECT_DIR: java/users
