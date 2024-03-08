@@ -1,6 +1,11 @@
+using System;
+using System.Threading.Tasks;
+using Credit.Data.Dtos;
+using Credit.Lib.Feature.Ping;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Credit.Controllers;
+namespace Credit.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]

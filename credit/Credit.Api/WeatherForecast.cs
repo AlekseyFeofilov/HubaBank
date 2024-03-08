@@ -1,4 +1,6 @@
-namespace Credit;
+using System;
+
+namespace Credit.Api;
 
 public class WeatherForecast
 {
