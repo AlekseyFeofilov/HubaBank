@@ -2,7 +2,7 @@
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
 include:
-  - 'gitlab-ci-templates/java-ci.yml'
+  - 'gitlab-ci-templates/.java-ci.yml'
 
 variables:
   STAGING_FOLDER: /opt/hubabank
@@ -12,7 +12,7 @@ stages:
   - test
 
 build:core:
-  extends: .build_java
+  extends: .build_java_gradle
   variables:
     PROJECT_DIR: 'core'
 
