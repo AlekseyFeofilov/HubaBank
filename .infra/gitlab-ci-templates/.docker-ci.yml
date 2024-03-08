@@ -1,0 +1,25 @@
+.build_docker_image:
+  image: docker:25
+  stage: image
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  services:
+    - name: docker:25-dind
+      # Явное отключение tls, чтобы избежать прерывания запуска docker'а
+      command: ["--tls=false"]
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cp $DOCKERFILE $PROJECT_DIR
+    - cd $PROJECT_DIR
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY/hits-tsu/huba/$IMAGE:latest .
+    - docker push $CI_REGISTRY/hits-tsu/huba/$IMAGE:latest
