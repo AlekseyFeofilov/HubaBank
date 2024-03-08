@@ -13,6 +13,8 @@ stages:
 
 build:core:
   extends: .build_java
+  variables:
+    PROJECT_DIR: 'core'
 
 test:core:
   image: gradle:jdk17-alpine
