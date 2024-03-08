@@ -22,11 +22,18 @@ activate MobileApp
         EmployerService -> CoreService: GET /users/{id}/bills/{billId}/transactions
         activate CoreService
 
+alt #lightgreen Успешная авторизация
             CoreService -> UserService: GET /users/me
             activate UserService
-            return HTTP 200: информация о пользователе
-        return HTTP 200
-    return HTTP 200
-return Экран с историей
+            CoreService <-- UserService: HTTP 200: информация о пользователе
+            EmployerService <-- CoreService: HTTP 200: List<TransactionDto>
+            MobileApp <-- EmployerService: HTTP 200: List<TransactionDto>
+            User <-- MobileApp: Экран истории
+else #pink
+            return HTTP 401
+        return HTTP 401
+    return HTTP 401
+return Экран аутентификации
+end
 
 @enduml

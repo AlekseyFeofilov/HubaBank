@@ -18,7 +18,7 @@ activate MobileApp
         Прокидываем Bearer токен в header Authorization
         end note
 
-        EmployerService -> UserService: POST какой-то метод
+        EmployerService -> UserService: POST TODO какой-то метод
         activate UserService
         return HTTP 200
     return HTTP 200
