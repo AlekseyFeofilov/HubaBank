@@ -20,7 +20,7 @@ core:build:
 core:test:
   extends: .test_java_gradle_with_testcontainers
   needs:
-    - build:core
+    - core:build
   variables:
     PROJECT_DIR: core
 
@@ -33,6 +33,6 @@ user:build:
 user:test:
   extends: .test_java_gradle
   needs:
-    - build:user
+    - user:build
   variables:
     PROJECT_DIR: java/users
