@@ -10,6 +10,12 @@
       "description": "Generated server url"
     }
   ],
+  "tags": [
+    {
+      "name": "internal",
+      "description": "Методы, доступные для внутренних сервисов"
+    }
+  ],
   "paths": {
     "/users/{userId}/bills": {
       "get": {
@@ -41,8 +47,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -53,9 +59,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -77,6 +80,9 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -93,7 +99,7 @@
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
           }
         ]
       },
@@ -126,8 +132,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -138,9 +144,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -162,6 +165,9 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -175,7 +181,7 @@
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
           }
         ]
       }
@@ -219,8 +225,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -231,9 +237,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -255,6 +258,9 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -271,7 +277,7 @@
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
           }
         ]
       },
@@ -323,8 +329,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -335,9 +341,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -359,13 +362,103 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK"
           }
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
+          }
+        ]
+      }
+    },
+    "/internal/bills/{billId}/transactions": {
+      "post": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Выполнить транзакцию по счету у пользователя",
+        "description": "Этот метод предназначен для внутреннего сервиса \u0027Кредиты\u0027",
+        "operationId": "createTransaction_1",
+        "parameters": [
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionCreationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Internal Authentication": []
           }
         ]
       }
@@ -409,8 +502,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -421,9 +514,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -445,12 +535,15 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BillDto"
+                  "$ref": "#/components/schemas/ClientBillDto"
                 }
               }
             }
@@ -458,7 +551,7 @@
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
           }
         ]
       },
@@ -500,8 +593,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -512,9 +605,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -536,13 +626,100 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK"
           }
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
+          }
+        ]
+      }
+    },
+    "/internal/bills/{billId}": {
+      "get": {
+        "tags": [
+          "internal"
+        ],
+        "summary": "Посмотреть информацию о счете пользователя",
+        "description": "Этот метод предназначен для внутреннего сервиса \u0027Кредиты\u0027",
+        "operationId": "getBill_1",
+        "parameters": [
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Internal Authentication": []
           }
         ]
       }
@@ -566,8 +743,8 @@
               }
             }
           },
-          "403": {
-            "description": "Недостаточно прав"
+          "401": {
+            "description": "Не авторизован"
           },
           "400": {
             "description": "Бизнес ошибка или ошибка валидации",
@@ -578,9 +755,6 @@
                 }
               }
             }
-          },
-          "401": {
-            "description": "Не авторизован"
           },
           "502": {
             "description": "Ошибка взаимодействия с другими с сервисами",
@@ -602,6 +776,9 @@
               }
             }
           },
+          "403": {
+            "description": "Недостаточно прав"
+          },
           "200": {
             "description": "OK",
             "content": {
@@ -618,7 +795,7 @@
         },
         "security": [
           {
-            "Bearer Authentication For User": []
+            "User Authentication": []
           }
         ]
       }
@@ -644,7 +821,8 @@
               "CLOSING_BILL_WITH_POSITIVE_BALANCE",
               "CLOSING_BILL_WITH_NEGATIVE_BALANCE",
               "TRANSACTION_WITH_ZERO_BALANCE_CHANGE",
-              "BILL_NOT_FOUND"
+              "BILL_NOT_FOUND",
+              "CLOSED_BILL_OPERATION"
             ]
           },
           "message": {
@@ -666,10 +844,6 @@
             "type": "integer",
             "description": "Баланс счета в копейках",
             "format": "int64"
-          },
-          "closed": {
-            "type": "boolean",
-            "description": "Флаг, указывающий на то, что счет закрыт"
           }
         }
       },
@@ -680,30 +854,6 @@
             "type": "integer",
             "description": "Изменение баланса счета в копейках",
             "format": "int64"
-          }
-        }
-      },
-      "BillDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Идентификатор счета",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string",
-            "description": "Идентификатор клиента счета",
-            "format": "uuid"
-          },
-          "balance": {
-            "type": "integer",
-            "description": "Баланс счета в копейках",
-            "format": "int64"
-          },
-          "closed": {
-            "type": "boolean",
-            "description": "Флаг, указывающий на то, что счет закрыт"
           }
         }
       },
@@ -734,13 +884,44 @@
             ]
           }
         }
+      },
+      "BillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор счета",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Идентификатор клиента счета",
+            "format": "uuid"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Баланс счета в копейках",
+            "format": "int64"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Флаг, указывающий на то, что счет закрыт"
+          }
+        }
       }
     },
     "securitySchemes": {
-      "Bearer Authentication For User": {
+      "User Authentication": {
         "type": "http",
+        "description": "Авторизация через JWT токен для пользователей",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      },
+      "Internal Authentication": {
+        "type": "apiKey",
+        "description": "Авторизация через API ключ для внутренних микросервисов",
+        "name": "X-API-KEY",
+        "in": "header"
       }
     }
   }
