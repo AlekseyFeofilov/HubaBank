@@ -18,7 +18,5 @@ build:core:
 
 test:core:
   extends: .test_java_gradle_with_testcontainers
-  needs:
-    - build:core
   variables:
     PROJECT_DIR: 'core'

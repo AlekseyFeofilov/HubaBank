@@ -28,6 +28,10 @@
   stage: test
   tags:
     - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
@@ -47,6 +51,10 @@
   stage: test
   tags:
     - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
