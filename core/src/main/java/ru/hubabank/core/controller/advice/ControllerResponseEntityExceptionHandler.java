@@ -26,7 +26,8 @@ public class ControllerResponseEntityExceptionHandler extends ResponseEntityExce
     ) {
         return new ResponseEntity<>(
                 ErrorDto.builder()
-                        .code(exception.getCode())
+                        .code(exception.getType().getCode())
+                        .type(exception.getType())
                         .message(exception.getMessage())
                         .build(),
                 new HttpHeaders(),

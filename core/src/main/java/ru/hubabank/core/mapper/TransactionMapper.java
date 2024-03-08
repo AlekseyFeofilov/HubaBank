@@ -14,5 +14,8 @@ public interface TransactionMapper {
     @Mapping(source = "bill.id", target = "billId")
     TransactionDto mapEntityToDto(Transaction entity);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "instant", ignore = true)
+    @Mapping(target = "bill", ignore = true)
     Transaction mapCreationDtoToEntity(TransactionCreationDto creationDto);
 }

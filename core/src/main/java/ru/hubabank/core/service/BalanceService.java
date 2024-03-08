@@ -8,7 +8,6 @@ import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.repository.BillRepository;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -18,13 +17,13 @@ public class BalanceService {
     private final BillRepository billRepository;
 
     @Transactional
-    public void updateBalance(@NotNull UUID userId, @NotNull UUID billId, @NotNull BigDecimal balanceChange) {
+    public void updateBalance(@NotNull UUID userId, @NotNull UUID billId, long balanceChange) {
         Bill bill = billRepository.findById(billId)
                 .filter(e -> e.getUserId().equals(userId))
                 .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
-        BigDecimal newBalance = bill.getBalance().add(balanceChange);
+        long newBalance = bill.getBalance() + balanceChange;
 
-        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+        if (newBalance < 0) {
             throw ErrorType.CANNOT_NEGATIVE_BILL_BALANCE.createException();
         }
 

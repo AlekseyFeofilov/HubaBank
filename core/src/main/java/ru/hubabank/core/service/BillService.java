@@ -11,7 +11,6 @@ import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.mapper.BillMapper;
 import ru.hubabank.core.repository.BillRepository;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -44,13 +43,13 @@ public class BillService {
                 .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
     }
 
-    public void createBill(@NotNull UUID userId) {
+    public ClientBillDto createBill(@NotNull UUID userId) {
         Bill bill = Bill.builder()
                 .userId(userId)
-                .balance(BigDecimal.ZERO)
+                .balance(0)
                 .creationInstant(Instant.now())
                 .build();
-        billRepository.save(bill);
+        return billMapper.mapEntityToClientDto(billRepository.save(bill));
     }
 
     @Transactional
@@ -59,10 +58,10 @@ public class BillService {
                 .filter(e -> e.getUserId().equals(userId))
                 .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
 
-        if (bill.getBalance().compareTo(BigDecimal.ZERO) > 0) {
+        if (bill.getBalance() > 0) {
             throw ErrorType.CLOSING_BILL_WITH_POSITIVE_BALANCE.createException();
         }
-        else if (bill.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+        else if (bill.getBalance() < 0) {
             throw ErrorType.CLOSING_BILL_WITH_NEGATIVE_BALANCE.createException();
         }
 

@@ -78,15 +78,17 @@ public class BillController {
     @Operation(
             summary = "Создать счет для пользователя",
             description = """
+                    Возвращает информацию о созданном счете.
+                    
                     Описание прав:
                     * BILL_WRITE - доступ к открытию своего счета
                     * BILL_WRITE_OTHERS - доступ к открытию счета у любого клиента
                     """
     )
-    public void createBill(
+    public ClientBillDto createBill(
             @PathVariable("userId") UUID userId
     ) {
-        billService.createBill(userId);
+        return billService.createBill(userId);
     }
 
     @DeleteMapping("users/{userId}/bills/{billId}")

@@ -9,20 +9,19 @@ import ru.hubabank.core.error.ErrorType;
 public class ServiceException extends RuntimeException {
 
     private final HttpStatus status;
-    private final int code;
+    private final ErrorType type;
 
-    public ServiceException(HttpStatus status, int code, String message) {
+    public ServiceException(HttpStatus status, ErrorType type, String message) {
         super(message);
         this.status = status;
-        this.code = code;
+        this.type = type;
+    }
+
+    public ServiceException(HttpStatus status, ErrorType type) {
+        this(status, type, type.getMessage());
     }
 
     public static @NotNull ServiceException of(@NotNull ErrorType errorType) {
-        return new ServiceException(errorType.getStatus(), errorType.getCode(), errorType.getMessage());
-    }
-
-    public static @NotNull ServiceException of(@NotNull ErrorType errorType, @NotNull Object... args) {
-        String message = String.format(errorType.getMessage(), args);
-        return new ServiceException(errorType.getStatus(), errorType.getCode(), message);
+        return new ServiceException(errorType.getStatus(), errorType);
     }
 }

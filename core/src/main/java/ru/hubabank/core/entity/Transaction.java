@@ -3,7 +3,6 @@ package ru.hubabank.core.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -21,8 +20,8 @@ public class Transaction {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "balance_change", precision = 19, scale = 2, nullable = false)
-    private BigDecimal balanceChange;
+    @Column(name = "balance_change", nullable = false)
+    private long balanceChange;
 
     @Column(name = "instant", nullable = false)
     private Instant instant;

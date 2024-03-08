@@ -3,7 +3,6 @@ package ru.hubabank.core.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ public class Bill {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "balance", precision = 19, scale = 2, nullable = false)
-    private BigDecimal balance;
+    @Column(name = "balance", nullable = false)
+    private long balance;
 
     @Column(name = "creation_instant", nullable = false)
     private Instant creationInstant;
@@ -36,5 +35,6 @@ public class Bill {
     private Instant closingInstant;
 
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
 }

@@ -3,13 +3,20 @@ package ru.greenpix.hubabank.integrationtest;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
+import ru.hubabank.core.error.ErrorDto;
+import ru.hubabank.core.error.ErrorType;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static ru.greenpix.hubabank.util.ResponseUtil.getContentAsObject;
 
 public abstract class AbstractIntegrationTest {
 
@@ -49,6 +56,12 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.cloud.openfeign.client.config.user.url", AbstractIntegrationTest::getWireMockUrl);
 
         Awaitility.setDefaultTimeout(5, TimeUnit.SECONDS);
+    }
+
+    protected static void assertError(MvcResult mvcResult, ErrorType errorType) throws IOException {
+        ErrorDto actual = getContentAsObject(mvcResult, ErrorDto.class);
+        assertThat(actual.getCode()).isEqualTo(errorType.getCode());
+        assertThat(actual.getType()).isEqualTo(errorType);
     }
 
     private static String getWireMockUrl() {

@@ -10,9 +10,9 @@ import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.entity.Transaction;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.mapper.TransactionMapper;
+import ru.hubabank.core.repository.BillRepository;
 import ru.hubabank.core.repository.TransactionRepository;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -22,13 +22,16 @@ import java.util.UUID;
 public class TransactionService {
 
     private final BalanceService balanceService;
+    private final BillRepository billRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
     public @NotNull List<TransactionDto> getTransactions(@NotNull UUID userId, @NotNull UUID billId) {
-        return transactionRepository.findAllByBillId(billId)
+        return billRepository.findById(billId)
+                .filter(e -> e.getUserId().equals(userId))
+                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException)
+                .getTransactions()
                 .stream()
-                .filter(e -> e.getBill().getUserId().equals(userId))
                 .map(transactionMapper::mapEntityToDto)
                 .toList();
     }
@@ -39,7 +42,7 @@ public class TransactionService {
             @NotNull UUID billId,
             @NotNull TransactionCreationDto creationDto
     ) {
-        if (creationDto.getBalanceChange().compareTo(BigDecimal.ZERO) == 0) {
+        if (creationDto.getBalanceChange() == 0) {
             throw ErrorType.TRANSACTION_WITH_ZERO_BALANCE_CHANGE.createException();
         }
 
