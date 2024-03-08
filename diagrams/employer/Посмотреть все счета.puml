@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета сотрудника" as EmployerService
+participant "Сервис ядро" as CoreService
+participant "Сервис пользователей" as UserService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> EmployerService
+    activate EmployerService
+
+        note right EmployerService
+        Прокидываем Bearer токен в header Authorization
+        end note
+
+        EmployerService -> CoreService: GET /bills
+        activate CoreService
+
+alt #lightgreen Успешная авторизация
+            CoreService -> UserService: GET /users/me
+            activate UserService
+            CoreService <-- UserService: HTTP 200: информация о пользователе
+            EmployerService <-- CoreService: HTTP 200: List<BillDto>
+            MobileApp <-- EmployerService: HTTP 200: List<BillDto>
+            User <-- MobileApp: Экран со списком счетов
+else #pink
+            return HTTP 401
+        return HTTP 401
+    return HTTP 401
+return Экран аутентификации
+end
+
+@enduml
