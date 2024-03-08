@@ -13,6 +13,16 @@ stages:
   - build
   - test
 
+sample:
+  image: gradle:jdk17-alpine
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - echo $PROJECT_DIR
+  variables:
+    PROJECT_DIR: '${CORE_PROJECT_DIR}'
+
 build:core:
   extends: .build_java_gradle
   variables:
