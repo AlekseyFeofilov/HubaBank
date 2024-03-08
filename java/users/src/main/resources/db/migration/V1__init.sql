@@ -1,0 +1,17 @@
+create table privilege (description varchar(255), name varchar(255) not null, primary key (name));
+create table role (description varchar(255), name varchar(255) not null, primary key (name));
+create table role_privileges (privileges_name varchar(255) not null, role_name varchar(255) not null, primary key (privileges_name, role_name));
+create table token (created_date timestamp(6), expired_date timestamp(6), id uuid not null, user_id uuid, type varchar(255) check (type in ('PASSWORD_CHANGE','REFRESH','CONFIRM')), value varchar(255), primary key (id));
+create table user_info (blocked_date date, employee boolean not null, id uuid not null, first_name varchar(255), password_hash varchar(255), phone varchar(255), second_name varchar(255), third_name varchar(255), primary key (id));
+create table user_info_addition_privileges (user_id uuid not null, addition_privileges_name varchar(255) not null, primary key (user_id, addition_privileges_name));
+create table user_info_blocked_privileges (user_id uuid not null, blocked_privileges_name varchar(255) not null, primary key (user_id, blocked_privileges_name));
+create table user_info_roles (user_id uuid not null, roles_name varchar(255) not null, primary key (user_id, roles_name));
+alter table if exists role_privileges add constraint FKoxnw1kru03423xa5x1qy2s59n foreign key (privileges_name) references privilege;
+alter table if exists role_privileges add constraint FKe7aohfa0st4eg123y0rmqbogu foreign key (role_name) references role;
+alter table if exists token add constraint FK3aey6oo737hh7dox7umt3ebv0 foreign key (user_id) references user_info;
+alter table if exists user_info_addition_privileges add constraint FK51ccut41rxorlxywpfo81ds2w foreign key (addition_privileges_name) references privilege;
+alter table if exists user_info_addition_privileges add constraint FKkf37ycpedtl3s3g9nglw43eq1 foreign key (user_id) references user_info;
+alter table if exists user_info_blocked_privileges add constraint FKspmmaddcombtb9scrpy7557it foreign key (blocked_privileges_name) references privilege;
+alter table if exists user_info_blocked_privileges add constraint FK17t6byf0c49qelrvdpeb2n76s foreign key (user_id) references user_info;
+alter table if exists user_info_roles add constraint FKkd0r1ygrx0qdx7l1mdix3io9f foreign key (roles_name) references role;
+alter table if exists user_info_roles add constraint FKjmftrj36qt0e5fhx75icxkvoi foreign key (user_id) references user_info;
