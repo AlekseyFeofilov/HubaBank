@@ -27,25 +27,6 @@ build:
       - core/build/libs/*.jar
     expire_in: 1 week
 
-generateOpenApiDocs:
-  image: gradle:jdk17-alpine
-  stage: build
-  tags:
-    - docker
-  before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle_home
-  script:
-    - cd core
-    - gradle generateOpenApiDocs
-  cache:
-    - key: dependencies-cache
-      paths:
-        - .gradle_home
-  artifacts:
-    paths:
-      - core/openapi.json
-    expire_in: 1 month
-
 test:
   image: gradle:jdk17-alpine
   stage: test
