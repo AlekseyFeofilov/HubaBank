@@ -1,3 +1,6 @@
+variables:
+
+
 .build_java_gradle:
   image: gradle:jdk17-alpine
   stage: build
@@ -6,7 +9,7 @@
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        compare_to: $CI_DEFAULT_BRANCH
+        compare_to: 'refs/heads/main'
         paths:
           - $PROJECT_DIR/*
   before_script:
@@ -31,7 +34,7 @@
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        compare_to: $CI_DEFAULT_BRANCH
+        compare_to: 'refs/head'
         paths:
           - $PROJECT_DIR/*
   before_script:
