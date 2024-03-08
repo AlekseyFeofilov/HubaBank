@@ -10,7 +10,7 @@
       changes:
         compare_to: 'refs/heads/master'
         paths:
-          - '../core/src/test/resources/application.yaml'
+          - '../core/*'
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
