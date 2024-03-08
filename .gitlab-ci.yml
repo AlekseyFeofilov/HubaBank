@@ -6,6 +6,8 @@ include:
 
 variables:
   STAGING_FOLDER: /opt/hubabank
+  CORE_PROJECT_DIR: "core"
+  USER_PROJECT_DIR: "java/users"
 
 stages:
   - build
@@ -14,9 +16,19 @@ stages:
 build:core:
   extends: .build_java_gradle
   variables:
-    PROJECT_DIR: 'core'
+    PROJECT_DIR: $CORE_PROJECT_DIR
+
+build:user:
+  extends: .build_java_gradle
+  variables:
+    PROJECT_DIR: $USER_PROJECT_DIR
 
 test:core:
   extends: .test_java_gradle_with_testcontainers
   variables:
-    PROJECT_DIR: 'core'
+    PROJECT_DIR: $CORE_PROJECT_DIR
+
+test:user:
+  extends: .test_java_gradle
+  variables:
+    PROJECT_DIR: $USER_PROJECT_DIR
