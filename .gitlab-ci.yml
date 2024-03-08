@@ -26,7 +26,7 @@ sample:
 build:core:
   extends: .build_java_gradle
   variables:
-    PROJECT_DIR: $CORE_PROJECT_DIR
+    PROJECT_DIR: core
 
 build:user:
   extends: .build_java_gradle
