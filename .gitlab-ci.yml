@@ -36,6 +36,10 @@ test:core:
   stage: test
   tags:
     - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - 'core/*'
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
