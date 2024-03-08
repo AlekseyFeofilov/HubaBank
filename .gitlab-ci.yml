@@ -2,7 +2,8 @@
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
 include:
-  - '/.gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.docker-ci.yml'
 
 variables:
   STAGING_FOLDER: /opt/hubabank
@@ -10,6 +11,8 @@ variables:
 stages:
   - build
   - test
+  - image
+  - deploy
 
 core:build:
   extends: .build_java_gradle
@@ -22,6 +25,15 @@ core:test:
   needs:
     - core:build
   variables:
+    PROJECT_DIR: core
+
+core:image:
+  extends: .build_docker_image
+  needs: []
+#    - core:test
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: hubabank/core
     PROJECT_DIR: core
 
 user:build:
