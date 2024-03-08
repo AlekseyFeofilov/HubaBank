@@ -28,7 +28,8 @@ core:test:
 core:image:
   extends: .build_docker_image
   needs:
-    - core:test
+    - job: core:test
+      optional: true
   variables:
     DOCKERFILE: .infra/dockerfiles/java/Dockerfile
     IMAGE: core
@@ -43,8 +44,7 @@ users:build:
 users:test:
   extends: .test_java_gradle
   needs:
-    - job: users:build
-      optional: true
+    - users:build
   variables:
     PROJECT_DIR: java/users
 
