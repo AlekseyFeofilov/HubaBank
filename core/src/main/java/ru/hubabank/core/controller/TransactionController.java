@@ -12,7 +12,7 @@ import ru.hubabank.core.service.TransactionService;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_SCHEME_NAME;
+import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class TransactionController {
     @GetMapping("users/{userId}/bills/{billId}/transactions")
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_TRANSACTION_READ_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Посмотреть историю транзакций по счету у пользователя",
             description = """
@@ -42,7 +42,7 @@ public class TransactionController {
     @PostMapping("users/{userId}/bills/{billId}/transactions")
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_TRANSACTION_WRITE_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Выполнить транзакцию по счету у пользователя",
             description = """
@@ -56,6 +56,6 @@ public class TransactionController {
             @PathVariable("billId") UUID billId,
             @RequestBody TransactionCreationDto dto
     ) {
-        transactionService.createTransaction(userId, billId, dto);
+        transactionService.createTerminalTransaction(userId, billId, dto.getBalanceChange());
     }
 }

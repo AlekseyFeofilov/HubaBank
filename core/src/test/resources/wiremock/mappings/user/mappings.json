@@ -44,6 +44,24 @@
           "Content-Type": "application/json"
         }
       }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/me",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530903"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-blocked-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
     }
   ]
 }

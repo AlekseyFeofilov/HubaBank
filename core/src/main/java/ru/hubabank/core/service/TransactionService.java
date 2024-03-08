@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hubabank.core.dto.TransactionCreationDto;
 import ru.hubabank.core.dto.TransactionDto;
 import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.entity.Transaction;
+import ru.hubabank.core.entity.TransactionReason;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.mapper.TransactionMapper;
 import ru.hubabank.core.repository.BillRepository;
@@ -37,18 +37,18 @@ public class TransactionService {
     }
 
     @Transactional
-    public void createTransaction(
+    public void createTerminalTransaction(
             @NotNull UUID userId,
             @NotNull UUID billId,
-            @NotNull TransactionCreationDto creationDto
+            long balanceChange
     ) {
-        if (creationDto.getBalanceChange() == 0) {
+        if (balanceChange == 0) {
             throw ErrorType.TRANSACTION_WITH_ZERO_BALANCE_CHANGE.createException();
         }
 
-        balanceService.updateBalance(userId, billId, creationDto.getBalanceChange());
+        balanceService.updateBalance(userId, billId, balanceChange);
 
-        Transaction transaction = transactionMapper.mapCreationDtoToEntity(creationDto);
+        Transaction transaction = transactionMapper.mapCreationDtoToEntity(balanceChange, TransactionReason.TERMINAL);
         transaction.setBill(Bill.builder().id(billId).build());
         transaction.setInstant(Instant.now());
         transactionRepository.save(transaction);

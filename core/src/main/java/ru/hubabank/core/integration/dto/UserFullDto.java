@@ -12,6 +12,9 @@ public class UserFullDto {
     private FullNameDto fullNameDto;
     private String phone;
     private boolean employee;
+    private boolean blocked;
     private List<String> privileges;
+    private List<String> additionPrivileges;
+    private List<String> blockedPrivileges;
     private List<String> roles;
 }

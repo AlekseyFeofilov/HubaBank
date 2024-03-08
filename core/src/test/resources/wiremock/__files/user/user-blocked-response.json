@@ -1,11 +1,11 @@
 {
-  "uuid": "a70cff71-3610-4e54-b960-9f7c04381b96",
+  "uuid": "edb469ef-3cb1-4694-8d39-262bec53a827",
   "fullNameDto": {
     "firstName": "Иван",
     "secondName": "Иванов",
-    "thirdName": "Клиентович"
+    "thirdName": "Заблокирович"
   },
-  "phone": "+79009530901",
+  "phone": "+79009530903",
   "employee": false,
   "blocked": false,
   "privileges": [

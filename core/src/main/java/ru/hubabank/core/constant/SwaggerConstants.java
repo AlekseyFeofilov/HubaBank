@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SwaggerConstants {
 
-    public static final String SECURITY_SCHEME_NAME = "Bearer Authentication";
+    public static final String SECURITY_USER_SCHEME = "Bearer Authentication For User";
 }

@@ -7,12 +7,15 @@
   },
   "phone": "+79009530902",
   "employee": true,
+  "blocked": false,
   "privileges": [
     "bill_read_others",
     "bill_write_others",
     "transaction_read_others",
     "transaction_write_others"
   ],
+  "additionPrivileges": [],
+  "blockedPrivileges": [],
   "roles": [
     "employer"
   ]

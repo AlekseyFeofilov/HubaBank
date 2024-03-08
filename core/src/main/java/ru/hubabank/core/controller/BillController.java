@@ -12,7 +12,7 @@ import ru.hubabank.core.service.BillService;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_SCHEME_NAME;
+import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,7 +21,7 @@ public class BillController {
     private final BillService billService;
 
     @GetMapping("bills")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @PreAuthorize("hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
     @Operation(
             summary = "Посмотреть все счета",
@@ -37,7 +37,7 @@ public class BillController {
     @GetMapping("users/{userId}/bills")
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Посмотреть все счета пользователя",
             description = """
@@ -55,7 +55,7 @@ public class BillController {
     @GetMapping("users/{userId}/bills/{billId}")
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Посмотреть информацию о счете пользователя",
             description = """
@@ -74,7 +74,7 @@ public class BillController {
     @PostMapping("users/{userId}/bills")
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_WRITE_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Создать счет для пользователя",
             description = """
@@ -94,7 +94,7 @@ public class BillController {
     @DeleteMapping("users/{userId}/bills/{billId}")
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_WRITE_OTHERS')")
-    @SecurityRequirement(name = SECURITY_SCHEME_NAME)
+    @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @Operation(
             summary = "Закрыть счет у пользователя",
             description = """

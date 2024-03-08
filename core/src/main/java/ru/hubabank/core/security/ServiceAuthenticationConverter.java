@@ -40,6 +40,11 @@ public class ServiceAuthenticationConverter implements AuthenticationConverter {
 
         try {
             UserInfo userInfo = userService.fetchUserInfo(token);
+
+            if (userInfo.isBlocked()) {
+                return null;
+            }
+
             User user = new User(userInfo.getId(), userInfo.getPhone());
             List<GrantedAuthority> authorities = createAuthorities(userInfo);
             return UsernamePasswordAuthenticationToken.authenticated(user, null, authorities);

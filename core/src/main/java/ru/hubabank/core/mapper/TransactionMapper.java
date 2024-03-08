@@ -2,9 +2,9 @@ package ru.hubabank.core.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.hubabank.core.dto.TransactionCreationDto;
 import ru.hubabank.core.dto.TransactionDto;
 import ru.hubabank.core.entity.Transaction;
+import ru.hubabank.core.entity.TransactionReason;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
@@ -17,5 +17,5 @@ public interface TransactionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instant", ignore = true)
     @Mapping(target = "bill", ignore = true)
-    Transaction mapCreationDtoToEntity(TransactionCreationDto creationDto);
+    Transaction mapCreationDtoToEntity(long balanceChange, TransactionReason reason);
 }

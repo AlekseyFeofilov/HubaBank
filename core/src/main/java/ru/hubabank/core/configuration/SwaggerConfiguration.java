@@ -6,16 +6,17 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
-import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_SCHEME_NAME;
+import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Core Service"
+                title = "Core Service",
+                version = "1.0.0"
         )
 )
 @SecurityScheme(
-        name = SECURITY_SCHEME_NAME,
+        name = SECURITY_USER_SCHEME,
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
         scheme = "bearer"

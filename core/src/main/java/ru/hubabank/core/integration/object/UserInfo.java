@@ -14,4 +14,5 @@ public class UserInfo {
     private final String phone;
     private final List<String> privileges;
     private final List<String> roles;
+    private final boolean blocked;
 }
