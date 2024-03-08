@@ -13,24 +13,26 @@ stages:
 
 build:core:
   extends: .build_java_gradle
+  dependencies: []
   variables:
     PROJECT_DIR: core
 
 build:user:
   extends: .build_java_gradle
+  dependencies: []
   variables:
     PROJECT_DIR: java/users
 
 test:core:
   extends: .test_java_gradle_with_testcontainers
-  needs:
+  dependencies:
     - build:core
   variables:
     PROJECT_DIR: core
 
 test:user:
   extends: .test_java_gradle
-  needs:
+  dependencies:
     - build:user
   variables:
     PROJECT_DIR: java/users
