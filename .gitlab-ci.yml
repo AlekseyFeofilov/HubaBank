@@ -1,6 +1,9 @@
 # Конфигурация CI/CD для репозиториев микросервисов проекта "Цифровой след".
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
+include:
+  - 'gitlab-ci-templates/.template.yml'
+
 variables:
   STAGING_FOLDER: /opt/hubabank
 
@@ -9,27 +12,7 @@ stages:
   - test
 
 build:core:
-  image: gradle:jdk17-alpine
-  stage: build
-  tags:
-    - docker
-  rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - 'core/*'
-  before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle_home
-  script:
-    - cd core
-    - gradle clean build -x test
-  cache:
-    - key: dependencies-cache
-      paths:
-        - .gradle_home
-  artifacts:
-    paths:
-      - core/build/libs/*.jar
-    expire_in: 1 week
+  extends: .build_java
 
 test:core:
   image: gradle:jdk17-alpine
