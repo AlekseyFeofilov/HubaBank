@@ -11,7 +11,7 @@ variables:
       changes:
         compare_to: 'refs/heads/master'
         paths:
-          - '$PROJECT_DIR/*'
+          - '$PROJECT_DIR/**'
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
