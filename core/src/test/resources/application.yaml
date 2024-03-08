@@ -8,3 +8,4 @@ spring:
         config:
           user:
             url: http://localhost:8080/
+            #
