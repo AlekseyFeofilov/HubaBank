@@ -2,7 +2,7 @@
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
 include:
-  - 'gitlab-ci-templates/.java.yml'
+  - 'gitlab-ci-templates/java-ci.yml'
 
 variables:
   STAGING_FOLDER: /opt/hubabank
