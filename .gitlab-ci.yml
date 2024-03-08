@@ -16,9 +16,7 @@ build:core:
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
-        compare_to: $CI_DEFAULT_BRANCH
-        paths:
-          - 'core/*'
+        - 'core/*'
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
