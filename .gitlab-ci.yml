@@ -2,21 +2,14 @@
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
 include:
-  - 'gitlab-ci-templates/.java-ci.yml'
+  - '/.gitlab-ci-templates/.java-ci.yml'
 
 variables:
   STAGING_FOLDER: /opt/hubabank
-  CORE_PROJECT_DIR: core
-  USER_PROJECT_DIR: java/users
 
 stages:
   - build
   - test
-
-sample:
-  extends: .sample
-  variables:
-    PROJECT_DIR: $CORE_PROJECT_DIR
 
 build:core:
   extends: .build_java_gradle
@@ -26,18 +19,18 @@ build:core:
 build:user:
   extends: .build_java_gradle
   variables:
-    PROJECT_DIR: $USER_PROJECT_DIR
+    PROJECT_DIR: java/users
 
 test:core:
   extends: .test_java_gradle_with_testcontainers
   needs:
     - build:core
   variables:
-    PROJECT_DIR: $CORE_PROJECT_DIR
+    PROJECT_DIR: core
 
 test:user:
   extends: .test_java_gradle
   needs:
     - build:user
   variables:
-    PROJECT_DIR: $USER_PROJECT_DIR
+    PROJECT_DIR: java/users

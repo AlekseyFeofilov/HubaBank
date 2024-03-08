@@ -1,11 +1,3 @@
-.sample:
-  image: gradle:jdk17-alpine
-  stage: build
-  tags:
-    - docker
-  script:
-    - echo $PROJECT_DIR
-
 .build_java_gradle:
   image: gradle:jdk17-alpine
   stage: build
