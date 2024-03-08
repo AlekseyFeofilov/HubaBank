@@ -1,0 +1,55 @@
+# Конфигурация CI/CD для репозиториев микросервисов проекта "Цифровой след".
+# Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
+
+variables:
+  STAGING_FOLDER: /opt/hubabank
+
+stages:
+  - build
+  - test
+
+build:
+  image: gradle:jdk17-alpine
+  stage: build
+  tags:
+    - docker
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cd core
+    - gradle clean build -x test
+  cache:
+    - key: dependencies-cache
+      paths:
+        - .gradle_home
+  artifacts:
+    paths:
+      - core/build/libs/*.jar
+    expire_in: 1 week
+
+test:
+  image: gradle:jdk17-alpine
+  stage: test
+  tags:
+    - docker
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  services:
+    - name: docker:dind
+      # Явное отключение tls, чтобы избежать прерывания запуска docker'а
+      command: ["--tls=false"]
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cd core
+    - gradle test
+  cache:
+    - key: dependencies-cache
+      paths:
+        - .gradle_home
+  artifacts:
+    when: always
+    reports:
+      junit: core/build/test-results/test/**/TEST-*.xml

@@ -1,0 +1,747 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Core Service",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/users/{userId}/bills": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть все счета пользователя",
+        "description": "Описание прав:\n* BILL_READ - доступ к своим счетам\n* BILL_READ_OTHERS - доступ к счетам любого клиента\n",
+        "operationId": "getUserBills",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientBillDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Создать счет для пользователя",
+        "description": "Возвращает информацию о созданном счете.\n\nОписание прав:\n* BILL_WRITE - доступ к открытию своего счета\n* BILL_WRITE_OTHERS - доступ к открытию счета у любого клиента\n",
+        "operationId": "createBill",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientBillDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      }
+    },
+    "/users/{userId}/bills/{billId}/transactions": {
+      "get": {
+        "tags": [
+          "transaction-controller"
+        ],
+        "summary": "Посмотреть историю транзакций по счету у пользователя",
+        "description": "Описание прав:\n* TRANSACTION_READ - доступ к просмотру истории транзакций своего счета\n* TRANSACTION_READ_OTHERS - доступ к просмотру истории транзакций любого счета\n",
+        "operationId": "getTransactions",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransactionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "transaction-controller"
+        ],
+        "summary": "Выполнить транзакцию по счету у пользователя",
+        "description": "Описание прав:\n* TRANSACTION_WRITE - доступ к выполнению транзакции на своем счете\n* TRANSACTION_WRITE_OTHERS - доступ к выполнению транзакции на любом счете\n",
+        "operationId": "createTransaction",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransactionCreationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      }
+    },
+    "/users/{userId}/bills/{billId}": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть информацию о счете пользователя",
+        "description": "Описание прав:\n* BILL_READ - доступ к информации о своем счете\n* BILL_READ_OTHERS - доступ к информации о любом счете\n",
+        "operationId": "getBill",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Закрыть счет у пользователя",
+        "description": "Описание прав:\n* BILL_WRITE - доступ к закрытию своего счета\n* BILL_WRITE_OTHERS - доступ к закрытию любого счета\n",
+        "operationId": "closeBill",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      }
+    },
+    "/bills": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть все счета",
+        "description": "Описание прав:\n* BILL_READ_OTHERS - доступ к любым счетам\n",
+        "operationId": "getBills",
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Недостаточно прав"
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BillDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer Authentication For User": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "Код ошибки. Рекомендуется использовать тип ошибки вместо кода.",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string",
+            "description": "Тип ошибки",
+            "enum": [
+              "UNKNOWN",
+              "BAD_GATEWAY",
+              "CANNOT_NEGATIVE_BILL_BALANCE",
+              "CLOSING_BILL_WITH_POSITIVE_BALANCE",
+              "CLOSING_BILL_WITH_NEGATIVE_BALANCE",
+              "TRANSACTION_WITH_ZERO_BALANCE_CHANGE",
+              "BILL_NOT_FOUND"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение об ошибке",
+            "example": "Сообщение об ошибке"
+          }
+        }
+      },
+      "ClientBillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор счета",
+            "format": "uuid"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Баланс счета в копейках",
+            "format": "int64"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Флаг, указывающий на то, что счет закрыт"
+          }
+        }
+      },
+      "TransactionCreationDto": {
+        "type": "object",
+        "properties": {
+          "balanceChange": {
+            "type": "integer",
+            "description": "Изменение баланса счета в копейках",
+            "format": "int64"
+          }
+        }
+      },
+      "BillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор счета",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "description": "Идентификатор клиента счета",
+            "format": "uuid"
+          },
+          "balance": {
+            "type": "integer",
+            "description": "Баланс счета в копейках",
+            "format": "int64"
+          },
+          "closed": {
+            "type": "boolean",
+            "description": "Флаг, указывающий на то, что счет закрыт"
+          }
+        }
+      },
+      "TransactionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор транзакции",
+            "format": "uuid"
+          },
+          "billId": {
+            "type": "string",
+            "description": "Идентификатор счета транзакции",
+            "format": "uuid"
+          },
+          "balanceChange": {
+            "type": "integer",
+            "description": "Изменение баланса счета в копейках",
+            "format": "int64"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Причина выполнения транзакции",
+            "enum": [
+              "TERMINAL",
+              "LOAN"
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer Authentication For User": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
