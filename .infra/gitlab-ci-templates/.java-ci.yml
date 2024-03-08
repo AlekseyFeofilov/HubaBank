@@ -1,0 +1,76 @@
+.build_java_gradle:
+  image: gradle:jdk17-alpine
+  stage: build
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cd $PROJECT_DIR
+    - gradle clean build -x test
+  cache:
+    - key: dependencies-cache
+      paths:
+        - .gradle_home
+  artifacts:
+    paths:
+      - $PROJECT_DIR/build/libs/*.jar
+    expire_in: 1 week
+
+.test_java_gradle:
+  image: gradle:jdk17-alpine
+  stage: test
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cd $PROJECT_DIR
+    - gradle test
+  cache:
+    - key: dependencies-cache
+      paths:
+        - .gradle_home
+  artifacts:
+    when: always
+    reports:
+      junit: $PROJECT_DIR/build/test-results/test/**/TEST-*.xml
+
+.test_java_gradle_with_testcontainers:
+  image: gradle:jdk17-alpine
+  stage: test
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  services:
+    - name: docker:25-dind
+      # Явное отключение tls, чтобы избежать прерывания запуска docker'а
+      command: ["--tls=false"]
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle_home
+  script:
+    - cd $PROJECT_DIR
+    - gradle test
+  cache:
+    - key: dependencies-cache
+      paths:
+        - .gradle_home
+  artifacts:
+    when: always
+    reports:
+      junit: $PROJECT_DIR/build/test-results/test/**/TEST-*.xml
