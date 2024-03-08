@@ -43,14 +43,16 @@ users:build:
 users:test:
   extends: .test_java_gradle
   needs:
-    - users:build
+    - job: users:build
+      optional: true
   variables:
     PROJECT_DIR: java/users
 
 users:image:
   extends: .build_docker_image
   needs:
-    - users:test
+    - job: users:test
+      optional: true
   variables:
     DOCKERFILE: .infra/dockerfiles/java/Dockerfile
     IMAGE: users
