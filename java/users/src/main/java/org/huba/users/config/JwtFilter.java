@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.huba.users.utils.JwtProvider;
@@ -34,7 +35,12 @@ public class JwtFilter extends GenericFilterBean {
             jwtInfoToken.setAuthenticated(true);
             SecurityContextHolder.getContext().setAuthentication(jwtInfoToken);
         }
-        fc.doFilter(request, response);
+        else if(token != null) {
+            ((HttpServletResponse) response).setStatus(401);
+        }
+        else {
+            fc.doFilter(request, response);
+        }
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

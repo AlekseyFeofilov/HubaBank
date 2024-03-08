@@ -24,13 +24,13 @@ public class User {
     private String passwordHash;
 
     @ManyToMany
-    private Set<Privilege> additionPrivileges;
+    private Set<Privilege> additionPrivileges = new HashSet<>();
 
     @ManyToMany
-    private Set<Privilege> blockedPrivileges;
+    private Set<Privilege> blockedPrivileges = new HashSet<>();
 
     @ManyToMany
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     private boolean employee;
 

@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.huba.users.config.JwtAuthentication;
 import org.huba.users.model.Privilege;
 import org.huba.users.model.User;
@@ -20,7 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@Log4j2
+@Slf4j
 public class JwtProvider {
     private final SecretKey jwtAccessSecret;
 

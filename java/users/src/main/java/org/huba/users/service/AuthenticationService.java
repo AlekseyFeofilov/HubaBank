@@ -9,6 +9,7 @@ import org.huba.users.dto.token.TokenDto;
 import org.huba.users.exception.AuthException;
 import org.huba.users.exception.BadLoginOrPasswordException;
 import org.huba.users.exception.BadRequestException;
+import org.huba.users.exception.ForbiddenException;
 import org.huba.users.mapper.UserMapper;
 import org.huba.users.model.TokenType;
 import org.huba.users.model.User;
@@ -45,6 +46,10 @@ public class AuthenticationService {
     public TokenDto login(CredentialsDto credentialsDto) {
         User user = userRepository.findByPhone(credentialsDto.getPhoneNumber()).orElseThrow(()->new AuthException("bad login or password"));
 
+        if(user.getBlockedDate() != null)
+        {
+            throw new ForbiddenException();
+        }
 //        if(!passwordEncoder.matches(credentialsDto.getPassword(), user.getPassword())) {
 //            throw new BadLoginOrPasswordException();
 //        }
@@ -60,6 +65,10 @@ public class AuthenticationService {
 
     public TokenDto refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
         User user = tokenService.getByToken(refreshTokenDto.getRefresh(), TokenType.REFRESH, true);
+        if(user.getBlockedDate() != null)
+        {
+            throw new ForbiddenException();
+        }
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
         return new TokenDto(refreshToken, accessToken);

@@ -16,4 +16,5 @@ public class UserFullDto {
     private List<String> blockedPrivileges;
     private List<String> roles;
     private List<String> privileges;
+    private boolean blocked;
 }

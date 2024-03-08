@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.huba.users.dto.user.UserFullDto;
 import org.huba.users.exception.NotImplementedException;
 import org.huba.users.service.UsersService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +34,16 @@ public class UsersController {
 
     @GetMapping("user/{uuid}")
     public UserFullDto getUserByUUID(@PathVariable UUID uuid) {
-        throw new NotImplementedException();
+        return usersService.getUserByUUID(uuid);
+    }
+
+    @PostMapping("user/{uuid}/block")
+    public void block(@PathVariable UUID uuid) {
+        usersService.block(uuid);
+    }
+
+    @PostMapping("user/{uuid}/unblock")
+    public void unblock(@PathVariable UUID uuid) {
+        usersService.unblock(uuid);
     }
 }

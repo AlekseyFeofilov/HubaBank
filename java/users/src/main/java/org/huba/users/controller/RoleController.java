@@ -21,26 +21,26 @@ public class RoleController {
     private final RoleService roleService;
     @GetMapping("roles")
     public List<RoleDto> getRoles() {
-        throw new NotImplementedException();
+        return roleService.getRoles();
     }
 
     @PutMapping("role/{name}")
     public void editRole(@RequestBody RoleEditDto roleEditDto, @PathVariable String name) {
-        throw new NotImplementedException();
+        roleService.editRole(roleEditDto, name);
     }
 
     @PostMapping("role")
     public void createRole(@RequestBody RoleCreateDto roleCreateDto) {
-        throw new NotImplementedException();
+       roleService.createRole(roleCreateDto);
     }
 
     @DeleteMapping("role/{name}")
     public void deleteRole(@PathVariable String name) {
-        throw new NotImplementedException();
+        roleService.deleteRole(name);
     }
 
     @PostMapping("user/{uuid}/roles")
     public void editUserRoles(@RequestBody EditUserRoleDto editUserRoleDto, @PathVariable UUID uuid) {
-        throw new NotImplementedException();
+        roleService.editUserRoles(editUserRoleDto, uuid);
     }
 }

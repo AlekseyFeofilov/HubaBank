@@ -23,7 +23,7 @@ public class AdminService {
     private String template = "" +
             "<!doctype html>\n" +
             "<html lang=\"en\">\n" +
-            "<head>\n" +
+            "<head><meta charset=\"UTF-8\">\n" +
             "</head>\n" +
             "<body>\n" +
             "tablePlace"+
@@ -162,7 +162,7 @@ public class AdminService {
 
             table += "<td>";
             for(Privilege privilege : role.getPrivileges()) {
-                table += role.getName() + ";";
+                table += privilege.getName() + ";";
             }
             table += "</td>";
 
