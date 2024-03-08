@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class HubabankCoreApplication {
 
     public static void main(String[] args) {
-        // HI
         SpringApplication.run(HubabankCoreApplication.class, args);
     }
 
