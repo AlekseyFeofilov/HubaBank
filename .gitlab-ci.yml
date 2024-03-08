@@ -2,7 +2,7 @@
 # Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
 
 include:
-  - 'gitlab-ci-templates/.template.yml'
+  - 'gitlab-ci-templates/.java.yml'
 
 variables:
   STAGING_FOLDER: /opt/hubabank
@@ -17,32 +17,6 @@ build:core:
     PROJECT_DIR: 'core'
 
 test:core:
-  image: gradle:jdk17-alpine
-  stage: test
-  tags:
-    - docker
-  rules:
-    - if: $CI_COMMIT_BRANCH
-      changes:
-        - 'core/*'
+  extends: .test_java_gradle_with_testcontainers
   variables:
-    DOCKER_HOST: "tcp://docker:2375"
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
-  services:
-    - name: docker:dind
-      # Явное отключение tls, чтобы избежать прерывания запуска docker'а
-      command: ["--tls=false"]
-  before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle_home
-  script:
-    - cd core
-    - gradle test
-  cache:
-    - key: dependencies-cache
-      paths:
-        - .gradle_home
-  artifacts:
-    when: always
-    reports:
-      junit: core/build/test-results/test/**/TEST-*.xml
+    PROJECT_DIR: 'core'
