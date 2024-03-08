@@ -1,0 +1,29 @@
+strings:
+  inputs:
+    - ../../../Resources/Strings/Base.lproj
+    - ../../../Resources/Strings/StringsDict/Base.lproj
+
+  outputs:
+    - templatePath: Templates/strings
+      output: ../Generations/AppText+Generated.swift
+      params:
+        enumName: Localizable
+        forceFileNameEnum: true
+
+xcassets:
+  inputs:
+    - ../../../Resources/Assets/
+  outputs:
+    - templatePath: Templates/assets
+      output: ../Generations/AppAssets+Generated.swift
+      params:
+        forceFileNameEnum: true
+
+fonts:
+  inputs:
+    - ../../../Resources/Fonts/
+  outputs:
+    - templatePath: Templates/fonts
+      output: ../Generations/AppFonts+Generated.swift
+      params:
+        enumName: AppFonts

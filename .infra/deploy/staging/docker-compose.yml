@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  core:
+    image: registry.gitlab.com/hits-tsu/huba/core:latest
+    container_name: hits-huba-core
+    ports:
+      - "9004:8080"
+    environment:
+      POSTGRES_HOST: hits-huba-database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: core_service
+      USER_SERVICE_URL: http://hits-huba-users:8080/
+    networks:
+      - 'hits-huba-network'
+
+  users:
+    image: registry.gitlab.com/hits-tsu/huba/users:latest
+    container_name: hits-huba-users
+    ports:
+      - "9003:8080"
+    environment:
+      POSTGRES_HOST: hits-huba-database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_SCHEMA: users_service
+    networks:
+      - 'hits-huba-network'
+
+  database:
+    image: postgres:16.1-alpine3.19
+    container_name: hits-huba-database
+    ports:
+      - '9000:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - 'hits-huba-network'
+
+networks:
+  hits-huba-network:

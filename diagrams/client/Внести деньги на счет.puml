@@ -1,0 +1,47 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета клиента" as ClientService
+participant "Сервис ядро" as CoreService
+participant "Сервис пользователей" as UserService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> ClientService
+    activate ClientService
+
+        note right ClientService
+        {userId} получаем из токена
+        end note
+
+        note right ClientService
+        Прокидываем Bearer токен в header Authorization
+        end note
+
+        note right ClientService
+        Передаем положительное изменение баланса
+        end note
+
+        ClientService -> CoreService: POST /users/{userId}/bills/{billId}/transactions
+        activate CoreService
+
+alt #lightgreen Успешная авторизация
+            CoreService -> UserService: GET /users/me
+            activate UserService
+            CoreService <-- UserService: HTTP 200: информация о пользователе
+            ClientService <-- CoreService: HTTP 200
+            MobileApp <-- ClientService: HTTP 200
+            User <-- MobileApp: Экран успеха
+else #pink
+            return HTTP 401
+        return HTTP 401
+    return HTTP 401
+return Экран аутентификации
+end
+
+@enduml

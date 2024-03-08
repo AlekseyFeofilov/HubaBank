@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета клиента" as ClientService
+participant "Сервис кредитов" as LoanService
+participant "Сервис ядро" as CoreService
+participant "Сервис пользователей" as UserService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> ClientService
+    activate ClientService
+
+        note over ClientService
+        В РАЗРАБОТКЕ TODO
+        end note
+
+    return HTTP 200
+return Экран успеха
+
+@enduml
