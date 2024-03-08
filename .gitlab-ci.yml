@@ -14,12 +14,7 @@ stages:
   - test
 
 sample:
-  image: gradle:jdk17-alpine
-  stage: build
-  tags:
-    - docker
-  script:
-    - echo $PROJECT_DIR
+  extends: .sample
   variables:
     PROJECT_DIR: $CORE_PROJECT_DIR
 
