@@ -8,11 +8,16 @@ stages:
   - build
   - test
 
-build:
+build:core:
   image: gradle:jdk17-alpine
   stage: build
   tags:
     - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        paths:
+          - 'core/*'
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
@@ -27,7 +32,7 @@ build:
       - core/build/libs/*.jar
     expire_in: 1 week
 
-test:
+test:core:
   image: gradle:jdk17-alpine
   stage: test
   tags:
