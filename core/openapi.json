@@ -1,7 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Core Service"
+    "title": "Core Service",
+    "version": "1.0.0"
   },
   "servers": [
     {
@@ -92,7 +93,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       },
@@ -174,7 +175,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       }
@@ -270,7 +271,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       },
@@ -364,7 +365,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       }
@@ -457,7 +458,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       },
@@ -541,7 +542,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       }
@@ -617,7 +618,7 @@
         },
         "security": [
           {
-            "Bearer Authentication": []
+            "Bearer Authentication For User": []
           }
         ]
       }
@@ -679,14 +680,6 @@
             "type": "integer",
             "description": "Изменение баланса счета в копейках",
             "format": "int64"
-          },
-          "reason": {
-            "type": "string",
-            "description": "Причина выполнения транзакции",
-            "enum": [
-              "TERMINAL",
-              "LOAN"
-            ]
           }
         }
       },
@@ -744,7 +737,7 @@
       }
     },
     "securitySchemes": {
-      "Bearer Authentication": {
+      "Bearer Authentication For User": {
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
