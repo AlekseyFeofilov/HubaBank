@@ -8,8 +8,6 @@
     - sudo rm -rf $WORKING_DIR
     - sudo cp -r .infra/deploy/$ENVIRONMENT $WORKING_DIR
     - cd $WORKING_DIR
-    - echo "$SECRET_ENV"
-    - echo "$WORKING_DIR"
     - sudo cp $ENV .env
     - sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - sudo docker compose up -d

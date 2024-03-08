@@ -64,6 +64,5 @@ deploy:staging:
     - staging
   environment: staging
   variables:
-    ENV: $SECRET_ENV
     ENVIRONMENT: staging
     WORKING_DIR: /opt/hubabank
