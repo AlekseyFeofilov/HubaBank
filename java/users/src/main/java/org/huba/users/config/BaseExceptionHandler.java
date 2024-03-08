@@ -29,11 +29,4 @@ public class BaseExceptionHandler extends ResponseEntityExceptionHandler {
         MessageDto messageDto = new MessageDto("bad request");
         return new ResponseEntity<MessageDto>(messageDto, HttpStatus.BAD_REQUEST);
     }
-
-//    @Override
-//    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-//        MessageDto messageDto = new MessageDto(ex.getMessage());
-//        return new ResponseEntity<>(messageDto, HttpStatus.BAD_REQUEST);
-//    }
-
 }
