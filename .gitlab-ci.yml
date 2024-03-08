@@ -4,9 +4,7 @@
 include:
   - '/.infra/gitlab-ci-templates/.java-ci.yml'
   - '/.infra/gitlab-ci-templates/.docker-ci.yml'
-
-variables:
-  STAGING_FOLDER: /opt/hubabank
+  - '/.infra/gitlab-ci-templates/.deploy-ci.yml'
 
 stages:
   - build
@@ -57,3 +55,12 @@ users:image:
     DOCKERFILE: .infra/dockerfiles/java/Dockerfile
     IMAGE: users
     PROJECT_DIR: java/users
+
+deploy:staging:
+  extends: .deploy
+  tags:
+    - staging
+  environment: staging
+  variables:
+    ENVIRONMENT: staging
+    WORKING_DIR: /opt/hubabank
