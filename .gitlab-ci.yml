@@ -12,6 +12,14 @@ stages:
   - image
   - deploy
 
+echo:
+  needs: []
+  stage: build
+  tags:
+    - docker
+  script:
+    - echo "Running merge request job"
+
 core:build:
   extends: .build_java_gradle
   needs: []

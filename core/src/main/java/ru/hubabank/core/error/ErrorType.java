@@ -35,4 +35,8 @@ public enum ErrorType {
     public ServiceException createException() {
         return ServiceException.of(this);
     }
+
+    public ServiceException createException(Throwable cause) {
+        return ServiceException.of(this, cause);
+    }
 }

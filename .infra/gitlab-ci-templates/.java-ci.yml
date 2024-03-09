@@ -6,6 +6,11 @@
   rules:
     - if: $CI_COMMIT_BRANCH
       changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
         - $PROJECT_DIR/**/*
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
@@ -19,7 +24,7 @@
   artifacts:
     paths:
       - $PROJECT_DIR/build/libs/*.jar
-    expire_in: 1 week
+    expire_in: 1 hour
 
 .test_java_gradle:
   image: gradle:jdk17-alpine
@@ -28,6 +33,11 @@
     - docker
   rules:
     - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - $PROJECT_DIR/**/*
   before_script:
@@ -51,6 +61,11 @@
     - docker
   rules:
     - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - $PROJECT_DIR/**/*
   variables:

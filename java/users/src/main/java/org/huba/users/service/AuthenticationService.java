@@ -59,8 +59,8 @@ public class AuthenticationService {
         }
 
         String accessToken = jwtProvider.generateAccessToken(user);
-        String restoreToken = tokenService.generateToken(user, TokenType.REFRESH);
-        return new TokenDto(restoreToken, accessToken);
+        String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
+        return new TokenDto(accessToken, refreshToken);
     }
 
     public TokenDto refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
@@ -71,6 +71,6 @@ public class AuthenticationService {
         }
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
-        return new TokenDto(refreshToken, accessToken);
+        return new TokenDto(accessToken, refreshToken);
     }
 }

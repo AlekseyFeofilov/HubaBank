@@ -2,6 +2,7 @@ package ru.hubabank.core.security;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class UserAuthenticationConverter implements AuthenticationConverter {
 
@@ -42,6 +44,7 @@ public class UserAuthenticationConverter implements AuthenticationConverter {
             UserInfo userInfo = userService.fetchUserInfo(token);
 
             if (userInfo.isBlocked()) {
+                log.debug("User {} is blocked, access denied", token);
                 return null;
             }
 
