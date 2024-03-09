@@ -1,7 +1,6 @@
 package ru.hubabank.core.integration.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import ru.hubabank.core.mapper.UserMapper;
 import javax.security.sasl.AuthenticationException;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -30,7 +28,6 @@ public class UserService {
             if (e.getStatus() == HttpStatus.UNAUTHORIZED) {
                 throw new AuthenticationException();
             }
-            log.debug("An occurred error while send request to user-service with token {}", token);
             throw ErrorType.BAD_GATEWAY.createException(e);
         }
     }

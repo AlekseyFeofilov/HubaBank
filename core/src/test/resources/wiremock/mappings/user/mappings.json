@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "urlPath": "/users/me"
+        "urlPath": "/users/my"
       },
       "response": {
         "status": 401
@@ -12,7 +12,7 @@
     {
       "request": {
         "method": "GET",
-        "urlPath": "/users/me",
+        "urlPath": "/users/my",
         "headers": {
           "Authorization": {
             "equalTo": "Bearer token_79009530901"
@@ -30,7 +30,7 @@
     {
       "request": {
         "method": "GET",
-        "urlPath": "/users/me",
+        "urlPath": "/users/my",
         "headers": {
           "Authorization": {
             "equalTo": "Bearer token_79009530902"
@@ -48,7 +48,7 @@
     {
       "request": {
         "method": "GET",
-        "urlPath": "/users/me",
+        "urlPath": "/users/my",
         "headers": {
           "Authorization": {
             "equalTo": "Bearer token_79009530903"
