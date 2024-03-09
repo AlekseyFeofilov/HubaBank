@@ -8,7 +8,7 @@ import java.util.UUID;
 @Data
 public class UserFullDto {
 
-    private UUID uuid;
+    private UUID id;
     private FullNameDto fullNameDto;
     private String phone;
     private boolean employee;

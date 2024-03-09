@@ -36,6 +36,8 @@ core:test:
 core:image:
   extends: .build_docker_image
   needs:
+    - job: core:build
+      optional: true
     - job: core:test
       optional: true
   variables:
@@ -59,6 +61,8 @@ users:test:
 users:image:
   extends: .build_docker_image
   needs:
+    - job: users:build
+      optional: true
     - job: users:test
       optional: true
   variables:
