@@ -17,11 +17,17 @@ public class ServiceException extends RuntimeException {
         this.type = type;
     }
 
-    public ServiceException(HttpStatus status, ErrorType type) {
-        this(status, type, type.getMessage());
+    public ServiceException(HttpStatus status, ErrorType type, String message, Throwable cause) {
+        super(message, cause);
+        this.status = status;
+        this.type = type;
     }
 
     public static @NotNull ServiceException of(@NotNull ErrorType errorType) {
-        return new ServiceException(errorType.getStatus(), errorType);
+        return new ServiceException(errorType.getStatus(), errorType, errorType.getMessage());
+    }
+
+    public static @NotNull ServiceException of(@NotNull ErrorType errorType, @NotNull Throwable cause) {
+        return new ServiceException(errorType.getStatus(), errorType, errorType.getMessage(), cause);
     }
 }
