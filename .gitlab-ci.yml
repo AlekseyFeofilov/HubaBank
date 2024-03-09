@@ -12,13 +12,11 @@ stages:
   - image
   - deploy
 
-merge_request:
+echo:
   needs: []
   stage: build
   tags:
     - docker
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   script:
     - echo "Running merge request job"
 

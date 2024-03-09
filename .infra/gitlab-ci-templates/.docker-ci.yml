@@ -6,7 +6,9 @@
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
-        - $PROJECT_DIR/**/*
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
