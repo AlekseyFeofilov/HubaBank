@@ -3,10 +3,12 @@
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: manual
-  script:
+  before_script:
     - sudo rm -rf $WORKING_DIR
     - sudo cp -r .infra/deploy/$ENVIRONMENT $WORKING_DIR
     - cd $WORKING_DIR
     - sudo cp $ENV .env
     - sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  after_script:
+    - cd $WORKING_DIR
     - sudo docker compose up -d
