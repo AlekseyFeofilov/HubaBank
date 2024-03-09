@@ -9,6 +9,6 @@ import ru.hubabank.core.integration.dto.UserFullDto;
 @FeignClient("user")
 public interface UserClient {
 
-    @GetMapping("/users/me")
+    @GetMapping("/users/my")
     UserFullDto getUserInfoAboutMe(@RequestHeader("Authorization") String token) throws IntegrationException;
 }
