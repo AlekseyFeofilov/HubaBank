@@ -12,6 +12,16 @@ stages:
   - image
   - deploy
 
+merge_request:
+  needs: []
+  stage: build
+  tags:
+    - docker
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - echo "Running merge request job"
+
 core:build:
   extends: .build_java_gradle
   needs: []
