@@ -44,7 +44,7 @@ public class ServiceAuthenticationConverter implements AuthenticationConverter {
             UserInfo userInfo = userService.fetchUserInfo(token);
 
             if (userInfo.isBlocked()) {
-                log.debug("User {} is blocked", token);
+                log.debug("User {} is blocked, access denied", token);
                 return null;
             }
 
