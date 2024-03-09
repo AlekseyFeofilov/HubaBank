@@ -3,12 +3,14 @@
     "id": "eef2216f-7437-460e-9044-eeb55b0be663",
     "billId": "11f95aaf-1e75-43be-94c3-8f3fb283aaae",
     "balanceChange": 10,
-    "reason": "TERMINAL"
+    "reason": "TERMINAL",
+    "instant": "2016-06-22T19:10:25.621437Z"
   },
   {
     "id": "a9021df3-11aa-4182-9463-eda5a71ff73c",
     "billId": "11f95aaf-1e75-43be-94c3-8f3fb283aaae",
     "balanceChange": -5,
-    "reason": "LOAN"
+    "reason": "LOAN",
+    "instant": "2022-09-01T13:54:02.521Z"
   }
 ]
