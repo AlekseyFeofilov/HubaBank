@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import ru.hubabank.core.exception.IntegrationException;
 import ru.hubabank.core.integration.dto.UserFullDto;
 
-@FeignClient("user")
+@FeignClient("users")
 public interface UserClient {
 
     @GetMapping("/users/my")
