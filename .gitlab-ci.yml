@@ -63,9 +63,6 @@ deploy:staging:
   tags:
     - staging
   environment: staging
-  script:
-    - docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
-    - docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
   variables:
     ENVIRONMENT: staging
     WORKING_DIR: /opt/hubabank
