@@ -26,7 +26,7 @@ import java.util.List;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ServiceAuthenticationConverter implements AuthenticationConverter {
+public class UserAuthenticationConverter implements AuthenticationConverter {
 
     private static final String AUTHORIZATION_SCHEME_BEARER = "Bearer";
 

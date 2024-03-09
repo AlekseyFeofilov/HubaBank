@@ -11,7 +11,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.hubabank.core.security.ServiceAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import ru.hubabank.core.security.InternalAuthenticationConverter;
+import ru.hubabank.core.security.InternalAuthenticationFilter;
+import ru.hubabank.core.security.UserAuthenticationConverter;
+import ru.hubabank.core.security.UserAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -21,7 +26,8 @@ public class WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            ServiceAuthenticationFilter serviceAuthenticationFilter
+            UserAuthenticationConverter userAuthenticationConverter,
+            InternalAuthenticationConverter internalAuthenticationConverter
     ) throws Exception {
         return http
                 .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
@@ -38,7 +44,15 @@ public class WebSecurityConfiguration {
                         .anyRequest()
                         .authenticated()
                 )
-                .addFilterBefore(serviceAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new InternalAuthenticationFilter(
+                        internalAuthenticationConverter,
+                        new AntPathRequestMatcher("/internal/**")
+
+                ), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new UserAuthenticationFilter(
+                        userAuthenticationConverter,
+                        new NegatedRequestMatcher(new AntPathRequestMatcher("/internal/**"))
+                ), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

@@ -10,6 +10,7 @@ import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.mapper.BillMapper;
 import ru.hubabank.core.repository.BillRepository;
+import ru.hubabank.core.service.strategy.BillSearchStrategy;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,20 +31,18 @@ public class BillService {
     }
 
     public @NotNull List<ClientBillDto> getClientBills(@NotNull UUID userId) {
-        return billRepository.findAllByUserId(userId)
+        return billRepository.findAllByUserIdAndClosingInstantIsNull(userId)
                 .stream()
                 .map(billMapper::mapEntityToClientDto)
                 .toList();
     }
 
-    public @NotNull BillDto getBill(@NotNull UUID userId, @NotNull UUID billId) {
-        return billRepository.findById(billId)
-                .filter(e -> e.getUserId().equals(userId))
-                .map(billMapper::mapEntityToDto)
+    public @NotNull Bill getBill(@NotNull BillSearchStrategy billSearchStrategy) {
+        return billSearchStrategy.findBill(billRepository)
                 .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
     }
 
-    public ClientBillDto createBill(@NotNull UUID userId) {
+    public @NotNull ClientBillDto createBill(@NotNull UUID userId) {
         Bill bill = Bill.builder()
                 .userId(userId)
                 .balance(0)

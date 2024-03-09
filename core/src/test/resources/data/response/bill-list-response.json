@@ -4,5 +4,11 @@
     "userId": "a70cff71-3610-4e54-b960-9f7c04381b96",
     "balance": 0,
     "closed": false
+  },
+  {
+    "id": "5ffbfd1d-79c5-45d8-abb8-e2d2198722f2",
+    "userId": "a70cff71-3610-4e54-b960-9f7c04381b96",
+    "balance": 0,
+    "closed": true
   }
 ]

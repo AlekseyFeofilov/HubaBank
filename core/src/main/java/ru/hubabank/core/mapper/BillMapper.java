@@ -14,6 +14,5 @@ public interface BillMapper {
     @Mapping(target = "closed", expression = "java(entity.getClosingInstant() != null)")
     BillDto mapEntityToDto(Bill entity);
 
-    @Mapping(target = "closed", expression = "java(entity.getClosingInstant() != null)")
     ClientBillDto mapEntityToClientDto(Bill entity);
 }

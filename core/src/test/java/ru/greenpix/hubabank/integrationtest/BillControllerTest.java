@@ -45,7 +45,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех счетов")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetAllBillsThenSuccess() throws Exception {
         mockMvc.perform(get("/bills")
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
@@ -63,7 +63,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех своих счетов")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetBillsThenSuccess() throws Exception {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
@@ -73,7 +73,7 @@ class BillControllerTest extends AbstractIntegrationTest {
 
     @Test
     @DisplayName("Успешный просмотр всех счетов другого клиента")
-    @Sql("/sql/insert-client-bill.sql")
+    @Sql("/sql/insert-client-bill-collection.sql")
     void whenGetBillsOtherClientThenSuccess() throws Exception {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
@@ -96,7 +96,7 @@ class BillControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(content().json(readFromFileToString("response/bill-response.json")));
+                .andExpect(content().json(readFromFileToString("response/client-bill-response.json")));
     }
 
     @Test
@@ -106,13 +106,25 @@ class BillControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk())
-                .andExpect(content().json(readFromFileToString("response/bill-response.json")));
+                .andExpect(content().json(readFromFileToString("response/client-bill-response.json")));
     }
 
     @Test
     @DisplayName("Неуспешное просмотр несуществующего счета")
     void whenGetBillDetailsThenNotFoundIfNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+        MvcResult result = mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        assertError(result, ErrorType.BILL_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("Неуспешный просмотр информации о закрытом счете")
+    @Sql("/sql/insert-client-closed-bill.sql")
+    void whenGetBillDetailsThenNotFoundIfBillIsClosed() throws Exception {
+        MvcResult result = mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -124,7 +136,7 @@ class BillControllerTest extends AbstractIntegrationTest {
     @DisplayName("Неуспешное просмотр счета, который не принадлежит указанному клиенту")
     @Sql("/sql/insert-client-bill.sql")
     void whenGetBillDetailsThenNotFoundIfBelongsOtherClient() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
+        MvcResult result = mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -152,7 +164,6 @@ class BillControllerTest extends AbstractIntegrationTest {
 
         ClientBillDto dto = getContentAsObject(result, ClientBillDto.class);
         assertThat(dto.getBalance()).isZero();
-        assertThat(dto.isClosed()).isFalse();
 
         List<Bill> bills = billRepository.findAll();
         assertThat(bills).hasSize(1);
@@ -176,7 +187,6 @@ class BillControllerTest extends AbstractIntegrationTest {
 
         ClientBillDto dto = getContentAsObject(result, ClientBillDto.class);
         assertThat(dto.getBalance()).isZero();
-        assertThat(dto.isClosed()).isFalse();
 
         List<Bill> bills = billRepository.findAll();
         assertThat(bills).hasSize(1);

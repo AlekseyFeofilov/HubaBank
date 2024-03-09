@@ -12,6 +12,7 @@ import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.mapper.TransactionMapper;
 import ru.hubabank.core.repository.BillRepository;
 import ru.hubabank.core.repository.TransactionRepository;
+import ru.hubabank.core.service.strategy.BillSearchStrategy;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,19 +38,21 @@ public class TransactionService {
     }
 
     @Transactional
-    public void createTerminalTransaction(
-            @NotNull UUID userId,
-            @NotNull UUID billId,
-            long balanceChange
+    public void createTransaction(
+            long balanceChange,
+            @NotNull BillSearchStrategy billSearchStrategy,
+            @NotNull TransactionReason reason
     ) {
         if (balanceChange == 0) {
             throw ErrorType.TRANSACTION_WITH_ZERO_BALANCE_CHANGE.createException();
         }
 
-        balanceService.updateBalance(userId, billId, balanceChange);
+        Bill bill = billSearchStrategy.findBill(billRepository)
+                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
+        balanceService.updateBalance(bill, balanceChange);
 
-        Transaction transaction = transactionMapper.mapCreationDtoToEntity(balanceChange, TransactionReason.TERMINAL);
-        transaction.setBill(Bill.builder().id(billId).build());
+        Transaction transaction = transactionMapper.mapCreationDtoToEntity(balanceChange, reason);
+        transaction.setBill(bill);
         transaction.setInstant(Instant.now());
         transactionRepository.save(transaction);
     }

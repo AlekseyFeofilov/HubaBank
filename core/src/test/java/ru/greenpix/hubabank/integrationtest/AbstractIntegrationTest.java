@@ -9,6 +9,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
+import ru.greenpix.hubabank.constants.TestConstants;
 import ru.hubabank.core.error.ErrorDto;
 import ru.hubabank.core.error.ErrorType;
 
@@ -47,6 +48,7 @@ public abstract class AbstractIntegrationTest {
 
         WireMock.configureFor(WIREMOCK.getHost(), WIREMOCK.getFirstMappedPort());
 
+        registry.add("api-key", () -> TestConstants.API_KEY);
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);

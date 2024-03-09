@@ -7,7 +7,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.hubabank.core.dto.TransactionCreationDto;
 import ru.hubabank.core.dto.TransactionDto;
+import ru.hubabank.core.entity.TransactionReason;
 import ru.hubabank.core.service.TransactionService;
+import ru.hubabank.core.service.strategy.UserBillSearchStrategy;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +58,10 @@ public class TransactionController {
             @PathVariable("billId") UUID billId,
             @RequestBody TransactionCreationDto dto
     ) {
-        transactionService.createTerminalTransaction(userId, billId, dto.getBalanceChange());
+        transactionService.createTransaction(
+                dto.getBalanceChange(),
+                UserBillSearchStrategy.of(userId, billId),
+                TransactionReason.TERMINAL
+        );
     }
 }
