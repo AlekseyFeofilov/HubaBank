@@ -24,7 +24,7 @@
   artifacts:
     paths:
       - $PROJECT_DIR/build/libs/*.jar
-    expire_in: 1 week
+    expire_in: 1 hour
 
 .test_java_gradle:
   image: gradle:jdk17-alpine
