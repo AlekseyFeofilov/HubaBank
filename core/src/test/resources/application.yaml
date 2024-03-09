@@ -6,5 +6,5 @@ spring:
     openfeign:
       client:
         config:
-          user:
+          users:
             url: http://localhost:8080/
