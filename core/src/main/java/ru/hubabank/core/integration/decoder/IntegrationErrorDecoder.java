@@ -79,6 +79,9 @@ public class IntegrationErrorDecoder implements ErrorDecoder {
 
     @SneakyThrows
     private String convertBodyToString(Response response) {
+        if (response.body() == null) {
+            return "Empty body";
+        }
         try (BufferedReader reader = new BufferedReader(response.body().asReader(response.charset()))) {
             return reader.lines().collect(Collectors.joining("\n"));
         }
