@@ -9,6 +9,9 @@
         compare_to: 'refs/heads/master'
         paths:
           - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
@@ -34,6 +37,9 @@
         compare_to: 'refs/heads/master'
         paths:
           - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
   before_script:
     - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
@@ -59,6 +65,9 @@
         compare_to: 'refs/heads/master'
         paths:
           - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
   variables:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
