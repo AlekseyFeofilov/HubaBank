@@ -19,4 +19,4 @@ spring:
       client:
         config:
           user:
-            url: ${USER_SERVICE_URL:http://localhost:8081/}
+            url: ${USERS_SERVICE_URL:http://localhost:8081/}
