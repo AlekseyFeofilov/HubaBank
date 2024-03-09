@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import ru.hubabank.core.entity.TransactionReason;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -20,4 +21,7 @@ public class TransactionDto {
 
     @Schema(description = "Причина выполнения транзакции")
     private TransactionReason reason;
+
+    @Schema(description = "Момент времени выполнения транзакции")
+    private Instant instant;
 }
