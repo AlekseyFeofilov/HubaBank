@@ -1,0 +1,10 @@
+.deploy:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  before_script:
+    - sudo rm -rf $WORKING_DIR
+    - sudo cp -r .infra/deploy/$ENVIRONMENT $WORKING_DIR
+    - cd $WORKING_DIR
+    - sudo cp $ENV .env

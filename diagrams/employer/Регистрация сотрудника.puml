@@ -1,0 +1,32 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor "Пользователь" as User
+participant "Мобильное приложение" as MobileApp
+participant "Сервис кабинета сотрудника" as EmployerService
+participant "Сервис пользователей" as UserService
+
+User -> MobileApp
+activate MobileApp
+
+    MobileApp -> EmployerService
+    activate EmployerService
+
+alt #lightgreen Успешная регистрация
+        EmployerService -> UserService: POST /register
+        activate UserService
+        return TokenDto
+
+        MobileApp <-- EmployerService: HTTP 200:\n возвращаем JWT
+        User <-- MobileApp: Экран кабинета
+else #pink
+        EmployerService -> UserService: POST /register
+        activate UserService
+        return HTTP 4xx
+    return HTTP 4xx
+return Экран ошибки
+end
+
+@enduml

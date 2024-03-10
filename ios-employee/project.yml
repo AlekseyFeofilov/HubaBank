@@ -1,0 +1,108 @@
+---
+name: ios-employee
+
+options:
+  xcodeVersion: 13.4
+  deploymentTarget:
+    iOS: '15.0'
+  defaultConfig: Debug
+  bundleIdPrefix: ru
+  groupSortPosition: top
+  developmentLanguage: "ru"
+  enableBaseInternationalization: true
+  usesTabs: false
+  indentWidth: 2
+  tabWidth: 2
+  groupOrdering:
+    - order: [Sources, Resources, Tests, Supporting Files]
+    - pattern: 'Sources'
+      order: [Application, Common, Protocols, Extensions, Model, Modules, Views, Services, Utils]
+
+configs:
+  Release: release
+  Debug: debug
+
+settings:
+  base:
+    SWIFT_VERSION: 5.6
+    DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+    MTL_ENABLE_DEBUG_INFO: 'YES'
+    ENABLE_BITCODE: 'NO'
+    SWIFT_COMPILATION_MODE: wholemodule
+    SUPPORTS_MACCATALYST: 'NO'
+  configs:
+    Debug:
+      SWIFT_COMPILATION_MODE: "incremental"
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+    Release:
+      SWIFT_COMPILATION_MODE: "wholemodule"
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+
+packages:
+  Alamofire:
+    url: https://github.com/Alamofire/Alamofire.git
+    version: 5.8.1
+  SnapKit:
+    url: https://github.com/SnapKit/SnapKit.git
+    version: 5.7.0
+  NotificationBannerSwift:
+    url: https://github.com/Daltron/NotificationBanner.git
+    version: 3.2.0
+
+targets:
+  ios-employee:
+    type: application
+    platform: iOS
+    dependencies:
+    - package: Alamofire
+    - package: SnapKit
+    - package: NotificationBannerSwift
+    sources:
+    - ios-employee
+    entitlements:
+      path: ios-employee/ios-employee.entitlements
+    settings:
+      base:
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        TARGETED_DEVICE_FAMILY: 1
+        VERSIONING_SYSTEM: apple-generic
+        PRODUCT_BUNDLE_IDENTIFIER: com.buba.ios-employee
+        CODE_SIGN_STYLE: Automatic
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: true
+    preBuildScripts:
+    - script: "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n"
+      name: SwiftLint
+      basedOnDependencyAnalysis: false
+    - script: "if which swiftgen >/dev/null; then\n  swiftgen --config ios-employee/\"Supporting Files\"/SwiftGen/Configurations/swiftgen_config.yml\nelse\n   echo \"warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen\"\nfi\n"
+      name: SwiftGen
+      basedOnDependencyAnalysis: false
+    - script: "if which swiftformat >/dev/null; then\n swiftformat .\nelse\n echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n"
+      name: SwiftFormat
+      basedOnDependencyAnalysis: false
+    postBuildScripts:
+    - script: |
+        TAGS="TODO:|FIXME:"
+        echo "searching ${SRCROOT} for ${TAGS}"
+        find "${SRCROOT}" \( -name "*.swift" \) \( -not -path "*/Pods/*" \) -print0 | xargs -0 egrep --with-filename --line-number --only-matching "($TAGS).*\$" | perl -p -e "s/($TAGS)/ warning: \$1/"
+      name: Highlight TODOs and FIXMEs
+      basedOnDependencyAnalysis: false
+
+schemes:
+  ios-employee:
+    build:
+      targets:
+        ios-employee: all
+      parallelizeBuild: true
+    run:
+      config: Debug
+      environmentVariables:
+      - variable: OS_ACTIVITY_MODE
+      - value: disable
+      - isEnabled: false
+    profile:
+      config: Debug
+    analyze:
+      config: Debug
+    archive:
+      config: Release

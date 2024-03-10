@@ -1,0 +1,145 @@
+# Конфигурация CI/CD для репозиториев микросервисов проекта "Цифровой след".
+# Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
+
+include:
+  - '/.infra/gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.dotnet-ci.yml'
+  - '/.infra/gitlab-ci-templates/.docker-ci.yml'
+  - '/.infra/gitlab-ci-templates/.deploy-ci.yml'
+
+stages:
+  - build
+  - test
+  - image
+  - deploy
+
+echo:
+  needs: []
+  stage: build
+  tags:
+    - docker
+  script:
+    - echo "Running merge request job"
+
+gateway-client:build:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: BFF-client
+
+gateway-client:test:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  extends: .test_dotnet
+  needs:
+    - gateway-client:build
+  variables:
+    PROJECT_DIR: BFF-client
+
+gateway-client:image:
+  extends: .build_docker_image
+  needs:
+    - job: gateway-client:build
+      optional: true
+    - job: gateway-client:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/8.0/Dockerfile
+    IMAGE: gateway-client
+    PROJECT_DIR: BFF-client
+    DOCKER_ARGS: '--build-arg DLL=BFF-client.Api.dll'
+
+gateway-employer:build:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: employee-gateway/EmployeeGateway
+
+gateway-employer:test:
+  image: mcr.microsoft.com/dotnet/sdk:7.0
+  extends: .test_dotnet
+  needs:
+    - gateway-employer:build
+  variables:
+    PROJECT_DIR: employee-gateway/EmployeeGateway
+
+gateway-employer:image:
+  extends: .build_docker_image
+  needs:
+    - job: gateway-employer:build
+      optional: true
+    - job: gateway-employer:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/7.0/Dockerfile
+    IMAGE: gateway-employer
+    PROJECT_DIR: employee-gateway/EmployeeGateway
+    DOCKER_ARGS: '--build-arg DLL=EmployeeGateway.dll'
+
+core:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: core
+
+core:test:
+  extends: .test_java_gradle_with_testcontainers
+  needs:
+    - core:build
+  variables:
+    PROJECT_DIR: core
+
+core:image:
+  extends: .build_docker_image
+  needs:
+    - job: core:build
+      optional: true
+    - job: core:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: core
+    PROJECT_DIR: core
+
+users:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: java/users
+
+users:test:
+  extends: .test_java_gradle
+  needs:
+    - users:build
+  variables:
+    PROJECT_DIR: java/users
+
+users:image:
+  extends: .build_docker_image
+  needs:
+    - job: users:build
+      optional: true
+    - job: users:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: users
+    PROJECT_DIR: java/users
+
+deploy:staging:
+  extends: .deploy
+  tags:
+    - staging
+  environment: staging
+  variables:
+    ENVIRONMENT: staging
+    WORKING_DIR: /opt/hubabank
+  script:
+    - cd $WORKING_DIR
+    - sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-client:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-employer:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+    - sudo docker compose up -d
