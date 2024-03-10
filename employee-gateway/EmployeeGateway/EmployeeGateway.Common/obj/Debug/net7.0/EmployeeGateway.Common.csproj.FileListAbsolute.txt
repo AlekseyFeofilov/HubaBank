@@ -1,0 +1,12 @@
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/bin/Debug/net7.0/EmployeeGateway.Common.deps.json
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/bin/Debug/net7.0/EmployeeGateway.Common.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/bin/Debug/net7.0/EmployeeGateway.Common.pdb
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.csproj.AssemblyReference.cache
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.GeneratedMSBuildEditorConfig.editorconfig
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.AssemblyInfoInputs.cache
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.AssemblyInfo.cs
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.csproj.CoreCompileInputs.cache
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/refint/EmployeeGateway.Common.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/EmployeeGateway.Common.pdb
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/Debug/net7.0/ref/EmployeeGateway.Common.dll

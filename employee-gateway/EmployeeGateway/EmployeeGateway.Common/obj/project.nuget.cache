@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "AGYLqHe+qrt4FlTrPU/O1gQEq258xa1Byee4efpeeqTSEVySAgCC2snU5sSuGPru2PXf24c3XzVDb59jMBVgbA==",
+  "success": true,
+  "projectFilePath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj",
+  "expectedPackageFiles": [
+    "/Users/elena/.nuget/packages/microsoft.identitymodel.abstractions/7.4.0/microsoft.identitymodel.abstractions.7.4.0.nupkg.sha512",
+    "/Users/elena/.nuget/packages/microsoft.identitymodel.logging/7.4.0/microsoft.identitymodel.logging.7.4.0.nupkg.sha512",
+    "/Users/elena/.nuget/packages/microsoft.identitymodel.tokens/7.4.0/microsoft.identitymodel.tokens.7.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}
