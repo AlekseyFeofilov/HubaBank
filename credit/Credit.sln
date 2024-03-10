@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Lib", "Credit.Lib\Cr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Data", "Credit.Data\Credit.Data.csproj", "{DE944BF5-35A9-4BD8-9CB2-05FB22F3061F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Dal", "Credit.Dal\Credit.Dal.csproj", "{DB3C4F13-87BA-4431-B09F-168C6D02ADC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Primitives", "Credit.Primitives\Credit.Primitives.csproj", "{BAD591C4-5E3F-4CF7-B628-29A1FC95D0D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,15 @@ Global
 		{DE944BF5-35A9-4BD8-9CB2-05FB22F3061F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE944BF5-35A9-4BD8-9CB2-05FB22F3061F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE944BF5-35A9-4BD8-9CB2-05FB22F3061F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB3C4F13-87BA-4431-B09F-168C6D02ADC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB3C4F13-87BA-4431-B09F-168C6D02ADC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB3C4F13-87BA-4431-B09F-168C6D02ADC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB3C4F13-87BA-4431-B09F-168C6D02ADC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAD591C4-5E3F-4CF7-B628-29A1FC95D0D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAD591C4-5E3F-4CF7-B628-29A1FC95D0D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAD591C4-5E3F-4CF7-B628-29A1FC95D0D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAD591C4-5E3F-4CF7-B628-29A1FC95D0D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

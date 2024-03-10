@@ -1,10 +1,5 @@
-using System;
-using System.IO;
 using System.Reflection;
 using Credit.Lib;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,4 +25,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.InitAsync();
+await app.RunAsync();
