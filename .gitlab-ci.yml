@@ -3,6 +3,7 @@
 
 include:
   - '/.infra/gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.dotnet-ci.yml'
   - '/.infra/gitlab-ci-templates/.docker-ci.yml'
   - '/.infra/gitlab-ci-templates/.deploy-ci.yml'
 
@@ -19,6 +20,31 @@ echo:
     - docker
   script:
     - echo "Running merge request job"
+
+gateway-client:build:
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: BFF-client
+
+gateway-client:test:
+  extends: .test_dotnet
+  needs:
+    - gateway-client:build
+  variables:
+    PROJECT_DIR: BFF-client
+
+gateway-client:image:
+  extends: .build_docker_image
+  needs:
+    - job: gateway-client:build
+      optional: true
+    - job: gateway-client:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/Dockerfile
+    IMAGE: gateway-client
+    PROJECT_DIR: BFF-client
 
 core:build:
   extends: .build_java_gradle
@@ -75,9 +101,13 @@ deploy:staging:
   tags:
     - staging
   environment: staging
-  script:
-    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
-    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
   variables:
     ENVIRONMENT: staging
     WORKING_DIR: /opt/hubabank
+  script:
+    - cd $WORKING_DIR
+    - sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-client:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+    - sudo docker compose up -d
