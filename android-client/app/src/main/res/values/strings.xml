@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">Huba bank</string>
+
+    <!-- Login Screen -->
+    <string name="login_screen_title">Вход</string>
+    <string name="login_screen_phone">Введите номер телефона</string>
+    <string name="login_screen_password">Введите пароль</string>
+    <string name="login_screen_no_account">Еще нет аккаунта</string>
+    <string name="login_screen_enter">Войти</string>
+
+    <!-- Registration Screen -->
+    <string name="registration_screen_title">Регистрация</string>
+    <string name="registration_screen_first_name">Введите фамилию</string>
+    <string name="registration_screen_second_name">Введите имя</string>
+    <string name="registration_screen_third_name">Введите отчество</string>
+    <string name="registration_screen_already_have_account">Уже есть аккаунт</string>
+    <string name="registration_screen_register">Зарегистрироваться</string>
+
+    <!-- Main Screen -->
+    <string name="main_screen_your_bills">Ваши счета</string>
+    <string name="main_screen_balance_with_kopecks">%1$d.%2$02d ₽</string>
+    <string name="main_screen_bill_number">Счет %1$s</string>
+    <string name="main_screen_about">Подробнее</string>
+    <string name="main_screen_open_bill">Открыть счет</string>
+    <string name="main_screen_your_credit">Ваши кредиты</string>
+    <string name="main_screen_credit_sum">На сумму</string>
+    <string name="main_screen_credit_number">Кредит %1$s</string>
+    <string name="main_screen_open_credit">Взять кредит</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_screen_title">Профиль</string>
+    <string name="profile_screen_full_name">ФИО</string>
+    <string name="profile_screen_phone">Телефон</string>
+    <string name="profile_screen_exit">Выйти</string>
+
+    <!-- Bill Screen -->
+    <string name="bill_screen_do_refill">Пополнить</string>
+    <string name="bill_screen_do_transfer">Перевести</string>
+    <string name="bill_screen_refill">Пополнение</string>
+    <string name="bill_screen_transfer">Перевод</string>
+    <string name="bill_screen_credit">Списание за кредит</string>
+    <string name="bill_screen_history">История операций</string>
+    <string name="bill_screen_today">Сегодня</string>
+    <string name="bill_screen_input_sum">Введите сумму</string>
+    <string name="bill_screen_close_bill">Закрыть этот счет</string>
+</resources>
