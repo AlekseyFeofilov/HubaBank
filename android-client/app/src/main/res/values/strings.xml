@@ -43,10 +43,4 @@
     <string name="bill_screen_today">Сегодня</string>
     <string name="bill_screen_input_sum">Введите сумму</string>
     <string name="bill_screen_close_bill">Закрыть этот счет</string>
-
-    <!-- Credit Screen -->
-    <string name="credit_screen_sum">Cумма кредита</string>
-    <string name="credit_screen_paid_out">Выплачено</string>
-    <string name="credit_screen_remains">Остаток на выплату</string>
-    <string name="credit_screen_close">Погасить</string>
 </resources>

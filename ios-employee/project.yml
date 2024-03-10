@@ -45,6 +45,9 @@ packages:
   SnapKit:
     url: https://github.com/SnapKit/SnapKit.git
     version: 5.7.0
+  NotificationBannerSwift:
+    url: https://github.com/Daltron/NotificationBanner.git
+    version: 3.2.0
 
 targets:
   ios-employee:
@@ -53,6 +56,7 @@ targets:
     dependencies:
     - package: Alamofire
     - package: SnapKit
+    - package: NotificationBannerSwift
     sources:
     - ios-employee
     entitlements:

@@ -8,4 +8,5 @@ object BillInfoDestination {
     fun routeWithArg(billId: String): String {
         return "$route/$billId"
     }
+
 }

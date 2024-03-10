@@ -13,6 +13,18 @@ services:
     networks:
       - 'hits-huba-network'
 
+  gateway-employer:
+    image: registry.gitlab.com/hits-tsu/huba/gateway-employer:latest
+    container_name: hits-huba-gateway-employer
+    ports:
+      - "9002:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    volumes:
+      - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    networks:
+      - 'hits-huba-network'
+
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
     container_name: hits-huba-core
