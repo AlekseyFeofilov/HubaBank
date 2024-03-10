@@ -22,14 +22,12 @@ echo:
     - echo "Running merge request job"
 
 gateway-client:build:
-  image: mcr.microsoft.com/dotnet/sdk:8.0
   extends: .build_dotnet
   needs: []
   variables:
     PROJECT_DIR: BFF-client
 
 gateway-client:test:
-  image: mcr.microsoft.com/dotnet/sdk:8.0
   extends: .test_dotnet
   needs:
     - gateway-client:build
@@ -44,38 +42,9 @@ gateway-client:image:
     - job: gateway-client:test
       optional: true
   variables:
-    DOCKERFILE: .infra/dockerfiles/dotnet/8.0/Dockerfile
+    DOCKERFILE: .infra/dockerfiles/dotnet/Dockerfile
     IMAGE: gateway-client
     PROJECT_DIR: BFF-client
-    DOCKER_ARGS: '--build-arg DLL=BFF-client.Api.dll'
-
-gateway-employer:build:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
-  extends: .build_dotnet
-  needs: []
-  variables:
-    PROJECT_DIR: employee-gateway/EmployeeGateway
-
-gateway-employer:test:
-  image: mcr.microsoft.com/dotnet/sdk:7.0
-  extends: .test_dotnet
-  needs:
-    - gateway-employer:build
-  variables:
-    PROJECT_DIR: employee-gateway/EmployeeGateway
-
-gateway-employer:image:
-  extends: .build_docker_image
-  needs:
-    - job: gateway-employer:build
-      optional: true
-    - job: gateway-employer:test
-      optional: true
-  variables:
-    DOCKERFILE: .infra/dockerfiles/dotnet/7.0/Dockerfile
-    IMAGE: gateway-employer
-    PROJECT_DIR: employee-gateway/EmployeeGateway
-    DOCKER_ARGS: '--build-arg DLL=EmployeeGateway.dll'
 
 core:build:
   extends: .build_java_gradle
@@ -139,7 +108,6 @@ deploy:staging:
     - cd $WORKING_DIR
     - sudo docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-client:latest
-    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-employer:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
     - sudo docker compose up -d

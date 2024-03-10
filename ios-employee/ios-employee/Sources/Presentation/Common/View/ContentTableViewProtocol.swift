@@ -1,3 +1,0 @@
-protocol ContentTableViewProtocol {
-	func reloadData()
-}
