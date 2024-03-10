@@ -20,6 +20,42 @@ echo:
   script:
     - echo "Running merge request job"
 
+gateway-client:build:
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: BFF-client
+
+gateway-client:image:
+  extends: .build_docker_image
+  needs:
+    - job: gateway-client:build
+      optional: true
+    - job: gateway-client:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/Dockerfile
+    IMAGE: gateway-client
+    PROJECT_DIR: BFF-client
+
+gateway-employer:build:
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: employee-gateway
+
+gateway-employer:image:
+  extends: .build_docker_image
+  needs:
+    - job: gateway-employer:build
+      optional: true
+    - job: gateway-employer:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/Dockerfile
+    IMAGE: gateway-employer
+    PROJECT_DIR: employee-gateway
+
 core:build:
   extends: .build_java_gradle
   needs: []
@@ -70,14 +106,36 @@ users:image:
     IMAGE: users
     PROJECT_DIR: java/users
 
+
+credit:build:
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: credit
+
+credit:image:
+  extends: .build_docker_image
+  needs:
+    - job: credit:build
+      optional: true
+    - job: credit:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/Dockerfile
+    IMAGE: credit
+    PROJECT_DIR: credit
+
 deploy:staging:
   extends: .deploy
   tags:
     - staging
   environment: staging
   script:
-    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-client:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-employer:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/credit:latest
   variables:
     ENVIRONMENT: staging
     WORKING_DIR: /opt/hubabank

@@ -1,5 +1,40 @@
 version: '3.8'
 services:
+
+  gateway-client:
+    image: registry.gitlab.com/hits-tsu/huba/gateway-client:latest
+    container_name: hits-huba-gateway-client
+    ports:
+      - "9001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    networks:
+      - 'hits-huba-network'
+
+  gateway-employer:
+    image: registry.gitlab.com/hits-tsu/huba/gateway-employer:latest
+    container_name: hits-huba-gateway-employer
+    ports:
+      - "9002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    networks:
+      - 'hits-huba-network'
+
+  users:
+    image: registry.gitlab.com/hits-tsu/huba/users:latest
+    container_name: hits-huba-users
+    ports:
+      - "9003:8080"
+    environment:
+      POSTGRES_HOST: hits-huba-database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_SCHEMA: users_service
+    networks:
+      - 'hits-huba-network'
+
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
     container_name: hits-huba-core
@@ -15,17 +50,13 @@ services:
     networks:
       - 'hits-huba-network'
 
-  users:
-    image: registry.gitlab.com/hits-tsu/huba/users:latest
-    container_name: hits-huba-users
+  credit:
+    image: registry.gitlab.com/hits-tsu/huba/credit:latest
+    container_name: hits-huba-credit
     ports:
-      - "9003:8080"
+      - "9005:8080"
     environment:
-      POSTGRES_HOST: hits-huba-database
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASS: ${POSTGRES_PASSWORD}
-      POSTGRES_SCHEMA: users_service
+      ASPNETCORE_ENVIRONMENT: Staging
     networks:
       - 'hits-huba-network'
 

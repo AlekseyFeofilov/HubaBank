@@ -1,0 +1,24 @@
+.build_dotnet:
+  image: FROM mcr.microsoft.com/dotnet/sdk:8.0
+  stage: build
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  script:
+    - cd $PROJECT_DIR
+    - dotnet restore
+    - dotnet build -c Release -o /app/build
+    - dotnet publish -c Release -o /app/publish
+  artifacts:
+    untracked: true
+    paths:
+      - $PROJECT_DIR/app/release/*
+    expire_in: 1 hour
