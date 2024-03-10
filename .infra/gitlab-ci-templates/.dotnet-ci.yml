@@ -1,0 +1,43 @@
+.build_dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  stage: build
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  script:
+    - cd $PROJECT_DIR
+    - dotnet publish -c Release -o bin/publish -p:AssemblyName=Service
+  artifacts:
+    paths:
+      - $PROJECT_DIR/bin/publish/*
+    expire_in: 1 hour
+
+.test_dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  stage: test
+  tags:
+    - docker
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      changes:
+        compare_to: 'refs/heads/master'
+        paths:
+          - $PROJECT_DIR/**/*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - $PROJECT_DIR/**/*
+  script:
+    - cd $PROJECT_DIR
+    - dotnet test --test-adapter-path:. --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+  artifacts:
+    when: always
+    reports:
+      junit: $PROJECT_DIR/**/*test-result.xml
