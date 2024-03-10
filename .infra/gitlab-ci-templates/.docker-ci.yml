@@ -15,8 +15,6 @@
     - name: docker:25-dind
       # Явное отключение tls, чтобы избежать прерывания запуска docker'а
       command: ["--tls=false"]
-  before_script:
-    - export GRADLE_USER_HOME=`pwd`/.gradle_home
   script:
     - cp $DOCKERFILE $PROJECT_DIR
     - cd $PROJECT_DIR

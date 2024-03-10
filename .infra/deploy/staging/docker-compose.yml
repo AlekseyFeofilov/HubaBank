@@ -1,5 +1,18 @@
 version: '3.8'
 services:
+
+  gateway-client:
+    image: registry.gitlab.com/hits-tsu/huba/gateway-client:latest
+    container_name: hits-huba-gateway-client
+    ports:
+      - "9001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+    volumes:
+      - ./gateway-client/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    networks:
+      - 'hits-huba-network'
+
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
     container_name: hits-huba-core
