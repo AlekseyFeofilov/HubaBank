@@ -25,8 +25,8 @@ public class RolesGatewayController : ControllerBase
         _urlsMicroservice = urlsMicroserviceOptions.Value;
     }
 
-    [HttpPost("setClient/{userId}")]
-    public async Task<IActionResult> SetClientRole(Guid userId, Roles roles)
+    [HttpPost("setRoles/{userId}")]
+    public async Task<IActionResult> SetRoles(Guid userId, Roles roles)
     {
         var serializeOptions = new JsonSerializerOptions
         {
