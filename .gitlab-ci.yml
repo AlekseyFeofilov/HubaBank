@@ -3,6 +3,7 @@
 
 include:
   - '/.infra/gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.dotnet-ci.yml'
   - '/.infra/gitlab-ci-templates/.docker-ci.yml'
   - '/.infra/gitlab-ci-templates/.deploy-ci.yml'
 
