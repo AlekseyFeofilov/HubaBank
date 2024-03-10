@@ -1,0 +1,24 @@
+logging:
+  level:
+    ru.hubabank: TRACE
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:1234}/${POSTGRES_DB:core}
+    username: ${POSTGRES_USER:core}
+    password: ${POSTGRES_PASSWORD:core}
+  flyway:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:1234}/${POSTGRES_DB:core}
+    user: ${POSTGRES_USER:core}
+    password: ${POSTGRES_PASSWORD:core}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  cloud:
+    openfeign:
+      client:
+        config:
+          users:
+            url: ${USERS_SERVICE_URL:http://localhost:8081/}
+
+api-key: ${API_KEY:55wSKcrRx4C0paIf4hLbNqhzygviC8G3igpg5kdZs5WqipmNDkeOZ149vGS1DJ9W}

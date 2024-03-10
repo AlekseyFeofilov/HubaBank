@@ -1,0 +1,22 @@
+{
+  "id": "7d5d0b62-d400-4ef4-bf25-f62ba015fd22",
+  "fullNameDto": {
+    "firstName": "Иван",
+    "secondName": "Иванов",
+    "thirdName": "Сотрудникович"
+  },
+  "phone": "+79009530902",
+  "employee": true,
+  "blocked": false,
+  "privileges": [
+    "bill_read_others",
+    "bill_write_others",
+    "transaction_read_others",
+    "transaction_write_others"
+  ],
+  "additionPrivileges": [],
+  "blockedPrivileges": [],
+  "roles": [
+    "employer"
+  ]
+}

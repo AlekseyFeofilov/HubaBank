@@ -1,0 +1,83 @@
+# Конфигурация CI/CD для репозиториев микросервисов проекта "Цифровой след".
+# Специфичные настройки под конкретный микросервис вынесены в раздел "variables".
+
+include:
+  - '/.infra/gitlab-ci-templates/.java-ci.yml'
+  - '/.infra/gitlab-ci-templates/.docker-ci.yml'
+  - '/.infra/gitlab-ci-templates/.deploy-ci.yml'
+
+stages:
+  - build
+  - test
+  - image
+  - deploy
+
+echo:
+  needs: []
+  stage: build
+  tags:
+    - docker
+  script:
+    - echo "Running merge request job"
+
+core:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: core
+
+core:test:
+  extends: .test_java_gradle_with_testcontainers
+  needs:
+    - core:build
+  variables:
+    PROJECT_DIR: core
+
+core:image:
+  extends: .build_docker_image
+  needs:
+    - job: core:build
+      optional: true
+    - job: core:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: core
+    PROJECT_DIR: core
+
+users:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: java/users
+
+users:test:
+  extends: .test_java_gradle
+  needs:
+    - users:build
+  variables:
+    PROJECT_DIR: java/users
+
+users:image:
+  extends: .build_docker_image
+  needs:
+    - job: users:build
+      optional: true
+    - job: users:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: users
+    PROJECT_DIR: java/users
+
+deploy:staging:
+  extends: .deploy
+  tags:
+    - staging
+  environment: staging
+  script:
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+  variables:
+    ENVIRONMENT: staging
+    WORKING_DIR: /opt/hubabank

@@ -1,0 +1,67 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/my"
+      },
+      "response": {
+        "status": 401
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/my",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530901"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-client-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/my",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530902"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-employer-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/my",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer token_79009530903"
+          }
+        }
+      },
+      "response":{
+        "status": 200,
+        "bodyFileName": "user/user-blocked-response.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}
