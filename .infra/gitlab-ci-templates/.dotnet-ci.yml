@@ -1,4 +1,5 @@
 .build_dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: build
   tags:
     - docker
@@ -13,13 +14,14 @@
         - $PROJECT_DIR/**/*
   script:
     - cd $PROJECT_DIR
-    - dotnet publish -c Release -o bin/publish
+    - dotnet publish -c Release -o bin/publish -p:AssemblyName=Service
   artifacts:
     paths:
       - $PROJECT_DIR/bin/publish/*
     expire_in: 1 hour
 
 .test_dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   tags:
     - docker

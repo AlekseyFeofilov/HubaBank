@@ -21,8 +21,8 @@ fun NavGraphBuilder.mainDestinations(navController: NavController) {
             onOpenBillInfoScreen = { billId ->
                 navController.navigate(BillInfoDestination.routeWithArg(billId))
             },
-            onOpenCreditInfoScreen = {
-                navController.navigate(CreditInfoDestination.route)
+            onOpenCreditInfoScreen = { creditId ->
+                navController.navigate(CreditInfoDestination.routeWithArg(creditId))
             },
             onOpenCreditAddingScreen = {
                 navController.navigate(CreditAddingDestination.route)
