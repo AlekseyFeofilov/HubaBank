@@ -192,7 +192,7 @@ public class AdminService {
 
     public void setEmployeeUser(UUID userId) {
         User user = userRepository.findById(userId).orElseThrow(NotFoundException::new);
-        user.getPrivileges().add(privilegesRepository.findById("EMPLOYEE").orElseThrow(BadRequestException::new));
+        user.setEmployee(true);
         userRepository.save(user);
     }
 }
