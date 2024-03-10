@@ -17,7 +17,7 @@ services:
     image: registry.gitlab.com/hits-tsu/huba/gateway-employer:latest
     container_name: hits-huba-gateway-employer
     ports:
-      - "9002:8080"
+      - "9002:80"
     environment:
       ASPNETCORE_ENVIRONMENT: Staging
     volumes:
