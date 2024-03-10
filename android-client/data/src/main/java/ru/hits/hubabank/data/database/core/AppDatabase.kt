@@ -8,17 +8,11 @@ import ru.hits.hubabank.data.database.bill.BillDao
 import ru.hits.hubabank.data.database.bill.BillHistoryDao
 import ru.hits.hubabank.data.database.bill.model.BillEntity
 import ru.hits.hubabank.data.database.bill.model.BillHistoryItemEntity
-import ru.hits.hubabank.data.database.credit.CreditDao
-import ru.hits.hubabank.data.database.credit.model.CreditEntity
 import ru.hits.hubabank.data.database.user.UserDao
 import ru.hits.hubabank.data.database.user.model.ProfileEntity
 
 @Database(
-    entities = [
-        TokensEntity::class, BillEntity::class,
-        BillHistoryItemEntity::class, ProfileEntity::class,
-        CreditEntity::class
-    ],
+    entities = [TokensEntity::class, BillEntity::class, BillHistoryItemEntity::class, ProfileEntity::class],
     version = 1,
 )
 internal abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +24,4 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun getBillHistoryDao(): BillHistoryDao
 
     abstract fun getUserDao(): UserDao
-
-    abstract fun getCreditDao(): CreditDao
 }

@@ -22,7 +22,6 @@
       paths:
         - .gradle_home
   artifacts:
-    untracked: true
     paths:
       - $PROJECT_DIR/build/libs/*.jar
     expire_in: 1 hour
