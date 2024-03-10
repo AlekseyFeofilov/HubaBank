@@ -28,7 +28,7 @@ public class ProfileGatewayController: ControllerBase
     [HttpGet("employees")]
     public async Task<ActionResult<List<UserFill>>> GetEmployees()
     {
-        var url = _urlsMicroservice.AuthUrl + "/employees";
+        var url = _urlsMicroservice.AuthUrl + "/users/api/v1/employees";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
             "Bearer", Request.Headers.Authorization.First().Substring(6)
@@ -67,7 +67,7 @@ public class ProfileGatewayController: ControllerBase
     [HttpGet("clients")]
     public async Task<ActionResult<List<UserFill>>> GetClients()
     {
-        var url = _urlsMicroservice.AuthUrl + "/users";
+        var url = _urlsMicroservice.AuthUrl + "/users/api/v1/users";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
             "Bearer", Request.Headers.Authorization.First().Substring(6)
