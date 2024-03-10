@@ -32,9 +32,65 @@ namespace Credit.Dal.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
+                    b.Property<long>("AccountsPayable")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Arrears")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ArrearsInterest")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("CollectionDay")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("CompletionDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("CreditTermsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Fine")
+                        .HasColumnType("bigint");
+
+                    b.Property<float>("InterestRate")
+                        .HasColumnType("real");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<long>("Principal")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CreditTermsId");
+
                     b.ToTable("Credits", "credit_db");
+                });
+
+            modelBuilder.Entity("Credit.Dal.Models.CreditTerms", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreditTerms", "credit_db");
+                });
+
+            modelBuilder.Entity("Credit.Dal.Models.Credit", b =>
+                {
+                    b.HasOne("Credit.Dal.Models.CreditTerms", "CreditTerms")
+                        .WithMany()
+                        .HasForeignKey("CreditTermsId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreditTerms");
                 });
 #pragma warning restore 612, 618
         }

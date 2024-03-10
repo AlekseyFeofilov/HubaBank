@@ -1,9 +1,11 @@
 using System.Reflection;
+using Credit.Data.Responses;
 using Credit.Lib.Extensions;
 using Credit.Lib.Mapping;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MediatR;
+using MediatR.Pipeline;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,7 +17,11 @@ public static class Bootstrapper
     public static IServiceCollection AddCredit(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly); })
+        services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+                cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
+            })
             .AddGenericMediatR(typeof(Bootstrapper).Assembly)
             .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
             // .AddHangfire(configuration)

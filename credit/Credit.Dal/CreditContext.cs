@@ -1,3 +1,4 @@
+using Credit.Dal.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Credit.Dal;
@@ -5,6 +6,7 @@ namespace Credit.Dal;
 public class CreditContext : DbContext
 {
     public DbSet<Models.Credit> Credits { get; set; }
+    public DbSet<CreditTerms> CreditTerms { get; set; }
 
 #pragma warning disable CS8618
     public CreditContext(DbContextOptions<CreditContext> options) : base(options)
@@ -18,7 +20,20 @@ public class CreditContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("credit_db");//todo rename
 
-        modelBuilder.Entity<Models.Credit>()
-            .HasKey(x => x.Id);
+        modelBuilder.Entity<Models.Credit>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+
+            typeBuilder
+                .HasOne(x => x.CreditTerms)
+                .WithMany()
+                .HasForeignKey(x => x.CreditTermsId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CreditTerms>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+        });
     }
 }

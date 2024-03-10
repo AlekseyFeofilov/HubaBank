@@ -7,7 +7,7 @@ public class Request<TDal, TData> : IRequest<TData>
     where TDal : class
 {
     public Specification<TDal>? Specification { get; }
-    public required Action<TDal> Expression { get; init; }
+    public Action<TDal> Expression { get; protected init; }
 
     protected Request(Specification<TDal>? specification)
     {
