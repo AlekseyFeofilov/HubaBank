@@ -61,6 +61,7 @@ fun MainScreen(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.fetchBills()
+        viewModel.fetchCredits()
     }
 
     Column(
