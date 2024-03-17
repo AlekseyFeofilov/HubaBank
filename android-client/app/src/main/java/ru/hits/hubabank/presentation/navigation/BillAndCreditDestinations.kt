@@ -28,8 +28,15 @@ fun NavGraphBuilder.billAndCreditDestinations(navController: NavController) {
     composable(CreditAddingDestination.route) {
         CreditAddingScreen()
     }
-    composable(CreditInfoDestination.route) {
-        CreditInfoScreen()
+    composable(
+        route = CreditInfoDestination.routeTemplate,
+        arguments = listOf(navArgument(CreditInfoDestination.creditIdArg) { type = NavType.StringType }),
+    ) {
+        CreditInfoScreen(
+            onNavigateBack = {
+                navController.navigateUp()
+            },
+        )
     }
     composable(CreditRatesDestination.route) {
         CreditRatesScreen()

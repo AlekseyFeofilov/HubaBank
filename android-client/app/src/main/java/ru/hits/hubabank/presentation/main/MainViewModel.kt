@@ -6,6 +6,9 @@ import ru.hits.hubabank.domain.bill.AddNewBillUseCase
 import ru.hits.hubabank.domain.bill.FetchAllBillsUseCase
 import ru.hits.hubabank.domain.bill.ObserveAllBillsUseCase
 import ru.hits.hubabank.domain.bill.model.Bill
+import ru.hits.hubabank.domain.credit.AddNewCreditUseCase
+import ru.hits.hubabank.domain.credit.FetchAllCreditsUseCase
+import ru.hits.hubabank.domain.credit.ObserveAllCreditsUseCase
 import ru.hits.hubabank.domain.credit.model.Credit
 import ru.hits.hubabank.presentation.core.BaseViewModel
 import ru.hits.hubabank.presentation.main.model.MainAction
@@ -17,6 +20,9 @@ class MainViewModel @Inject constructor(
     private val observeAllBillsUseCase: ObserveAllBillsUseCase,
     private val fetchAllBillsUseCase: FetchAllBillsUseCase,
     private val addNewBillUseCase: AddNewBillUseCase,
+    private val observeAllCreditsUseCase: ObserveAllCreditsUseCase,
+    private val fetchAllCreditsUseCase: FetchAllCreditsUseCase,
+    private val addNewCreditUseCase: AddNewCreditUseCase,
 ) : BaseViewModel<MainState, MainAction>(
     MainState(isLoading = true, bills = emptyList(), credits = emptyList())
 ) {
@@ -45,12 +51,20 @@ class MainViewModel @Inject constructor(
     }
 
     fun addNewCredit() {
-        sendAction(MainAction.OpenOpenCreditAddingScreen)
+        launch {
+            addNewCreditUseCase(Unit)
+        }
     }
 
     fun fetchBills() {
         launch {
             fetchAllBillsUseCase(Unit)
+        }
+    }
+
+    fun fetchCredits() {
+        launch {
+            fetchAllCreditsUseCase(Unit)
         }
     }
 
@@ -65,6 +79,12 @@ class MainViewModel @Inject constructor(
     }
 
     private fun observeCredits() {
-        _screenState.value = _screenState.value.copy(credits = listOf(Credit("123", 80000, 10)))
+        launch {
+            observeAllCreditsUseCase(Unit).collect { result ->
+                result.onSuccess {
+                    _screenState.value = _screenState.value.copy(credits = it)
+                }
+            }
+        }
     }
 }
