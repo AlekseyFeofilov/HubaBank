@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.huba.users.dto.token.TokenDto;
 import org.huba.users.dto.user.CredentialsDto;
 import org.huba.users.exception.AuthException;
@@ -16,11 +17,14 @@ import org.huba.users.model.User;
 import org.huba.users.repository.UserRepository;
 import org.huba.users.utils.JwtProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Service
 @RequiredArgsConstructor
@@ -64,10 +68,10 @@ public class SSOService {
     @SneakyThrows
     @PostConstruct
     public void init(){
-        File file1 = ResourceUtils.getFile("classpath:authPage.html");
-        authPage = FileUtils.readFileToString(file1, "utf-8");
+        InputStream file1 = new ClassPathResource("authPage.html").getInputStream();
+        authPage = IOUtils.toString(file1, StandardCharsets.UTF_8);
 
-        File file2 = ResourceUtils.getFile("classpath:testPage.html");
-        testPage = FileUtils.readFileToString(file2, "utf-8");
+        InputStream file2 = new ClassPathResource("testPage.html").getInputStream();
+        testPage = IOUtils.toString(file2, StandardCharsets.UTF_8);
     }
 }
