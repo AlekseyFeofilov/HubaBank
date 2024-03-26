@@ -25,6 +25,20 @@ services:
     networks:
       - 'hits-huba-network'
 
+  users:
+    image: registry.gitlab.com/hits-tsu/huba/users:latest
+    container_name: hits-huba-users
+    ports:
+      - "9003:8080"
+    environment:
+      POSTGRES_HOST: hits-huba-database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_SCHEMA: users_service
+    networks:
+      - 'hits-huba-network'
+
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
     container_name: hits-huba-core
@@ -40,17 +54,15 @@ services:
     networks:
       - 'hits-huba-network'
 
-  users:
-    image: registry.gitlab.com/hits-tsu/huba/users:latest
-    container_name: hits-huba-users
+  credit:
+    image: registry.gitlab.com/hits-tsu/huba/credit:latest
+    container_name: hits-huba-credit
     ports:
-      - "9003:8080"
+      - "9005:8080"
     environment:
-      POSTGRES_HOST: hits-huba-database
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASS: ${POSTGRES_PASSWORD}
-      POSTGRES_SCHEMA: users_service
+      ASPNETCORE_ENVIRONMENT: Staging
+    volumes:
+      - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     networks:
       - 'hits-huba-network'
 

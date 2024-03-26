@@ -77,31 +77,6 @@ gateway-employer:image:
     PROJECT_DIR: employee-gateway/EmployeeGateway
     DOCKER_ARGS: '--build-arg DLL=EmployeeGateway.dll'
 
-core:build:
-  extends: .build_java_gradle
-  needs: []
-  variables:
-    PROJECT_DIR: core
-
-core:test:
-  extends: .test_java_gradle_with_testcontainers
-  needs:
-    - core:build
-  variables:
-    PROJECT_DIR: core
-
-core:image:
-  extends: .build_docker_image
-  needs:
-    - job: core:build
-      optional: true
-    - job: core:test
-      optional: true
-  variables:
-    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
-    IMAGE: core
-    PROJECT_DIR: core
-
 users:build:
   extends: .build_java_gradle
   needs: []
@@ -127,6 +102,59 @@ users:image:
     IMAGE: users
     PROJECT_DIR: java/users
 
+core:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: core
+
+core:test:
+  extends: .test_java_gradle_with_testcontainers
+  needs:
+    - core:build
+  variables:
+    PROJECT_DIR: core
+
+core:image:
+  extends: .build_docker_image
+  needs:
+    - job: core:build
+      optional: true
+    - job: core:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: core
+    PROJECT_DIR: core
+
+credit:build:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  extends: .build_dotnet
+  needs: []
+  variables:
+    PROJECT_DIR: credit
+
+credit:test:
+  image: mcr.microsoft.com/dotnet/sdk:6.0
+  extends: .test_dotnet
+  needs:
+    - credit:build
+  variables:
+    PROJECT_DIR: credit
+
+credit:image:
+  extends: .build_docker_image
+  needs:
+    - job: credit:build
+      optional: true
+    - job: credit:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/dotnet/6.0/Dockerfile
+    IMAGE: credit
+    PROJECT_DIR: credit
+    DOCKER_ARGS: '--build-arg DLL=Credit.Api.dll'
+
 deploy:staging:
   extends: .deploy
   tags:
@@ -142,4 +170,5 @@ deploy:staging:
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-employer:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/credit:latest
     - sudo docker compose up -d
