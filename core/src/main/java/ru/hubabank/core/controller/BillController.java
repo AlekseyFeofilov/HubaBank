@@ -10,11 +10,14 @@ import ru.hubabank.core.dto.ClientBillDto;
 import ru.hubabank.core.mapper.BillMapper;
 import ru.hubabank.core.service.BillService;
 import ru.hubabank.core.service.strategy.UserBillSearchStrategy;
+import ru.hubabank.core.versioning.ApiVersionRange;
 
 import java.util.List;
 import java.util.UUID;
 
 import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
+import static ru.hubabank.core.versioning.ApiVersion.MAX;
+import static ru.hubabank.core.versioning.ApiVersion.MIN;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +26,8 @@ public class BillController {
     private final BillService billService;
     private final BillMapper billMapper;
 
-    @GetMapping("bills")
+    @GetMapping(value = "bills")
+    @ApiVersionRange(min = MIN, max = MAX)
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
     @PreAuthorize("hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
     @Operation(
@@ -38,6 +42,7 @@ public class BillController {
     }
 
     @GetMapping("users/{userId}/bills")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -56,6 +61,7 @@ public class BillController {
     }
 
     @GetMapping("users/{userId}/bills/{billId}")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_READ_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -75,6 +81,7 @@ public class BillController {
     }
 
     @PostMapping("users/{userId}/bills")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_WRITE_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -95,6 +102,7 @@ public class BillController {
     }
 
     @DeleteMapping("users/{userId}/bills/{billId}")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_BILL_WRITE_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)

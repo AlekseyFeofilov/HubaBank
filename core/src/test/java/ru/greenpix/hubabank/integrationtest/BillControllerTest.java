@@ -2,8 +2,9 @@ package ru.greenpix.hubabank.integrationtest;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 import ru.hubabank.core.dto.ClientBillDto;
 import ru.hubabank.core.entity.Bill;
@@ -43,76 +45,84 @@ class BillControllerTest extends AbstractIntegrationTest {
     @Autowired
     private BillRepository billRepository;
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешный просмотр всех счетов")
     @Sql("/sql/insert-client-bill-collection.sql")
-    void whenGetAllBillsThenSuccess() throws Exception {
-        mockMvc.perform(get("/bills")
+    void whenGetAllBillsThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().json(readFromFileToString("response/bill-list-response.json")));
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр всех счетов без прав")
-    void whenGetAllBillsThenForbiddenIfHaveNotPrivilege() throws Exception {
-        mockMvc.perform(get("/bills")
+    void whenGetAllBillsThenForbiddenIfHaveNotPrivilege(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isForbidden());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешный просмотр всех своих счетов")
     @Sql("/sql/insert-client-bill-collection.sql")
-    void whenGetBillsThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
+    void whenGetBillsThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills", versionPath, CLIENT_USER_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().json(readFromFileToString("response/client-bill-list-response.json")));
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешный просмотр всех счетов другого клиента")
     @Sql("/sql/insert-client-bill-collection.sql")
-    void whenGetBillsOtherClientThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills")
+    void whenGetBillsOtherClientThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills", versionPath, CLIENT_USER_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().json(readFromFileToString("response/client-bill-list-response.json")));
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр всех счетов другого клиента без прав")
-    void whenGetBillsOtherClientThenForbidden() throws Exception {
-        mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills")
+    void whenGetBillsOtherClientThenForbidden(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills", versionPath, EMPLOYER_USER_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isForbidden());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешный просмотр своего счета")
     @Sql("/sql/insert-client-bill.sql")
-    void whenGetBillDetailsThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().json(readFromFileToString("response/client-bill-response.json")));
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешный просмотр счета другого клиента")
     @Sql("/sql/insert-client-bill.sql")
-    void whenGetBillDetailsOtherClientThenSuccess() throws Exception {
-        mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsOtherClientThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(content().json(readFromFileToString("response/client-bill-response.json")));
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное просмотр несуществующего счета")
-    void whenGetBillDetailsThenNotFoundIfNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsThenNotFoundIfNotExists(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -120,11 +130,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertError(result, ErrorType.BILL_NOT_FOUND);
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр информации о закрытом счете")
     @Sql("/sql/insert-client-closed-bill.sql")
-    void whenGetBillDetailsThenNotFoundIfBillIsClosed() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsThenNotFoundIfBillIsClosed(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -132,11 +143,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertError(result, ErrorType.BILL_NOT_FOUND);
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное просмотр счета, который не принадлежит указанному клиенту")
     @Sql("/sql/insert-client-bill.sql")
-    void whenGetBillDetailsThenNotFoundIfBelongsOtherClient() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsThenNotFoundIfBelongsOtherClient(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, EMPLOYER_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -144,20 +156,22 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertError(result, ErrorType.BILL_NOT_FOUND);
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр счета другого клиента без прав")
-    void whenGetBillDetailsOtherClientThenForbidden() throws Exception {
-        mockMvc.perform(get("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
+    void whenGetBillDetailsOtherClientThenForbidden(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s", versionPath, EMPLOYER_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isForbidden());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное создание своего счета")
-    void whenCreateBillThenSuccess() throws Exception {
+    void whenCreateBillThenSuccess(String versionPath) throws Exception {
         assertThat(billRepository.count()).isZero();
 
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills")
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/users/%s/bills", versionPath, CLIENT_USER_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -175,12 +189,13 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное создание счета для другого клиента")
-    void whenCreateBillOtherClientThenSuccess() throws Exception {
+    void whenCreateBillOtherClientThenSuccess(String versionPath) throws Exception {
         assertThat(billRepository.count()).isZero();
 
-        MvcResult result = mockMvc.perform(post("/users/" + CLIENT_USER_ID + "/bills")
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/users/%s/bills", versionPath, CLIENT_USER_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -198,21 +213,23 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное создание счета для другого клиента без прав")
-    void whenCreateBillOtherClientThenForbiddenIfHaveNotPrivilege() throws Exception {
-        mockMvc.perform(post("/users/" + EMPLOYER_USER_ID + "/bills")
+    void whenCreateBillOtherClientThenForbiddenIfHaveNotPrivilege(String versionPath) throws Exception {
+        mockMvc.perform(post(buildUrl("%s/users/%s/bills", versionPath, EMPLOYER_USER_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isForbidden());
 
         assertThat(billRepository.count()).isZero();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное закрытие своего счета")
     @Sql("/sql/insert-client-bill.sql")
-    void whenCloseBillThenSuccess() throws Exception {
-        mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isOk());
 
@@ -221,11 +238,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNotNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное закрытие счета у другого клиента")
     @Sql("/sql/insert-client-bill.sql")
-    void whenCloseBillOtherClientThenSuccess() throws Exception {
-        mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillOtherClientThenSuccess(String versionPath) throws Exception {
+        mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isOk());
 
@@ -237,10 +255,11 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNotNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное закрытие несуществующего счета")
-    void whenCloseBillThenNotFoundIfNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillThenNotFoundIfNotExists(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -249,11 +268,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(actual.getCode()).isEqualTo(ErrorType.BILL_NOT_FOUND.getCode());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное закрытие счета, который не принадлежит указанному клиенту")
     @Sql("/sql/insert-client-bill.sql")
-    void whenCloseBillThenNotFoundIfBelongsOtherClient() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillThenNotFoundIfBelongsOtherClient(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, EMPLOYER_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, EMPLOYER_TOKEN))
                 .andExpect(status().isNotFound())
                 .andReturn();
@@ -265,11 +285,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное закрытие счета с положительным балансом")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
-    void whenCloseBillThenBadRequestIfBalanceIsPositive() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillThenBadRequestIfBalanceIsPositive(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -281,11 +302,12 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное закрытие счета с негативным балансом")
     @Sql("/sql/insert-client-bill-with-negative-balance.sql")
-    void whenCloseBillThenBadRequestIfBalanceIsNegative() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillThenBadRequestIfBalanceIsNegative(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, CLIENT_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -297,10 +319,11 @@ class BillControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getClosingInstant()).isNull();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное закрытие счета у другого клиента без прав")
-    void whenCloseBillOtherClientThenForbiddenIfHaveNotPrivilege() throws Exception {
-        mockMvc.perform(delete("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
+    void whenCloseBillOtherClientThenForbiddenIfHaveNotPrivilege(String versionPath) throws Exception {
+        mockMvc.perform(delete(buildUrl("%s/users/%s/bills/%s", versionPath, EMPLOYER_USER_ID, BILL_ID))
                         .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
                 .andExpect(status().isForbidden());
     }
