@@ -10,10 +10,13 @@ import ru.hubabank.core.entity.TransactionReason;
 import ru.hubabank.core.security.annotation.HasInternalRole;
 import ru.hubabank.core.service.TransactionService;
 import ru.hubabank.core.service.strategy.SimpleBillSearchStrategy;
+import ru.hubabank.core.versioning.ApiVersionRange;
 
 import java.util.UUID;
 
 import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_INTERNAL_SCHEME;
+import static ru.hubabank.core.versioning.ApiVersion.MAX;
+import static ru.hubabank.core.versioning.ApiVersion.MIN;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class TransactionInternalController {
     private final TransactionService transactionService;
 
     @PostMapping("bills/{billId}/transactions")
+    @ApiVersionRange(min = MIN, max = MAX)
     @HasInternalRole
     @SecurityRequirement(name = SECURITY_INTERNAL_SCHEME)
     @Operation(

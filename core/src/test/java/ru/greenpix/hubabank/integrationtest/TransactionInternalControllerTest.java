@@ -2,8 +2,9 @@ package ru.greenpix.hubabank.integrationtest;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.entity.Transaction;
@@ -48,13 +50,14 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное зачисление денег на счет")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
-    void whenDepositThenSuccess() throws Exception {
+    void whenDepositThenSuccess(String versionPath) throws Exception {
         assertThat(transactionRepository.count()).isZero();
 
-        mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+        mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/deposit-transaction.json")))
@@ -71,13 +74,14 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
         assertThat(transaction.getBill().getBalance()).isEqualTo(2);
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Успешное снятие денег со счета")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
-    void whenWithdrawThenSuccess() throws Exception {
+    void whenWithdrawThenSuccess(String versionPath) throws Exception {
         assertThat(transactionRepository.count()).isZero();
 
-        mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+        mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
@@ -95,10 +99,11 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     }
 
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное пополнение на несуществующий счет")
-    void whenDepositThenNotFoundIfBillIsNotExists() throws Exception {
-        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+    void whenDepositThenNotFoundIfBillIsNotExists(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
@@ -110,11 +115,12 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
         assertThat(transactionRepository.count()).isZero();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное пополнение на закрытый счет")
     @Sql("/sql/insert-client-closed-bill.sql")
-    void whenDepositThenNotFoundIfBillIsClosed() throws Exception {
-        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+    void whenDepositThenNotFoundIfBillIsClosed(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))
@@ -129,11 +135,12 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getBalance()).isZero();
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное создание транзакции с нулевой суммой изменения")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
-    void whenCreateTransactionThenBadRequestIfBalanceChangeIsZero() throws Exception {
-        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+    void whenCreateTransactionThenBadRequestIfBalanceChangeIsZero(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/invalid-transaction.json")))
@@ -148,11 +155,12 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
         assertThat(bill.getBalance()).isEqualTo(1);
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешное снятие суммы больше, чем есть на счете")
     @Sql("/sql/insert-client-bill.sql")
-    void whenWithdrawThenBadRequestIfBillBalanceIsLess() throws Exception {
-        MvcResult result = mockMvc.perform(post("/internal/bills/" + BILL_ID + "/transactions")
+    void whenWithdrawThenBadRequestIfBillBalanceIsLess(String versionPath) throws Exception {
+        MvcResult result = mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
                         .header(API_KEY_HEADER, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(readFromFileToString("request/withdrawal-transaction.json")))

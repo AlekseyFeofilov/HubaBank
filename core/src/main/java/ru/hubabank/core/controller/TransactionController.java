@@ -10,11 +10,14 @@ import ru.hubabank.core.dto.TransactionDto;
 import ru.hubabank.core.entity.TransactionReason;
 import ru.hubabank.core.service.TransactionService;
 import ru.hubabank.core.service.strategy.UserBillSearchStrategy;
+import ru.hubabank.core.versioning.ApiVersionRange;
 
 import java.util.List;
 import java.util.UUID;
 
 import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
+import static ru.hubabank.core.versioning.ApiVersion.MAX;
+import static ru.hubabank.core.versioning.ApiVersion.MIN;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping("users/{userId}/bills/{billId}/transactions")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_READ') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_TRANSACTION_READ_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -42,6 +46,7 @@ public class TransactionController {
     }
 
     @PostMapping("users/{userId}/bills/{billId}/transactions")
+    @ApiVersionRange(min = MIN, max = MAX)
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_WRITE') and #userId == authentication.principal.id) " +
             "or hasAuthority('PRIVILEGE_TRANSACTION_WRITE_OTHERS')")
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
