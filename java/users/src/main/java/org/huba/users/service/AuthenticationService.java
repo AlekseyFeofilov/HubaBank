@@ -44,23 +44,8 @@ public class AuthenticationService {
     }
 
     public TokenDto login(CredentialsDto credentialsDto) {
-        User user = userRepository.findByPhone(credentialsDto.getPhoneNumber()).orElseThrow(()->new AuthException("bad login or password"));
-
-        if(user.getBlockedDate() != null)
-        {
-            throw new ForbiddenException();
-        }
-//        if(!passwordEncoder.matches(credentialsDto.getPassword(), user.getPassword())) {
-//            throw new BadLoginOrPasswordException();
-//        }
-
-        if(!credentialsDto.getPassword().equals(user.getPasswordHash())) {//для тестов
-            throw new BadLoginOrPasswordException();
-        }
-
-        String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
-        return new TokenDto(accessToken, refreshToken);
+        User user = getUserByCredentials(credentialsDto);
+        return getTokenByUser(user);
     }
 
     public TokenDto refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
@@ -69,6 +54,30 @@ public class AuthenticationService {
         {
             throw new ForbiddenException();
         }
+        String accessToken = jwtProvider.generateAccessToken(user);
+        String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
+        return new TokenDto(accessToken, refreshToken);
+    }
+
+    public User getUserByCredentials(CredentialsDto credentialsDto) {
+        User user = userRepository.findByPhone(credentialsDto.getPhoneNumber()).orElseThrow(()->new AuthException("bad login or password"));
+
+        if(user.getBlockedDate() != null)
+        {
+            throw new ForbiddenException();
+        }
+
+//        if(!passwordEncoder.matches(credentialsDto.getPassword(), user.getPassword())) {
+//            throw new BadLoginOrPasswordException();
+//        }
+
+        if(!credentialsDto.getPassword().equals(user.getPasswordHash())) {//для тестов
+            throw new BadLoginOrPasswordException();
+        }
+        return user;
+    }
+
+    public TokenDto getTokenByUser(User user) {
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = tokenService.generateToken(user, TokenType.REFRESH);
         return new TokenDto(accessToken, refreshToken);

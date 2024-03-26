@@ -6,7 +6,8 @@ import org.huba.users.utils.MyConstants;
 public enum TokenType {
     PASSWORD_CHANGE(true, 20, MyConstants.ONE_DAY_MILLIS),
     REFRESH(false, 8, MyConstants.ONE_DAY_MILLIS),
-    CONFIRM(true, 15, MyConstants.ONE_DAY_MILLIS);
+    CONFIRM(true, 15, MyConstants.ONE_DAY_MILLIS),
+    AUTH_TOKEN(true, 25, MyConstants.ONE_DAY_MILLIS);
 
     @Getter
     private final boolean alphabet;
