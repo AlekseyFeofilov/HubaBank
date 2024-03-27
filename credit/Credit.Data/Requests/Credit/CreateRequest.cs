@@ -5,6 +5,11 @@ namespace Credit.Data.Requests.Credit;
 public class CreateRequest
 {
     /// <summary>
+    /// Id кредита
+    /// </summary>
+    public Guid Id { get; set; }
+    
+    /// <summary>
     /// Id пользователя, на которого оформляется кредит
     /// </summary>
     [Required]

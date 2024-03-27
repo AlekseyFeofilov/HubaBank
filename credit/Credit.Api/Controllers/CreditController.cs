@@ -22,7 +22,7 @@ public class CreditController : ControllerBase
     public async Task<CreditResponse> FetchCredit(Guid id)
     {
         var credit = await _mediator.Send(new Lib.Feature.Credit.FetchById.Request(id), HttpContext.RequestAborted); //временный костыль
-        return credit ?? throw new CreditNotFoundException(id);
+        return credit ?? throw new EntityNotFoundException(id);
     }
     
     [HttpGet("users/{userid:guid}")]
@@ -33,9 +33,10 @@ public class CreditController : ControllerBase
     
     /// <response code="400">BadRequest</response>
     [HttpPost]
-    public async Task CreateCredit(Data.Requests.Credit.CreateRequest data)
+    public async Task<Guid> CreateCredit(Data.Requests.Credit.CreateRequest data)
     {
-        await _mediator.Send(new Lib.Feature.Credit.Create.Request(data), HttpContext.RequestAborted);
+        var credit = await _mediator.Send(new Lib.Feature.Credit.Create.Request(data), HttpContext.RequestAborted);
+        return credit.First().Id;
     }
     
     /// <desctipion>
@@ -43,10 +44,10 @@ public class CreditController : ControllerBase
     /// </desctipion>
     /// <response code="404">Not Found</response>
     [HttpPut("{id:guid}")]
-    public async Task UpdateCredit(Guid id, Data.Requests.Credit.UpdateRequest data) //todo добавить такие же проверки, как у Create
+    public async Task<CreditResponse> UpdateCredit(Guid id, Data.Requests.Credit.UpdateRequest data) //todo добавить такие же проверки, как у Create
     //todo падает при несуществующем челе
     {
-        await _mediator.Send(new Lib.Feature.Credit.Update.Request(id, data), HttpContext.RequestAborted);
+        return (await _mediator.Send(new Lib.Feature.Credit.Update.Request(id, data), HttpContext.RequestAborted))!;
     }
     
     /// <response code="404">Not Found</response>

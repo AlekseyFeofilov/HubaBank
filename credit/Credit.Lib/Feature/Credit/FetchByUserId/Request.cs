@@ -6,7 +6,8 @@ namespace Credit.Lib.Feature.Credit.FetchByUserId;
 
 public class Request : Base.FetchAll.Request<Dal.Models.Credit, CreditResponse>
 {
-    public Request(Guid userId, PageFilter? pageFilter) : base(new CreditUserSpecification(userId), pageFilter)
+    public Request(Guid userId, PageFilter? pageFilter) : base(new CreditUserSpecification(userId) &&
+        new ActiveOnlySpecification<Dal.Models.Credit>(), pageFilter)
     {
     }
 }

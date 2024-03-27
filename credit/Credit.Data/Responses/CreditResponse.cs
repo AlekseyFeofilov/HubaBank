@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Credit.Primitives;
 
 namespace Credit.Data.Responses;
@@ -6,6 +7,7 @@ public class CreditResponse
 { 
     public Guid Id { get; set; }
     public Guid AccountId { get; set; }
+    [JsonConverter(typeof(DateOnlyJsonConverter))]
     public DateOnly CompletionDate { get; set; } 
     public float InterestRate { get; set; }
     public int CollectionDay { get; set; }

@@ -19,6 +19,7 @@ public class JobInitializer : IAsyncInitializer
 
     public async Task Debug(CancellationToken cancellationToken)
     {
+        await _mediator.Send(new Lib.Feature.Ping.Request(), cancellationToken);
         // var oldAccountId = Guid.NewGuid();
         // var newAccountId = Guid.NewGuid();
         // var creditData = new CreditResponse { AccountId = oldAccountId };
@@ -41,6 +42,6 @@ public class JobInitializer : IAsyncInitializer
         // }, cancellationToken);
 
 
-        Console.WriteLine();
+        Console.WriteLine("Pong");
     }
 }

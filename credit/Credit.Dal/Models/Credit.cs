@@ -2,7 +2,7 @@ namespace Credit.Dal.Models;
 
 public class Credit : IIdentity<Guid>, IDeletable
 {
-    public Guid Id { get; }
+    public Guid Id { get; set; }
     public Guid AccountId { get; set; }
     public DateOnly CompletionDate { get; set; } 
     public float InterestRate { get; set; }

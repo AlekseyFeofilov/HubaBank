@@ -36,7 +36,7 @@ namespace Credit.Api.Middlewares
             {
                 case BusinessException e:
                     code = e.Code;
-                    result = e.Message;
+                    result = JsonSerializer.Serialize(e.Message);
                     LogCustomException(e, e.Entity);
                     break;
                 default:

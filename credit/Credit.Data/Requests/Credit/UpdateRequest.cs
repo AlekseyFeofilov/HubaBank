@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Credit.Data.Requests.Credit;
 
 public class UpdateRequest
@@ -5,6 +7,7 @@ public class UpdateRequest
     /// <summary>
     /// Срок кредита
     /// </summary>
+    [JsonConverter(typeof(DateOnlyJsonConverter))]
     public DateOnly? CompletionDate { get; set; } 
     
     /// <summary>

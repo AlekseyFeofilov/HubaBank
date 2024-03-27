@@ -1,6 +1,6 @@
 using System.Reflection;
-using Credit.Data.Responses;
 using Credit.Lib.Extensions;
+using Credit.Lib.Feature.Ping;
 using Credit.Lib.Mapping;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -17,15 +17,27 @@ public static class Bootstrapper
     public static IServiceCollection AddCredit(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
         services.AddMediatR(cfg =>
-            {
-                cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
-                cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
-            })
-            .AddGenericMediatR(typeof(Bootstrapper).Assembly)
-            .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
-            // .AddHangfire(configuration)
-            ;
+        {
+            cfg.AutoRegisterRequestProcessors = true;
+            cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+            
+        })
+        .AddGenericMediator(typeof(Bootstrapper).Assembly)
+        .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()));
+
+        // ServiceRegistrar.AddMediatRClasses(services, mediatorServiceConfiguration);
+        // services.AddMediatR(cfg =>
+        //     {
+        //         cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+        //         cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
+        //     });
+        //     .AddGenericMediator(typeof(Bootstrapper).Assembly)
+        //     .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
+        //     // .AddHangfire(configuration)
+        //     ;
 
         return services;
     }
@@ -46,7 +58,7 @@ public static class Bootstrapper
         return services;
     }
 
-    private static IServiceCollection AddGenericMediatR(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection AddGenericMediator(this IServiceCollection services, Assembly assembly)
     {
         var descriptors = assembly.GetTypes()
             .Where(x => !x.IsAbstract)
