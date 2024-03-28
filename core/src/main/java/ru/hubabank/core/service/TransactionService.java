@@ -38,7 +38,7 @@ public class TransactionService {
     }
 
     @Transactional
-    public void createTransaction(
+    public Transaction createTransaction(
             long balanceChange,
             @NotNull BillSearchStrategy billSearchStrategy,
             @NotNull TransactionReason reason
@@ -54,6 +54,6 @@ public class TransactionService {
         Transaction transaction = transactionMapper.mapCreationDtoToEntity(balanceChange, reason);
         transaction.setBill(bill);
         transaction.setInstant(Instant.now());
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
     }
 }

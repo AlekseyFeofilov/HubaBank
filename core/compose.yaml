@@ -8,11 +8,23 @@ services:
       POSTGRES_USER: core
       POSTGRES_PASSWORD: core
       POSTGRES_DB: core
+  rabbitmq:
+    image: 'rabbitmq:3.13.0-management-alpine'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: core
+      RABBITMQ_DEFAULT_PASS: core
+      RABBITMQ_DEFAULT_VHOST: core
+    volumes:
+      - './rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro'
+      - './rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro'
   wiremock:
     image: 'wiremock/wiremock:3.4.2-alpine'
     ports:
       - '8081:8080'
     volumes:
-      - './src/test/resources/wiremock/__files:/home/wiremock/__files'
-      - './src/test/resources/wiremock/mappings:/home/wiremock/mappings'
+      - './src/test/resources/wiremock/__files:/home/wiremock/__files:ro'
+      - './src/test/resources/wiremock/mappings:/home/wiremock/mappings:ro'
 

@@ -34,6 +34,10 @@ public class Bill {
     @Column(name = "closing_instant")
     private Instant closingInstant;
 
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private BillType type;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
