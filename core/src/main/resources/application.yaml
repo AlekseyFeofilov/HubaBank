@@ -18,6 +18,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:core}
+    password: ${RABBITMQ_PASSWORD:core}
+    virtual-host: ${RABBITMQ_VHOST:core}
   cloud:
     openfeign:
       client:
