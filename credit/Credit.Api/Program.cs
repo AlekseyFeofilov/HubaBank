@@ -25,6 +25,8 @@ builder.Services.AddSwaggerGen(options =>
         Format = "date",
         Example = new OpenApiString("2022-01-01")
     });
+    
+    options.CustomSchemaIds( type => type.ToString() );
 });
 
 builder.Services.AddCredit(builder.Configuration);

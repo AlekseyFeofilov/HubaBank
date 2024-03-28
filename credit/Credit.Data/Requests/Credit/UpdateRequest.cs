@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Credit.Data.Requests.Credit;
@@ -13,6 +14,7 @@ public class UpdateRequest
     /// <summary>
     /// Процентная ставка по кредиту
     /// </summary>
+    [Range(0.1, float.MaxValue)]
     public float? InterestRate { get; set; }
     
     /// <summary>

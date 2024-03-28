@@ -1,14 +1,13 @@
-using Credit.Data.Responses;
+using Credit.Data.Requests.CreditTerms;
 
 namespace Credit.Lib.Feature.CreditTerms.Create;
 
-public class Request : Base.Add.Request<Dal.Models.CreditTerms, CreditTermsResponse>
+public class Request : Base.Add.Request<Dal.Models.CreditTerms, CreateRequest>
 {
-    public Request(CreditTermsResponse entity) : base(entity)
+    public CreateRequest CreateRequest { get; }
+    
+    public Request(CreateRequest entity) : base(entity)
     {
-    }
-
-    public Request(IReadOnlyCollection<CreditTermsResponse> entities) : base(entities)
-    {
+        CreateRequest = entity;
     }
 }

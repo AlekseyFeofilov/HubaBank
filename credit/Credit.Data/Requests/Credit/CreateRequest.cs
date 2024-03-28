@@ -30,7 +30,7 @@ public class CreateRequest
     /// <summary>
     /// Процентная ставка по кредиту
     /// </summary>
-    [Range(0.01f, 100)]
+    [Range(0.1, float.MaxValue)]
     public float? InterestRate { get; set; }
     
     /// <summary>

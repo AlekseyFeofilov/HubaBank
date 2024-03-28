@@ -1,6 +1,5 @@
 using Credit.Data;
 using Credit.Data.Responses;
-using Credit.Lib.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,11 +17,10 @@ public class CreditController : ControllerBase
     }
 
     /// <response code="404">Not Found</response>
-    [HttpGet("{id:guid}")] //todo возвращает 204 при not found 
-    public async Task<CreditResponse> FetchCredit(Guid id)
+    [HttpGet("{id:guid}")] 
+    public Task<CreditResponse> FetchCredit(Guid id)
     {
-        var credit = await _mediator.Send(new Lib.Feature.Credit.FetchById.Request(id), HttpContext.RequestAborted); //временный костыль
-        return credit ?? throw new EntityNotFoundException(id);
+        return _mediator.Send(new Lib.Feature.Credit.FetchById.Request(id), HttpContext.RequestAborted);
     }
     
     [HttpGet("users/{userid:guid}")]
@@ -44,8 +42,7 @@ public class CreditController : ControllerBase
     /// </desctipion>
     /// <response code="404">Not Found</response>
     [HttpPut("{id:guid}")]
-    public async Task<CreditResponse> UpdateCredit(Guid id, Data.Requests.Credit.UpdateRequest data) //todo добавить такие же проверки, как у Create
-    //todo падает при несуществующем челе
+    public async Task<CreditResponse> UpdateCredit(Guid id, Data.Requests.Credit.UpdateRequest data)
     {
         return (await _mediator.Send(new Lib.Feature.Credit.Update.Request(id, data), HttpContext.RequestAborted))!;
     }

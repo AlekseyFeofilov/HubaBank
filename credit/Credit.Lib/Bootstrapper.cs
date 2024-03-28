@@ -1,6 +1,6 @@
 using System.Reflection;
+using AutoMapper;
 using Credit.Lib.Extensions;
-using Credit.Lib.Feature.Ping;
 using Credit.Lib.Mapping;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -26,7 +26,12 @@ public static class Bootstrapper
             
         })
         .AddGenericMediator(typeof(Bootstrapper).Assembly)
-        .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()));
+        .AddAutoMapper(x => x
+            .AddProfiles(new Profile[]
+            {
+                new CreditMappingProfile(),
+                new CreditTermsMappingProfile(),
+            }));
 
         // ServiceRegistrar.AddMediatRClasses(services, mediatorServiceConfiguration);
         // services.AddMediatR(cfg =>

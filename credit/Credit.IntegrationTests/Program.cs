@@ -1,6 +1,9 @@
-﻿using Credit.IntegrationTests;
-using Credit.IntegrationTests.TestModules;
+﻿using Credit.IntegrationTests.TestModules;
 
 var creditTestModule = new CreditTestModule();
-await creditTestModule.Test();
+var creditTermsTestModule = new CreditTermsTestModule();
+
+// await creditTestModule.Test();
+await creditTermsTestModule.Test();
+
 Console.WriteLine("Success");
