@@ -7,5 +7,5 @@
     - sudo rm -rf $WORKING_DIR
     - sudo cp -r .infra/deploy/$ENVIRONMENT $WORKING_DIR
     - cd $WORKING_DIR
-    - chmod -R -x $WORKING_DIR
+    - sudo chmod -R +x $WORKING_DIR
     - sudo cp $ENV .env
