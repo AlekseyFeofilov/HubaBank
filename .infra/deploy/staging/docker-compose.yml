@@ -85,6 +85,8 @@ services:
       RABBITMQ_DEFAULT_USER: huba
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
       RABBITMQ_DEFAULT_VHOST: huba
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
     restart: always
 
   rabbitmq2:
@@ -97,6 +99,8 @@ services:
     volumes:
       - ./rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
     entrypoint: /usr/local/bin/cluster-entrypoint.sh
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
     restart: always
 
   rabbitmq3:
@@ -109,6 +113,8 @@ services:
     volumes:
       - ./rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
     entrypoint: /usr/local/bin/cluster-entrypoint.sh
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
     restart: always
 
   rabbitmq-haproxy:
@@ -125,7 +131,9 @@ services:
       - '5672:5672'
     networks:
       - 'hits-huba-network'
+      - 'hits-huba-rabbitmq-cluster-network'
     restart: always
 
 networks:
   hits-huba-network:
+  hits-huba-rabbitmq-cluster-network:
