@@ -38,6 +38,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: core_service
+      RABBITMQ_HOST: hits-huba-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
       USERS_SERVICE_URL: http://hits-huba-users:8080/users/api/v1/
     networks:
       - 'hits-huba-network'
@@ -78,7 +83,7 @@ services:
     environment:
       RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
       RABBITMQ_DEFAULT_USER: huba
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
       RABBITMQ_DEFAULT_VHOST: huba
 
   rabbitmq2:
