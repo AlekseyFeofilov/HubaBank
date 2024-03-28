@@ -16,13 +16,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
 public class InternalAuthenticationFilter extends OncePerRequestFilter {
 
     private final InternalAuthenticationConverter converter;
-    private final RequestMatcher matcher;
+    private final RequestMatcher[] matchers;
 
     @Override
     protected void doFilterInternal(
@@ -58,6 +59,8 @@ public class InternalAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
-        return new NegatedRequestMatcher(matcher).matches(request);
+        return Stream.of(matchers)
+                .map(NegatedRequestMatcher::new)
+                .allMatch(matcher -> matcher.matches(request));
     }
 }

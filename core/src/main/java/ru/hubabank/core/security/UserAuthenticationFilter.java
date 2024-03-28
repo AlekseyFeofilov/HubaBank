@@ -10,19 +10,19 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
 public class UserAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserAuthenticationConverter converter;
-    private final RequestMatcher matcher;
+    private final RequestMatcher[] matchers;
 
     @Override
     protected void doFilterInternal(
@@ -58,6 +58,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NotNull HttpServletRequest request) {
-        return new NegatedRequestMatcher(matcher).matches(request);
+        return Stream.of(matchers).anyMatch(matcher -> matcher.matches(request));
     }
 }

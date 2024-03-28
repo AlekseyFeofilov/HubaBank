@@ -1,0 +1,2 @@
+ALTER TABLE token DROP CONSTRAINT token_type_check;
+ALTER TABLE token ADD CONSTRAINT token_type_check CHECK (type in ('PASSWORD_CHANGE','REFRESH','CONFIRM', 'AUTH_TOKEN'));

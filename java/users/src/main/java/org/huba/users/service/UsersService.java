@@ -1,11 +1,10 @@
 package org.huba.users.service;
 
 import lombok.RequiredArgsConstructor;
+import org.huba.users.dto.user.CredentialsDto;
 import org.huba.users.dto.user.FullNameDto;
 import org.huba.users.dto.user.UserFullDto;
-import org.huba.users.exception.ForbiddenException;
-import org.huba.users.exception.NotFoundException;
-import org.huba.users.exception.NotImplementedException;
+import org.huba.users.exception.*;
 import org.huba.users.model.Privilege;
 import org.huba.users.model.Role;
 import org.huba.users.model.User;
