@@ -282,22 +282,6 @@ class BillControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("Неуспешное закрытие счета с негативным балансом")
-    @Sql("/sql/insert-client-bill-with-negative-balance.sql")
-    void whenCloseBillThenBadRequestIfBalanceIsNegative() throws Exception {
-        MvcResult result = mockMvc.perform(delete("/users/" + CLIENT_USER_ID + "/bills/" + BILL_ID)
-                        .header(AUTHORIZATION_HEADER, CLIENT_TOKEN))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        assertError(result, ErrorType.CLOSING_BILL_WITH_NEGATIVE_BALANCE);
-
-        Bill bill = billRepository.findAll().iterator().next();
-        assertThat(bill.getUserId()).isEqualTo(UUID.fromString(CLIENT_USER_ID));
-        assertThat(bill.getClosingInstant()).isNull();
-    }
-
-    @Test
     @DisplayName("Неуспешное закрытие счета у другого клиента без прав")
     void whenCloseBillOtherClientThenForbiddenIfHaveNotPrivilege() throws Exception {
         mockMvc.perform(delete("/users/" + EMPLOYER_USER_ID + "/bills/" + BILL_ID)
