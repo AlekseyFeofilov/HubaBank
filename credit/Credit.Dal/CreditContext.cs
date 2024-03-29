@@ -7,6 +7,7 @@ public class CreditContext : DbContext
 {
     public DbSet<Models.Credit> Credits { get; set; }
     public DbSet<CreditTerms> CreditTerms { get; set; }
+    public DbSet<Payment> Payments { get; set; }
 
 #pragma warning disable CS8618
     public CreditContext(DbContextOptions<CreditContext> options) : base(options)
@@ -34,6 +35,17 @@ public class CreditContext : DbContext
         modelBuilder.Entity<CreditTerms>(typeBuilder =>
         {
             typeBuilder.HasKey(x => x.Id);
+        });
+        
+        modelBuilder.Entity<Payment>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+
+            typeBuilder
+                .HasOne(x => x.Credit)
+                .WithMany()
+                .HasForeignKey(x => x.CreditId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

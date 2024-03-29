@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.Primitives", "Credit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.IntegrationTests", "Credit.IntegrationTests\Credit.IntegrationTests.csproj", "{2C5F3EDD-A181-4E48-9326-5ECB83B692C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{400B0EC3-7B1B-4D1D-9109-1847559E319B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilsDateTime", "UtilsDateTime\UtilsDateTime.csproj", "{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,7 +46,12 @@ Global
 		{2C5F3EDD-A181-4E48-9326-5ECB83B692C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C5F3EDD-A181-4E48-9326-5ECB83B692C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C5F3EDD-A181-4E48-9326-5ECB83B692C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED} = {400B0EC3-7B1B-4D1D-9109-1847559E319B}
 	EndGlobalSection
 EndGlobal

@@ -22,6 +22,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Credit.Dal\Credit.Dal.csproj" />
       <ProjectReference Include="..\Credit.Data\Credit.Data.csproj" />
+      <ProjectReference Include="..\UtilsDateTime\UtilsDateTime.csproj" />
     </ItemGroup>
 
     <ItemGroup>
