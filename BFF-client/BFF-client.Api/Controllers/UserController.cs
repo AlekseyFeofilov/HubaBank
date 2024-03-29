@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using BFF_client.Api.model.user;
 using Microsoft.AspNetCore.Http.Json;
+using BFF_client.Api.Services.User;
 
 namespace BFF_client.Api.Controllers
 {
@@ -21,21 +22,24 @@ namespace BFF_client.Api.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigUrls _configUrls;
+        private readonly IUserService _userService;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public UserController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options)
+        public UserController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IUserService userService)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
+            _userService = userService;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpPost("login")]
         [Produces("application/json")]
         public async Task<ActionResult<TokensDto>> PostLogin(CredentialsDto credentials)
         {
-            string downstreamUrl = _configUrls.users + "login";
+            string downstreamUrl = _configUrls.users + "jwt";
 
-            var json = JsonSerializer.Serialize(credentials, ControllersUtils.jsonOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(credentials.JwtSOO, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(downstreamUrl, content);
 
@@ -102,12 +106,45 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
                 );
             var response = await _httpClient.SendAsync(message);
 
-            return await this.GetResultFromResponse<ProfileDto>(response);
+            var isDarkTheme = await _userService.GetIsDarkTheme(Guid.Parse(userId));
+
+            return await this.GetResultFromResponse<ProfileDto>(response, p => p.IsDarkTheme = isDarkTheme);
+        }
+
+        [HttpPost("theme")]
+        [Produces("application/json")]
+        public async Task<IActionResult> ChangeTheme([FromBody] bool isDarkTheme)
+        {
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            if (profileWithPrivileges == null)
+            {
+                return Unauthorized();
+            }
+
+            await _userService.SetIsDarkTheme(Guid.Parse(userId), isDarkTheme);
+
+            return Ok();
         }
     }
 }
