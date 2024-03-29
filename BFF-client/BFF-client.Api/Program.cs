@@ -1,6 +1,4 @@
-using BFF_client.Api;
 using BFF_client.Api.model;
-using BFF_client.Api.WebSocket;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
@@ -25,28 +23,20 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
         }
     });
 });
 
-//Database
-builder.ConfigureAppDb();
-
-//Services
-builder.ConfigureAppServices();
-
 builder.Services.Configure<ConfigUrls>(builder.Configuration.GetRequiredSection("MicroserversUrls"));
-
-builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -57,10 +47,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapHub<TransactionsHub>("/api/bills/{billId::guid}/transactions/ws");
-
 app.MapControllers();
-
-Configurator.Migrate(app.Services);
 
 app.Run();

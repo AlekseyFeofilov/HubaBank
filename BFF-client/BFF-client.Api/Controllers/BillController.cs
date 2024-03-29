@@ -10,9 +10,6 @@ using BFF_client.Api.model.bill;
 using System.Net.Http.Headers;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Win32;
-using BFF_client.Api.Services.Bill;
-using System.Net.Http;
-using BFF_client.Api.Models;
 
 namespace BFF_client.Api.Controllers
 {
@@ -22,15 +19,11 @@ namespace BFF_client.Api.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigUrls _configUrls;
-        private readonly IBillService _billService;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public BillController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IBillService billService)
+        public BillController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
-            _billService = billService;
-            _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet("")]
@@ -47,29 +40,15 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_READ) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
                 );
             var response = await _httpClient.SendAsync(message);
 
-            var knownBills = await _billService.GetKnownUserBills(Guid.Parse(userId));
-
-            return await this.GetResultFromResponse<List<ClientBillDto>>(
-                response,
-                l => l.ForEach(b => b.isHidden = knownBills.Find(kb => kb.BillId == Guid.Parse(b.Id))?.IsHidden ?? false)
-            );
+            return await this.GetResultFromResponse<List<ClientBillDto>>(response);
         }
 
         [HttpPost("")]
@@ -86,17 +65,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_WRITE) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
@@ -120,51 +90,15 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_READ) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills/" + billId;
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
                 );
             var response = await _httpClient.SendAsync(message);
 
-            var isHidden = await _billService.GetIsBillHidden(Guid.Parse(userId), billId);
-
-            return await this.GetResultFromResponse<ClientBillDto>(response, b => b.isHidden = isHidden);
-        }
-
-        [HttpPost("{billId:guid}/hidden")]
-        [Produces("application/json")]
-        public async Task<IActionResult> ChangeBillHidden(Guid billId, [FromBody] bool isHidden)
-        {
-            var authHeader = Request.Headers.Authorization.FirstOrDefault();
-            if (authHeader == null)
-            {
-                return Unauthorized();
-            }
-            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            await _billService.SetIsBillHidden(Guid.Parse(userId), billId, isHidden);
-
-            return Ok();
+            return await this.GetResultFromResponse<ClientBillDto>(response);
         }
 
         [HttpDelete("{billId:guid}")]
@@ -181,31 +115,18 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_WRITE) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills/" + billId;
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
                 );
             var response = await _httpClient.SendAsync(message);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                await _billService.DeleteBill(Guid.Parse(userId), billId);
-            }
+
             return await this.GetResult(response);
         }
 
-        /*[HttpGet("{billId:guid}/transactions")]
+        [HttpGet("{billId:guid}/transactions")]
         [Produces("application/json")]
         public async Task<ActionResult<List<TransactionDto>>> GetBillHistory(Guid billId)
         {
@@ -219,17 +140,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.TRANSACTION_READ) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills/" + billId + "/transactions";
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
@@ -237,7 +149,7 @@ namespace BFF_client.Api.Controllers
             var response = await _httpClient.SendAsync(message);
 
             return await this.GetResultFromResponse<List<TransactionDto>>(response);
-        }*/
+        }
 
         [HttpPost("{billId:guid}/transactions")]
         [Produces("application/json")]
@@ -253,17 +165,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.TRANSACTION_WRITE) == false)
-            {
-                return Forbid();
-            }
-
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills/" + billId + "/transactions";
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
