@@ -80,9 +80,11 @@
             })
             if(res.status !== 200) {
                 console.log("WRONG CREDENTIALS")
+                document.getElementById("for-me").innerHTML = 'Неверный пароль'
             }
             else {
-                window.location.href = (redirectUrl + "?token=" + (await res.text()))
+                document.getElementById("for-me").innerHTML = ''
+                document.getElementById("for-button").innerHTML = '<a href=' + (redirectUrl + "?token=" + (await res.text())) + '>Вернутся в приложение</a>'
             }
         }
     </script>
@@ -96,7 +98,13 @@
             <input type="phone" name="auth_email" id="phone" placeholder="Введите ваш телефон" required >
             <label>Введите Ваш пароль</label>
             <input type="password" name="auth_pass" id="password" placeholder="Введите пароль" required >
-            <button class="form_auth_button" type="submit" name="form_auth_submit" onclick="login()">Войти</button>
+            <div id="for-me">
+
+            </div>
+            <div id="for-button">
+                <button class="form_auth_button" type="submit" name="form_auth_submit" onclick="login()">Войти</button>
+            </div>
+
         </div>
     </div>
 </div>
