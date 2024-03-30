@@ -1,4 +1,4 @@
-package ru.greenpix.hubabank.integrationtest;
+package ru.greenpix.hubabank.integrationtest.v1;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
+import ru.greenpix.hubabank.integrationtest.AbstractIntegrationTest;
+import ru.greenpix.hubabank.provider.V1PathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 import ru.hubabank.core.error.ErrorType;
 import ru.hubabank.core.repository.BillRepository;
@@ -40,7 +41,7 @@ class BillControllerInternalTest extends AbstractIntegrationTest {
     private BillRepository billRepository;
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Успешный просмотр информации о счете")
     @Sql("/sql/insert-client-bill.sql")
     void whenGetBillDetailsThenSuccess(String versionPath) throws Exception {
@@ -51,7 +52,7 @@ class BillControllerInternalTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Успешный просмотр информации о закрытом счете")
     @Sql("/sql/insert-client-closed-bill.sql")
     void whenGetBillDetailsThenSuccessIfBillIsClosed(String versionPath) throws Exception {
@@ -62,7 +63,7 @@ class BillControllerInternalTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр информации о несуществующем счете")
     void whenGetBillDetailsThenNotFoundIfBillIsNotExists(String versionPath) throws Exception {
         MvcResult result = mockMvc.perform(get(buildUrl("%s/internal/bills/%s", versionPath, BILL_ID))

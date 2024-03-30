@@ -45,6 +45,8 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       RABBITMQ_VHOST: huba
       USERS_SERVICE_URL: http://hits-huba-users:8080/users/api/v1/
+      CURRENCY_SERVICE_URL: https://api.currencyapi.com/v3/
+      CURRENCY_API_KEY: ${CURRENCY_API_KEY}
     networks:
       - 'hits-huba-network'
     restart: always

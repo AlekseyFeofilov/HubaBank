@@ -11,7 +11,7 @@ import ru.hubabank.core.amqp.dto.request.TransferToUserRequest;
 import ru.hubabank.core.amqp.dto.request.WithdrawalRequest;
 import ru.hubabank.core.amqp.dto.response.TransferErrorResponse;
 import ru.hubabank.core.exception.ServiceException;
-import ru.hubabank.core.service.TransferService;
+import ru.hubabank.core.service.TransferProcessingService;
 
 import java.time.Instant;
 
@@ -21,13 +21,13 @@ import static ru.hubabank.core.constant.RabbitConstants.*;
 @RequiredArgsConstructor
 public class TransferListener {
 
-    private final TransferService transferService;
+    private final TransferProcessingService transferProcessingService;
     private final TransactionClient transactionClient;
 
     @RabbitListener(queues = DEPOSIT_QUEUE)
     public void processDeposit(DepositRequest deposit) {
         try {
-            transferService.deposit(
+            transferProcessingService.deposit(
                     deposit.getBillId(),
                     deposit.getAmount()
             );
@@ -48,7 +48,7 @@ public class TransferListener {
     @RabbitListener(queues = WITHDRAWAL_QUEUE)
     public void processWithdrawal(WithdrawalRequest withdrawal) {
         try {
-            transferService.withdraw(
+            transferProcessingService.withdraw(
                     withdrawal.getBillId(),
                     withdrawal.getAmount()
             );
@@ -69,7 +69,7 @@ public class TransferListener {
     @RabbitListener(queues = TRANSFER_TO_BILL_QUEUE)
     public void processTransferToBill(TransferToBillRequest transfer) {
         try {
-            transferService.transferToBill(
+            transferProcessingService.transferToBill(
                     transfer.getSourceBillId(),
                     transfer.getTargetBillId(),
                     transfer.getAmount()
@@ -94,7 +94,7 @@ public class TransferListener {
     @RabbitListener(queues = TRANSFER_TO_USER_QUEUE)
     public void processTransferToUser(TransferToUserRequest transfer) {
         try {
-            transferService.transferToUser(
+            transferProcessingService.transferToUser(
                     transfer.getSourceBillId(),
                     transfer.getTargetUserId(),
                     transfer.getAmount()

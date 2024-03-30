@@ -8,8 +8,9 @@ import java.util.List;
 @Getter
 public enum ApiVersion {
     VERSION_1(1, "", "{prefix}/v1"),
+    VERSION_2(2),
     MIN(VERSION_1),
-    MAX(VERSION_1);
+    MAX(VERSION_2);
 
     private final int number;
     private final String[] path;

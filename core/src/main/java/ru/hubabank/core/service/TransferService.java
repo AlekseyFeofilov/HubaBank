@@ -3,78 +3,68 @@ package ru.hubabank.core.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hubabank.core.amqp.client.TransactionClient;
-import ru.hubabank.core.amqp.dto.TransferEntity;
-import ru.hubabank.core.amqp.dto.response.TransferResponse;
 import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.entity.Transaction;
 import ru.hubabank.core.entity.TransactionReason;
+import ru.hubabank.core.entity.Transfer;
 import ru.hubabank.core.error.ErrorType;
+import ru.hubabank.core.integration.service.CurrencyService;
 import ru.hubabank.core.repository.BillRepository;
+import ru.hubabank.core.repository.TransferRepository;
 import ru.hubabank.core.service.strategy.SimpleBillSearchStrategy;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class TransferService {
 
+    @SuppressWarnings("deprecation")
     private final TransactionService transactionService;
-    private final TransactionClient transactionClient;
+    private final CurrencyService currencyService;
+    private final TransferRepository transferRepository;
     private final BillRepository billRepository;
 
-    @Transactional
-    public void deposit(UUID billId, long amount) {
-        Bill bill = billRepository.findTerminalBill();
-        transfer(bill.getId(), billId, amount);
+    public List<Transfer> getTransfers(UUID billId) {
+        return transferRepository.findAllByBillId(billId);
     }
 
     @Transactional
-    public void withdraw(UUID billId, long amount) {
-        Bill bill = billRepository.findTerminalBill();
-        transfer(billId, bill.getId(), amount);
-    }
+    public Transfer createTransfer(UUID sourceBillId, UUID targetBillId, long amount) {
+        Bill sourceBill = SimpleBillSearchStrategy.of(sourceBillId)
+                .findBill(billRepository)
+                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
+        Bill targetBill = SimpleBillSearchStrategy.of(targetBillId)
+                .findBill(billRepository)
+                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
 
-    @Transactional
-    public void transferToUser(UUID sourceBillId, UUID targetUserId, long amount) {
-        UUID targetBillId = billRepository.findMainUserBill(targetUserId)
-                .orElseThrow(ErrorType.BILL_NOT_FOUND::createException).getId();
-        transfer(sourceBillId, targetBillId, amount);
-    }
+        long withdrawal = -amount;
+        long admission = amount;
+        if (sourceBill.getCurrency() != targetBill.getCurrency()) {
+            admission = currencyService.convertCurrency(
+                    sourceBill.getCurrency().name(),
+                    targetBill.getCurrency().name(),
+                    amount
+            );
+        }
 
-    @Transactional
-    public void transferToBill(UUID sourceBillId, UUID targetBillId, long amount) {
-        transfer(sourceBillId, targetBillId, amount);
-    }
-
-    private void transfer(UUID sourceBillId, UUID targetBillId, long amount) {
         Transaction source = transactionService.createTransaction(
-                -amount,
-                SimpleBillSearchStrategy.of(sourceBillId),
+                withdrawal,
+                sourceBill,
                 TransactionReason.TRANSFER
         );
         Transaction target = transactionService.createTransaction(
-                amount,
-                SimpleBillSearchStrategy.of(targetBillId),
+                admission,
+                targetBill,
                 TransactionReason.TRANSFER
         );
-        transactionClient.sendMessage(TransferResponse.builder()
-                .source(TransferEntity.builder()
-                        .transactionId(source.getId())
-                        .billId(source.getBill().getId())
-                        .userId(source.getBill().getUserId())
-                        .type(source.getBill().getType())
-                        .build())
-                .target(TransferEntity.builder()
-                        .transactionId(target.getId())
-                        .billId(target.getBill().getId())
-                        .userId(target.getBill().getUserId())
-                        .type(target.getBill().getType())
-                        .build())
+        return transferRepository.save(Transfer.builder()
                 .amount(amount)
+                .source(source.getBill())
+                .target(target.getBill())
                 .instant(Instant.now())
-                .build()
-        );
+                .build());
     }
 }
