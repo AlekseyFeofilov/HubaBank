@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import static ru.hubabank.core.constant.PathConstants.PREFIX_PATH;
 
-public class VersionPathArgumentsProvider implements ArgumentsProvider {
+public class AllVersionArgumentsProvider implements ArgumentsProvider {
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {

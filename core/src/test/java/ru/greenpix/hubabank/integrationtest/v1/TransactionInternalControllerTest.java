@@ -1,4 +1,4 @@
-package ru.greenpix.hubabank.integrationtest;
+package ru.greenpix.hubabank.integrationtest.v1;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,8 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
-import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
+import ru.greenpix.hubabank.integrationtest.AbstractIntegrationTest;
+import ru.greenpix.hubabank.provider.V1PathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 import ru.hubabank.core.entity.Bill;
 import ru.hubabank.core.entity.Transaction;
@@ -51,7 +52,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     private TransactionRepository transactionRepository;
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Успешное зачисление денег на счет")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
     void whenDepositThenSuccess(String versionPath) throws Exception {
@@ -75,7 +76,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Успешное снятие денег со счета")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
     void whenWithdrawThenSuccess(String versionPath) throws Exception {
@@ -100,7 +101,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
 
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешное пополнение на несуществующий счет")
     void whenDepositThenNotFoundIfBillIsNotExists(String versionPath) throws Exception {
         MvcResult result = mockMvc.perform(post(buildUrl("%s/internal/bills/%s/transactions", versionPath, BILL_ID))
@@ -116,7 +117,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешное пополнение на закрытый счет")
     @Sql("/sql/insert-client-closed-bill.sql")
     void whenDepositThenNotFoundIfBillIsClosed(String versionPath) throws Exception {
@@ -136,7 +137,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешное создание транзакции с нулевой суммой изменения")
     @Sql("/sql/insert-client-bill-with-positive-balance.sql")
     void whenCreateTransactionThenBadRequestIfBalanceChangeIsZero(String versionPath) throws Exception {
@@ -156,7 +157,7 @@ class TransactionInternalControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешное снятие суммы больше, чем есть на счете")
     @Sql("/sql/insert-client-bill.sql")
     void whenWithdrawThenBadRequestIfBillBalanceIsLess(String versionPath) throws Exception {

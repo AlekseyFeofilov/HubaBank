@@ -35,8 +35,13 @@ public class OpenApiConfiguration extends AbstractOpenApiConfiguration {
     }
 
     @Bean
-    public GroupedOpenApi groupedOpenApiVersion1() {
+    public GroupedOpenApi groupedOpenApiV1() {
         return createGroupedOpenApiBuilder(ApiVersion.VERSION_1).build();
+    }
+
+    @Bean
+    public GroupedOpenApi groupedOpenApiV2() {
+        return createGroupedOpenApiBuilder(ApiVersion.VERSION_2).build();
     }
 
     @Bean

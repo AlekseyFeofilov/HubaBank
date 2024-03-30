@@ -1,4 +1,4 @@
-package ru.greenpix.hubabank.integrationtest;
+package ru.greenpix.hubabank.integrationtest.v1;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestInstance;
@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
+import ru.greenpix.hubabank.integrationtest.AbstractIntegrationTest;
+import ru.greenpix.hubabank.provider.V1PathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +30,7 @@ class FailedInternalAuthorizationTest extends AbstractIntegrationTest {
     private MockMvc mockMvc;
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если API ключ не был отправлен")
     void whenRequestThenUnauthenticatedIfApiKeyIsNotSent(String versionPath) throws Exception {
         mockMvc.perform(get(buildUrl("%s/internal/bills/%s", versionPath, BILL_ID)))
@@ -37,7 +38,7 @@ class FailedInternalAuthorizationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если отправлен неверный API ключ")
     void whenRequestThenUnauthenticatedIfTokenIsInvalid(String versionPath) throws Exception {
         mockMvc.perform(get(buildUrl("%s/internal/bills/%s", versionPath, BILL_ID))
@@ -46,7 +47,7 @@ class FailedInternalAuthorizationTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(VersionPathArgumentsProvider.class)
+    @ArgumentsSource(V1PathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если отправлен JWT токен вместо API ключа")
     void whenRequestThenUnauthenticatedIfUserIsJwtTokenSent(String versionPath) throws Exception {
         mockMvc.perform(get(buildUrl("%s/internal/bills/%s", versionPath, BILL_ID))

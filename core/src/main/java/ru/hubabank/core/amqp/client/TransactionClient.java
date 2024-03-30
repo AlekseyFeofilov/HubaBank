@@ -15,10 +15,10 @@ public class TransactionClient {
     private final AmqpTemplate amqpTemplate;
 
     public void sendMessage(TransferResponse transfer) {
-        amqpTemplate.convertAndSend(TRANSACTION_EXCHANGE, TRANSACTION_SUCCESS_ROUTING_KEY, transfer);
+        amqpTemplate.convertAndSend(TRANSFER_RESPONSE_EXCHANGE, TRANSFER_SUCCESS_ROUTING_KEY, transfer);
     }
 
     public void sendMessage(TransferErrorResponse error) {
-        amqpTemplate.convertAndSend(TRANSACTION_EXCHANGE, TRANSACTION_ERROR_ROUTING_KEY, error);
+        amqpTemplate.convertAndSend(TRANSFER_RESPONSE_EXCHANGE, TRANSFER_ERROR_ROUTING_KEY, error);
     }
 }

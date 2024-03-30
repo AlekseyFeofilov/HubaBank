@@ -1,6 +1,5 @@
 package ru.hubabank.core.controller.advice;
 
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +10,6 @@ import ru.hubabank.core.error.ErrorDto;
 import ru.hubabank.core.exception.ServiceException;
 
 @RestControllerAdvice
-@ApiResponse(responseCode = "401", content = @Content(), description = "Не авторизован")
-@ApiResponse(responseCode = "403", content = @Content(), description = "Недостаточно прав")
-
 public class ControllerResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ServiceException.class)

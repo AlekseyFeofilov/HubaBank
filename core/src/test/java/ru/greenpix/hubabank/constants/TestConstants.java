@@ -4,6 +4,7 @@ public class TestConstants {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String API_KEY  = "test_api_key";
+    public static final String CURRENCY_API_KEY  = "test_currency_api_key";
     public static final String CLIENT_TOKEN = "Bearer token_79009530901";
     public static final String EMPLOYER_TOKEN = "Bearer token_79009530902";
 
