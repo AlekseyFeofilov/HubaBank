@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import ru.hubabank.core.security.InternalAuthenticationConverter;
 import ru.hubabank.core.security.InternalAuthenticationFilter;
 import ru.hubabank.core.security.UserAuthenticationConverter;
@@ -23,8 +23,13 @@ import ru.hubabank.core.security.UserAuthenticationFilter;
 @EnableMethodSecurity
 public class WebSecurityConfiguration {
 
+    private static final RequestMatcher[] requestMatchers = {
+            new AntPathRequestMatcher("/internal/**"),
+            new AntPathRequestMatcher("/core/api/v*/internal/**")
+    };
+
     @Bean
-    public SecurityFilterChain securityFilterChain(
+    SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             UserAuthenticationConverter userAuthenticationConverter,
             InternalAuthenticationConverter internalAuthenticationConverter
@@ -46,12 +51,11 @@ public class WebSecurityConfiguration {
                 )
                 .addFilterBefore(new InternalAuthenticationFilter(
                         internalAuthenticationConverter,
-                        new AntPathRequestMatcher("/internal/**")
-
+                        requestMatchers
                 ), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new UserAuthenticationFilter(
                         userAuthenticationConverter,
-                        new NegatedRequestMatcher(new AntPathRequestMatcher("/internal/**"))
+                        requestMatchers
                 ), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

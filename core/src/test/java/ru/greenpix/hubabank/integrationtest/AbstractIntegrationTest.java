@@ -60,6 +60,10 @@ public abstract class AbstractIntegrationTest {
         Awaitility.setDefaultTimeout(5, TimeUnit.SECONDS);
     }
 
+    protected static String buildUrl(String url, Object... args) {
+        return String.format(url, args);
+    }
+
     protected static void assertError(MvcResult mvcResult, ErrorType errorType) throws IOException {
         ErrorDto actual = getContentAsObject(mvcResult, ErrorDto.class);
         assertThat(actual.getCode()).isEqualTo(errorType.getCode());

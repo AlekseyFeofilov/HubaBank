@@ -2,6 +2,10 @@ logging:
   level:
     ru.hubabank: TRACE
 
+springdoc:
+  swagger-ui:
+    groups-order: DESC
+
 spring:
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:1234}/${POSTGRES_DB:core}
@@ -14,6 +18,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:core}
+    password: ${RABBITMQ_PASSWORD:core}
+    virtual-host: ${RABBITMQ_VHOST:core}
   cloud:
     openfeign:
       client:

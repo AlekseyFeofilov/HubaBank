@@ -1,12 +1,14 @@
 package ru.greenpix.hubabank.integrationtest;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.greenpix.hubabank.provider.VersionPathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -26,33 +28,37 @@ class FailedUserAuthorizationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если токен не был отправлен")
-    void whenRequestThenUnauthenticatedIfTokenIsNotSent() throws Exception {
-        mockMvc.perform(get("/bills"))
+    void whenRequestThenUnauthenticatedIfTokenIsNotSent(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath)))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если отправлен неверный токен")
-    void whenRequestThenUnauthenticatedIfTokenIsInvalid() throws Exception {
-        mockMvc.perform(get("/bills")
+    void whenRequestThenUnauthenticatedIfTokenIsInvalid(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath))
                         .header(AUTHORIZATION_HEADER, "invalid_token"))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если пользователь заблокирован")
-    void whenRequestThenUnauthenticatedIfUserIsBlocked() throws Exception {
-        mockMvc.perform(get("/bills")
+    void whenRequestThenUnauthenticatedIfUserIsBlocked(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath))
                         .header(AUTHORIZATION_HEADER, "token_79009530903"))
                 .andExpect(status().isUnauthorized());
     }
 
-    @Test
+    @ParameterizedTest
+    @ArgumentsSource(VersionPathArgumentsProvider.class)
     @DisplayName("Неуспешная авторизация, если отправлен API ключ вместо JWT токена")
-    void whenRequestThenUnauthenticatedIfApiKeySent() throws Exception {
-        mockMvc.perform(get("/bills")
+    void whenRequestThenUnauthenticatedIfApiKeySent(String versionPath) throws Exception {
+        mockMvc.perform(get(buildUrl("%s/bills", versionPath))
                         .header(API_KEY_HEADER, API_KEY))
                 .andExpect(status().isUnauthorized());
     }

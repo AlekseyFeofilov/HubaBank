@@ -7,11 +7,13 @@ services:
     ports:
       - "9001:8080"
     environment:
+      ConnectionStrings__DefaultConnection: Server=hits-huba-database;Port=5432;Database=gateway_client_service;Username=postgres;Password='${POSTGRES_PASSWORD}'
       ASPNETCORE_ENVIRONMENT: Staging
     volumes:
       - ./gateway-client/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     networks:
       - 'hits-huba-network'
+    restart: always
 
   gateway-employer:
     image: registry.gitlab.com/hits-tsu/huba/gateway-employer:latest
@@ -24,6 +26,7 @@ services:
       - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     networks:
       - 'hits-huba-network'
+    restart: always
 
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
@@ -36,9 +39,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: core_service
+      RABBITMQ_HOST: hits-huba-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
       USERS_SERVICE_URL: http://hits-huba-users:8080/users/api/v1/
     networks:
       - 'hits-huba-network'
+    restart: always
 
   users:
     image: registry.gitlab.com/hits-tsu/huba/users:latest
@@ -53,6 +62,7 @@ services:
       POSTGRES_SCHEMA: users_service
     networks:
       - 'hits-huba-network'
+    restart: always
 
   database:
     image: postgres:16.1-alpine3.19
@@ -66,6 +76,69 @@ services:
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - 'hits-huba-network'
+    restart: always
+
+  rabbitmq1:
+    image: rabbitmq:3-management
+    hostname: rabbitmq1
+    environment:
+      RABBITMQ_DEFAULT_USER: huba
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: huba
+    volumes:
+      - ./rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
+    restart: always
+
+  rabbitmq2:
+    image: rabbitmq:3-management
+    hostname: rabbitmq2
+    depends_on:
+      - rabbitmq1
+    environment:
+      - JOIN_CLUSTER_HOST=rabbitmq1
+    volumes:
+      - ./rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
+    entrypoint: /usr/local/bin/cluster-entrypoint.sh
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
+    restart: always
+
+  rabbitmq3:
+    image: rabbitmq:3-management
+    hostname: rabbitmq3
+    depends_on:
+      - rabbitmq1
+    environment:
+      - JOIN_CLUSTER_HOST=rabbitmq1
+    volumes:
+      - ./rabbitmq/.erlang.cookie:/var/lib/rabbitmq/.erlang.cookie
+      - ./rabbitmq/cluster-entrypoint.sh:/usr/local/bin/cluster-entrypoint.sh
+    entrypoint: /usr/local/bin/cluster-entrypoint.sh
+    networks:
+      - 'hits-huba-rabbitmq-cluster-network'
+    restart: always
+
+  rabbitmq-haproxy:
+    image: haproxy:1.7
+    container_name: hits-huba-rabbitmq
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - rabbitmq1
+      - rabbitmq2
+      - rabbitmq3
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    networks:
+      - 'hits-huba-network'
+      - 'hits-huba-rabbitmq-cluster-network'
+    restart: always
 
 networks:
   hits-huba-network:
+  hits-huba-rabbitmq-cluster-network:
