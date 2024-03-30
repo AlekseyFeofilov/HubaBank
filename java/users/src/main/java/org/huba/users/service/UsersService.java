@@ -28,7 +28,7 @@ public class UsersService {
     public List<UserFullDto> getUsers() {
         User myUser = userRepository.findById(jwtProvider.getId()).orElseThrow(NotFoundException::new);
 
-        if(myUser.isEmployee()) {
+        if(!myUser.isEmployee()) {
             throw new ForbiddenException();
         }
 
