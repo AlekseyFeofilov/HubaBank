@@ -4,6 +4,9 @@ using Credit.Api.Converters;
 using Credit.Api.Middlewares;
 using Credit.Dal;
 using Credit.Lib;
+using Credit.Lib.Jobs;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
@@ -31,7 +34,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddCredit(builder.Configuration);
 builder.Services.AddCreditContext(builder.Configuration);
-builder.Services.AddAsyncInitializer<JobInitializer>();
+builder.Services.AddAsyncInitializer<JobsInitializer>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -39,11 +42,19 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
 
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(c =>
+        c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Hangfire"))));
+
+builder.Services.AddHangfireServer();
+builder.Services.AddAsyncInitializer<JobsInitializer>();
+builder.Services.AddScoped<IJobAgent, JobAgent>();
+builder.Services.AddScoped<IJobClient, JobClient>();
+
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
-// app.UseHangfireServer();
-// app.UseHangfireDashboard();
+app.UseHangfireDashboard();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -57,6 +68,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHangfireDashboard();
 
-await app.InitAsync();
-await app.RunAsync();
+await app.InitAndRunAsync();
