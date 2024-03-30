@@ -21,4 +21,14 @@ public static class DateTimeExtensions
     {
         return Math.Abs((date1.Year - date2.Year) * 12 + date1.Month - date2.Month);
     }
+
+    public static DateOnly ToDateOnly(this System.DateTime dateTime)
+    {
+        return DateOnly.FromDateTime(dateTime);
+    }
+
+    public static string ToDateOnlyString(this System.DateTime dateTime)
+    {
+        return DateOnly.FromDateTime(dateTime).ToString();
+    }
 }

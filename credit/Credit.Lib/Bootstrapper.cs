@@ -31,6 +31,7 @@ public static class Bootstrapper
             {
                 new CreditMappingProfile(),
                 new CreditTermsMappingProfile(),
+                new PaymentMappingProfile(),
             }));
 
         // ServiceRegistrar.AddMediatRClasses(services, mediatorServiceConfiguration);

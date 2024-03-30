@@ -5,6 +5,7 @@ namespace Credit.Data.Requests.Payment;
 public class CreateRequest
 {
     public Guid Id { get; set; }
+    public Guid CreditId { get; set; }
     public PaymentStatus PaymentStatus { get; set; }
     public DateOnly PaymentDay { get; set; }
     public long PaymentAmount { get; set; }

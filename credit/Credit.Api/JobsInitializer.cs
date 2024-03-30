@@ -24,6 +24,7 @@ public class JobsInitializer : IAsyncInitializer
     public Task StartJobs()
     {
         _jobClient.EnqueuePing();
+        _jobClient.EnqueueNextDayPayments();
         return Task.CompletedTask;
     }
 

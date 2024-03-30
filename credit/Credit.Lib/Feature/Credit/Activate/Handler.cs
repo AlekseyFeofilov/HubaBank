@@ -26,6 +26,7 @@ public class Handler : IRequestHandler<Request>
                 PaymentStatus = PaymentStatus.Scheduled,
                 PaymentDay = DateOnly.FromDateTime(DateTime.Now.AddMonths(monthsAfterToday)),
                 PaymentAmount = request.CalculatePaymentAmountStrategy.Calculate(monthsAfterToday),
+                CreditId = credit.Id,
                 Arrears = 0,
             };
             
@@ -33,5 +34,6 @@ public class Handler : IRequestHandler<Request>
         }
 
         await _mediator.Send(new Payment.Create.Request(payments), cancellationToken);
+        Console.WriteLine($"Credit {credit.Id} was activated");
     }
 }

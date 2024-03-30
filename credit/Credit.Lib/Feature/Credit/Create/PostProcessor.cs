@@ -4,7 +4,7 @@ using MediatR.Pipeline;
 
 namespace Credit.Lib.Feature.Credit.Create;
 
-public class PostProcessor : IRequestPostProcessor<Request, CreateRequest>
+public class PostProcessor : IRequestPostProcessor<Request, IReadOnlyCollection<CreateRequest>>
 {
     private readonly IMediator _mediator;
 
@@ -13,13 +13,16 @@ public class PostProcessor : IRequestPostProcessor<Request, CreateRequest>
         _mediator = mediator;
     }
     
-    public Task Process(Request request, CreateRequest response, CancellationToken cancellationToken)
+    public Task Process(Request request, IReadOnlyCollection<CreateRequest> response, CancellationToken cancellationToken)
     {
+        var credit = response.First();
+        Console.WriteLine($"Credit {credit.Id} was created");
+        
         var notification = new Notification
         {
-            Id = response.Id,
-            AccountsPayable = response.Principal,
-            CompletionDate = response.CompletionDate,
+            Id = credit.Id,
+            AccountsPayable = credit.Principal,
+            CompletionDate = credit.CompletionDate,
         };
         
         return _mediator.Publish(notification, cancellationToken);

@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Credit.Primitives\Credit.Primitives.csproj" />
+      <ProjectReference Include="..\UtilsDateTime\UtilsDateTime.csproj" />
     </ItemGroup>
 
 </Project>

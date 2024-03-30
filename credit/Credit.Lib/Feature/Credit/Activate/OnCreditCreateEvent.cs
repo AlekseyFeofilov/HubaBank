@@ -15,6 +15,7 @@ public class OnCreditCreateEvent : INotificationHandler<Notification>
 
     public Task Handle(Notification notification, CancellationToken cancellationToken)
     {
+        //todo make with hangfire retry
         var request = new Request
         {
             Id = notification.Id,
