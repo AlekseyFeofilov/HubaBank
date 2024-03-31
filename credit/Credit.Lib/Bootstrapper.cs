@@ -1,7 +1,9 @@
 using System.Reflection;
 using AutoMapper;
+using Core.Provider;
 using Credit.Lib.Extensions;
 using Credit.Lib.Mapping;
+using Credit.Lib.Models;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MediatR;
@@ -17,6 +19,10 @@ public static class Bootstrapper
     public static IServiceCollection AddCredit(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddCoreProvider();
+        services.AddScoped<MasterBillSettings>(_ => 
+            configuration.GetRequiredSection("MasterBillSettings").Get<MasterBillSettings>());
+        
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
         services.AddMediatR(cfg =>

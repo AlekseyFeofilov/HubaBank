@@ -2,7 +2,7 @@ using Credit.Dal.Specifications;
 using Credit.Data;
 using Credit.Data.Responses;
 
-namespace Credit.Lib.Feature.Payment.FetchByCreditId;
+namespace Credit.Lib.Feature.Payment.Fetch.ByCreditId;
 
 public class Request : Base.FetchAll.Request<Dal.Models.Payment, PaymentResponse>
 {

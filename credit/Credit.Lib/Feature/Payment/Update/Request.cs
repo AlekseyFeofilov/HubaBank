@@ -4,7 +4,7 @@ namespace Credit.Lib.Feature.Payment.Update;
 
 public class Request : Base.Update.Request<Dal.Models.Payment, Data.Requests.Payment.UpdateRequest>
 {
-    protected Request(Guid id, Data.Requests.Payment.UpdateRequest request) 
+    public Request(Guid id, Data.Requests.Payment.UpdateRequest request) 
         : base(new IdentitySpecification<Dal.Models.Payment, Guid>(id))
     {
         Expression = payment =>

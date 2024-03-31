@@ -20,9 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Core.Provider\Core.Provider.csproj" />
       <ProjectReference Include="..\Credit.Dal\Credit.Dal.csproj" />
       <ProjectReference Include="..\Credit.Data\Credit.Data.csproj" />
-      <ProjectReference Include="..\UtilsDateTime\UtilsDateTime.csproj" />
+      <ProjectReference Include="..\Utils.DateTime\Utils.DateTime.csproj" />
     </ItemGroup>
 
     <ItemGroup>

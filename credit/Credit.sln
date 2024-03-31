@@ -14,7 +14,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Credit.IntegrationTests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{400B0EC3-7B1B-4D1D-9109-1847559E319B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilsDateTime", "UtilsDateTime\UtilsDateTime.csproj", "{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils.DateTime", "Utils.DateTime\Utils.DateTime.csproj", "{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Provider", "Core.Provider\Core.Provider.csproj", "{806686A7-38DB-4947-85DB-807CA54FDDBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{806686A7-38DB-4947-85DB-807CA54FDDBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{806686A7-38DB-4947-85DB-807CA54FDDBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{806686A7-38DB-4947-85DB-807CA54FDDBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{806686A7-38DB-4947-85DB-807CA54FDDBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7E7AA592-23E8-434B-B8E9-145D9CAF06ED} = {400B0EC3-7B1B-4D1D-9109-1847559E319B}
