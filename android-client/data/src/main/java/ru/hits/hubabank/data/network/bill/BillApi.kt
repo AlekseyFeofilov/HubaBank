@@ -5,7 +5,6 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
-import ru.hits.hubabank.data.network.bill.model.BillHistoryItemDto
 import ru.hits.hubabank.data.network.bill.model.ClientBillDto
 import ru.hits.hubabank.data.network.bill.model.TransactionCreationDto
 
@@ -20,11 +19,11 @@ internal interface BillApi {
     @GET("bills/{billId}")
     suspend fun getBillById(@Path("billId") billId: String): ClientBillDto
 
+    @POST("bills/{billId}/hidden")
+    suspend fun saveHiddenMode(@Path("billId") billId: String, @Body isHidden: Boolean)
+
     @DELETE("bills/{billId}")
     suspend fun closeBill(@Path("billId") billId: String)
-
-    @GET("bills/{billId}/transactions")
-    suspend fun getBillHistory(@Path("billId") billId: String): List<BillHistoryItemDto>
 
     @POST("bills/{billId}/transactions")
     suspend fun updateBillBalance(

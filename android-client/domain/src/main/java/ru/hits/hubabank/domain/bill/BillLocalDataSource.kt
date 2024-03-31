@@ -2,7 +2,6 @@ package ru.hits.hubabank.domain.bill
 
 import kotlinx.coroutines.flow.Flow
 import ru.hits.hubabank.domain.bill.model.Bill
-import ru.hits.hubabank.domain.bill.model.BillHistoryItem
 
 interface BillLocalDataSource {
 
@@ -14,13 +13,11 @@ interface BillLocalDataSource {
 
     fun observeBillById(billId: String): Flow<Bill>
 
-    suspend fun updateBill(billId: String, balanceChange: Long)
+    suspend fun updateBillBalance(billId: String, balanceChange: Long)
+
+    suspend fun changeBillHidden(billId: String, isHidden: Boolean)
 
     suspend fun deleteBill(billId: String)
-
-    suspend fun saveBillHistory(historyItems: List<BillHistoryItem>)
-
-    fun observeBillHistory(billId: String): Flow<List<BillHistoryItem>>
 
     suspend fun deleteAllData()
 }

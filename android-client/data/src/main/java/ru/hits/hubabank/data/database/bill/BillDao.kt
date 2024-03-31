@@ -23,7 +23,10 @@ internal interface BillDao {
     fun observeBill(billId: String): Flow<BillEntity>
 
     @Query("UPDATE Bill SET balance = balance + :changeBalance WHERE id = :billId")
-    suspend fun updateBill(billId: String, changeBalance: Long)
+    suspend fun updateBillBalance(billId: String, changeBalance: Long)
+
+    @Query("UPDATE Bill SET isHidden = :isHidden WHERE id = :billId")
+    suspend fun changeBillHidden(billId: String, isHidden: Boolean)
 
     @Query("DELETE FROM Bill WHERE id IN (:billIds)")
     suspend fun deleteBills(billIds: List<String>)

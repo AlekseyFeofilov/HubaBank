@@ -20,6 +20,10 @@ internal class UserLocalDataSourceImpl @Inject constructor(
         return userDao.observeProfile().map { it?.toDomain() }
     }
 
+    override suspend fun changeTheme(isDark: Boolean) {
+        userDao.changeTheme(isDark)
+    }
+
     override suspend fun deleteProfile() {
         userDao.deleteProfile()
     }

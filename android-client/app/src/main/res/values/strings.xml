@@ -31,6 +31,7 @@
     <string name="profile_screen_title">Профиль</string>
     <string name="profile_screen_full_name">ФИО</string>
     <string name="profile_screen_phone">Телефон</string>
+    <string name="profile_screen_dark_theme">Тёмная тема</string>
     <string name="profile_screen_exit">Выйти</string>
 
     <!-- Bill Screen -->
@@ -40,6 +41,7 @@
     <string name="bill_screen_transfer">Перевод</string>
     <string name="bill_screen_credit">Списание за кредит</string>
     <string name="bill_screen_history">История операций</string>
+    <string name="bill_screen_hidden_bill">Скрытый счёт</string>
     <string name="bill_screen_today">Сегодня</string>
     <string name="bill_screen_input_sum">Введите сумму</string>
     <string name="bill_screen_close_bill">Закрыть этот счет</string>

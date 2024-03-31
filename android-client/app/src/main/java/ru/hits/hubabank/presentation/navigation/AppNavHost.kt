@@ -4,21 +4,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.rememberNavController
 import ru.hits.hubabank.presentation.enter.login.LoginDestination
 
 @Composable
-fun AppNavHost(modifier: Modifier = Modifier) {
-    val navController = rememberNavController()
-
+fun AppNavHost(modifier: Modifier = Modifier, navHostController: NavHostController) {
     NavHost(
-        navController = navController,
-        startDestination = LoginDestination.route,
+        navController = navHostController,
+        startDestination = LoginDestination.routeTemplate,
         modifier = modifier.fillMaxSize().systemBarsPadding(),
     ) {
-        enterDestinations(navController)
-        mainDestinations(navController)
-        billAndCreditDestinations(navController)
+        enterDestinations(navHostController)
+        mainDestinations(navHostController)
+        billAndCreditDestinations(navHostController)
     }
 }

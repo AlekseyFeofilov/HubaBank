@@ -8,11 +8,13 @@ internal data class BillDto(
     val id: String,
     val userId: String,
     val balance: Long,
+    val isHidden: Boolean,
 )
 
 internal fun BillDto.toDomain(): Bill {
     return Bill(
         id = id,
         balance = balance,
+        isHidden = isHidden,
     )
 }
