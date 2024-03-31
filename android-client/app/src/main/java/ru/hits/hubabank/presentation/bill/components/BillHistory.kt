@@ -43,7 +43,7 @@ fun ColumnScope.BillHistory(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-            items(billHistoryItems) { item ->
+            items(billHistoryItems, key = { it.id }) { item ->
                 Spacer(modifier = Modifier.height(16.dp))
                 BillHistoryItemCard(item = item, modifier = Modifier.fillMaxWidth())
             }

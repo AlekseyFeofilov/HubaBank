@@ -6,6 +6,7 @@ import ru.hits.hubabank.presentation.core.ScreenState
 
 data class MainState(
     val isLoading: Boolean,
+    val isCreatingDialogOpen: Boolean,
     val bills: List<Bill>,
     val credits: List<Credit>,
 ) : ScreenState

@@ -6,6 +6,6 @@ data class BillHistoryItem(
     val id: String,
     val billId: String,
     val changeSum: Long,
-    val billChange: BillChange,
+    val billChangeReason: BillChangeReason,
     val dateTime: LocalDateTime,
 )

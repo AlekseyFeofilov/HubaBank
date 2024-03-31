@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import ru.hits.hubabank.R
 import ru.hits.hubabank.presentation.core.CollectAction
 import ru.hits.hubabank.presentation.main.components.BillCard
+import ru.hits.hubabank.presentation.main.components.CreatingBillDialog
 import ru.hits.hubabank.presentation.main.components.CreditCard
 import ru.hits.hubabank.presentation.main.model.MainAction
 
@@ -62,6 +63,13 @@ fun MainScreen(
     LaunchedEffect(key1 = Unit) {
         viewModel.fetchBills()
         viewModel.fetchCredits()
+    }
+
+    if (state.isCreatingDialogOpen) {
+        CreatingBillDialog(
+            onCloseDialog = viewModel::closeBillCreatingDialog,
+            onCurrencyClick = viewModel::addBill,
+        )
     }
 
     Column(
@@ -103,7 +111,7 @@ fun MainScreen(
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
                 )
             }
-            itemsIndexed(state.bills) { index, bill ->
+            itemsIndexed(state.bills, key = { _, bill -> bill.id }) { index, bill ->
                 Spacer(modifier = Modifier.height(16.dp))
                 BillCard(
                     bill = bill,
@@ -122,7 +130,7 @@ fun MainScreen(
                         text = stringResource(R.string.main_screen_open_bill),
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .clickable(onClick = viewModel::addNewBill)
+                            .clickable(onClick = viewModel::openBillCreatingDialog)
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(horizontal = 12.dp, vertical = 6.dp),
                         color = MaterialTheme.colorScheme.primary,
@@ -138,7 +146,7 @@ fun MainScreen(
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
                 )
             }
-            itemsIndexed(state.credits) { index, credit ->
+            itemsIndexed(state.credits, key = { _, credit -> credit.id } ) { index, credit ->
                 Spacer(modifier = Modifier.height(16.dp))
                 CreditCard(
                     credit = credit,

@@ -18,7 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
-import ru.hits.hubabank.presentation.common.getSign
 import ru.hits.hubabank.presentation.common.getTitleRes
 import kotlin.math.absoluteValue
 
@@ -40,13 +39,14 @@ fun BillHistoryItemCard(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
             Text(
-                text = stringResource(item.billChange.getTitleRes()),
+                text = stringResource(item.billChangeReason.getTitleRes(item.changeSum)),
                 color = MaterialTheme.colorScheme.background,
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W600),
             )
             Spacer(modifier = Modifier.width(16.dp))
+            val sign = if (item.changeSum < 0) "-" else ""
             Text(
-                text = item.billChange.getSign() + stringResource(
+                text = sign + stringResource(
                     R.string.main_screen_balance_with_kopecks,
                     item.changeSum.absoluteValue / 100,
                     item.changeSum.absoluteValue % 100,

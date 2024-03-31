@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ru.hits.hubabank.R
-import ru.hits.hubabank.domain.bill.model.BillChange
+import ru.hits.hubabank.domain.bill.model.BillChangeReason
 import ru.hits.hubabank.presentation.common.getActionRes
 import ru.hits.hubabank.presentation.common.getTitleRes
 import ru.hits.hubabank.presentation.ui.components.AppButton
@@ -26,8 +26,10 @@ import ru.hits.hubabank.presentation.ui.components.AppTextField
 
 @Composable
 fun ChangeBillDialog(
-    billChange: BillChange,
+    billChangeReason: BillChangeReason,
+    targetBill: String,
     currentSum: String,
+    onTargetBillChange: (String) -> Unit,
     onSumChange: (String) -> Unit,
     onCloseDialog: () -> Unit,
     onChangeClick: () -> Unit,
@@ -44,10 +46,20 @@ fun ChangeBillDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = stringResource(billChange.getTitleRes()),
+                text = stringResource(billChangeReason.getTitleRes(10)),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge,
             )
+            if (billChangeReason == BillChangeReason.USER) {
+                Spacer(modifier = Modifier.height(16.dp))
+                AppTextField(
+                    value = targetBill,
+                    onValueChange = onTargetBillChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholderText = stringResource(R.string.bill_screen_input_target_bill),
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
             AppTextField(
                 value = currentSum,
@@ -55,11 +67,11 @@ fun ChangeBillDialog(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 placeholderText = stringResource(R.string.bill_screen_input_sum),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
             Spacer(modifier = Modifier.height(16.dp))
             AppButton(
-                text = stringResource(billChange.getActionRes()),
+                text = stringResource(billChangeReason.getActionRes()),
                 onClick = onChangeClick,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
             )

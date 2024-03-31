@@ -10,7 +10,7 @@ import ru.hits.hubabank.domain.bill.EndObserveBillHistoryUseCase
 import ru.hits.hubabank.domain.bill.FetchBillUseCase
 import ru.hits.hubabank.domain.bill.ObserveBillUseCase
 import ru.hits.hubabank.domain.bill.StartObserveBillHistoryUseCase
-import ru.hits.hubabank.domain.bill.model.BillChange
+import ru.hits.hubabank.domain.bill.model.BillChangeReason
 import ru.hits.hubabank.domain.bill.model.ChangeBillBalanceModel
 import ru.hits.hubabank.domain.bill.model.ChangeBillHiddenModel
 import ru.hits.hubabank.presentation.bill.model.BillInfoAction
@@ -37,7 +37,8 @@ class BillInfoViewModel @Inject constructor(
         billHistory = emptyMap(),
         today = LocalDate.now(),
         isChangeBillDialogOpen = false,
-        // howChange = BillChange.REFILL,
+        howChange = BillChangeReason.TERMINAL,
+        targetBill = "",
         changeSum = "",
     )
 ) {
@@ -53,13 +54,22 @@ class BillInfoViewModel @Inject constructor(
         endObserveBillHistory()
     }
 
-    fun openDialog(howChange: BillChange) {
-        _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = true, /*howChange = howChange*/)
+    fun openDialog(howChange: BillChangeReason) {
+        _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = true, howChange = howChange)
     }
 
     fun changeSum(value: String) {
-        if (value.all { it.isDigit() } && value.length < 7) {
+        if (
+            value.all { it.isDigit() || it == '.' } && value.count { it == '.' } <= 1 &&
+            value.substringAfter('.', "").length <=2 && value.length < 9
+            ) {
             _screenState.value = _screenState.value.copy(changeSum = value)
+        }
+    }
+
+    fun changeTargetBill(value: String) {
+        if (value.length < 50) {
+            _screenState.value = _screenState.value.copy(targetBill = value)
         }
     }
 
@@ -68,19 +78,27 @@ class BillInfoViewModel @Inject constructor(
     }
 
     fun changeBillBalance() {
-        if (currentState.changeSum.isEmpty()) {
+        val reasonChange = currentState.howChange
+        if (currentState.changeSum.isEmpty() ||
+            (reasonChange == BillChangeReason.USER && (currentState.targetBill.isEmpty() || currentState.bill?.id == currentState.targetBill))
+        ) {
             return
         }
         launch {
-            val balanceChange = currentState.changeSum.toLong()
+            val balanceChange = (currentState.changeSum.toDouble() * 100).toLong()
             changeBillBalanceUseCase(
                 ChangeBillBalanceModel(
+                    changeReason = reasonChange,
                     billId = billId,
-                    balanceChange = balanceChange * 100
+                    balanceChange = balanceChange,
+                    targetBill = currentState.targetBill.trim(),
                 )
             ).onSuccess {
-                _screenState.value = _screenState.value.copy(changeSum = "")
-                _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = false)
+                _screenState.value = _screenState.value.copy(
+                    changeSum = "",
+                    targetBill = "",
+                    isChangeBillDialogOpen = false,
+                )
             }
         }
     }

@@ -3,10 +3,11 @@ package ru.hits.hubabank.domain.bill
 import kotlinx.coroutines.flow.Flow
 import ru.hits.hubabank.domain.bill.model.Bill
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
+import ru.hits.hubabank.domain.bill.model.Currency
 
 interface BillRemoteDataSource {
 
-    suspend fun createNewBill(): Bill
+    suspend fun createNewBill(currency: Currency): Bill
 
     suspend fun getAllBills(): List<Bill>
 
@@ -14,7 +15,9 @@ interface BillRemoteDataSource {
 
     suspend fun saveHiddenMode(billId: String, isHidden: Boolean)
 
-    suspend fun updateBillBalance(billId: String, balanceChange: Long)
+    suspend fun giveMoneyForBill(billId: String, balanceChange: Long)
+
+    suspend fun transferMoneyToBill(sourceBillId: String, balanceChange: Long, targetBillId: String)
 
     suspend fun closeBill(billId: String)
 

@@ -6,6 +6,7 @@ import ru.hits.hubabank.domain.bill.AddNewBillUseCase
 import ru.hits.hubabank.domain.bill.FetchAllBillsUseCase
 import ru.hits.hubabank.domain.bill.ObserveAllBillsUseCase
 import ru.hits.hubabank.domain.bill.model.Bill
+import ru.hits.hubabank.domain.bill.model.Currency
 import ru.hits.hubabank.domain.credit.AddNewCreditUseCase
 import ru.hits.hubabank.domain.credit.FetchAllCreditsUseCase
 import ru.hits.hubabank.domain.credit.ObserveAllCreditsUseCase
@@ -24,7 +25,7 @@ class MainViewModel @Inject constructor(
     private val fetchAllCreditsUseCase: FetchAllCreditsUseCase,
     private val addNewCreditUseCase: AddNewCreditUseCase,
 ) : BaseViewModel<MainState, MainAction>(
-    MainState(isLoading = true, bills = emptyList(), credits = emptyList())
+    MainState(isLoading = true, isCreatingDialogOpen = false, bills = emptyList(), credits = emptyList())
 ) {
 
     init {
@@ -44,9 +45,19 @@ class MainViewModel @Inject constructor(
         sendAction(MainAction.OpenCreditInfoScreen(credit.id))
     }
 
-    fun addNewBill() {
+    fun openBillCreatingDialog() {
+        _screenState.value = _screenState.value.copy(isCreatingDialogOpen = true)
+    }
+
+    fun closeBillCreatingDialog() {
+        _screenState.value = _screenState.value.copy(isCreatingDialogOpen = false)
+    }
+
+    fun addBill(currency: Currency) {
         launch {
-            addNewBillUseCase(Unit)
+            addNewBillUseCase(currency).onSuccess {
+                _screenState.value = _screenState.value.copy(isCreatingDialogOpen = false)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package ru.hits.hubabank.presentation.bill
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -31,7 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.hits.hubabank.R
-import ru.hits.hubabank.domain.bill.model.BillChange
+import ru.hits.hubabank.domain.bill.model.BillChangeReason
 import ru.hits.hubabank.presentation.bill.components.BillHistory
 import ru.hits.hubabank.presentation.bill.components.ChangeBillDialog
 import ru.hits.hubabank.presentation.bill.model.BillInfoAction
@@ -54,10 +56,16 @@ fun BillInfoScreen(
         viewModel.fetchBill()
     }
 
+    BackHandler {
+        viewModel.navigateBack()
+    }
+
     if (state.isChangeBillDialogOpen) {
         ChangeBillDialog(
-            billChange = BillChange.USER, // state.howChange,
+            billChangeReason = state.howChange,
+            targetBill = state.targetBill,
             currentSum = state.changeSum,
+            onTargetBillChange = viewModel::changeTargetBill,
             onSumChange = viewModel::changeSum,
             onCloseDialog = viewModel::closeDialog,
             onChangeClick = viewModel::changeBillBalance,
@@ -77,12 +85,14 @@ fun BillInfoScreen(
             )
         }
         state.bill?.let { bill ->
-            Text(
-                text = stringResource(R.string.main_screen_bill_number, bill.id),
-                modifier = Modifier.padding(start = 16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium,
-            )
+            SelectionContainer {
+                Text(
+                    text = stringResource(R.string.main_screen_bill_number, bill.id),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(
@@ -92,7 +102,7 @@ fun BillInfoScreen(
                 ),
                 modifier = Modifier.padding(start = 16.dp),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(modifier = Modifier.height(16.dp))
             Row(
@@ -105,7 +115,7 @@ fun BillInfoScreen(
                     text = stringResource(R.string.bill_screen_do_refill),
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .clickable { viewModel.openDialog(BillChange.USER) }
+                        .clickable { viewModel.openDialog(BillChangeReason.TERMINAL) }
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -115,7 +125,7 @@ fun BillInfoScreen(
                     text = stringResource(R.string.bill_screen_do_transfer),
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .clickable { viewModel.openDialog(BillChange.TRANSFER) }
+                        .clickable { viewModel.openDialog(BillChangeReason.USER) }
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -124,7 +134,9 @@ fun BillInfoScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

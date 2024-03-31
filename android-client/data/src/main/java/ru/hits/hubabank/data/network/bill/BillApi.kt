@@ -6,7 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import ru.hits.hubabank.data.network.bill.model.ClientBillDto
-import ru.hits.hubabank.data.network.bill.model.TransactionCreationDto
+import ru.hits.hubabank.data.network.bill.model.CreatingBillDto
+import ru.hits.hubabank.data.network.bill.model.TransactionDepositCreationDto
+import ru.hits.hubabank.data.network.bill.model.TransactionToBillCreationDto
 
 internal interface BillApi {
 
@@ -14,7 +16,7 @@ internal interface BillApi {
     suspend fun getAllBills(): List<ClientBillDto>
 
     @POST("bills")
-    suspend fun createNewBill(): ClientBillDto
+    suspend fun createNewBill(@Body creatingBillDto: CreatingBillDto): ClientBillDto
 
     @GET("bills/{billId}")
     suspend fun getBillById(@Path("billId") billId: String): ClientBillDto
@@ -25,9 +27,15 @@ internal interface BillApi {
     @DELETE("bills/{billId}")
     suspend fun closeBill(@Path("billId") billId: String)
 
-    @POST("bills/{billId}/transactions")
-    suspend fun updateBillBalance(
-        @Path("billId") billId: String,
-        @Body transactionCreationDto: TransactionCreationDto,
+
+    @POST("transactions/tobill")
+    suspend fun transferMoneyToBill(
+        @Body transactionToBillCreationDto: TransactionToBillCreationDto,
+    )
+
+
+    @POST("transactions/deposit")
+    suspend fun giveMoneyForBill(
+        @Body transactionDepositCreationDto: TransactionDepositCreationDto,
     )
 }
