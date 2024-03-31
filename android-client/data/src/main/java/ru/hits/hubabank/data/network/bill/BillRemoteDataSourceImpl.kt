@@ -6,13 +6,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.logging.HttpLoggingInterceptor
-import ru.hits.hubabank.data.network.bill.model.TransactionCreationDto
+import ru.hits.hubabank.data.network.bill.model.CreatingBillDto
+import ru.hits.hubabank.data.network.bill.model.TransactionDepositCreationDto
+import ru.hits.hubabank.data.network.bill.model.TransactionToBillCreationDto
 import ru.hits.hubabank.data.network.bill.model.toDomain
 import ru.hits.hubabank.data.network.core.AuthInterceptor
 import ru.hits.hubabank.data.network.core.TokenAuthenticator
 import ru.hits.hubabank.domain.bill.BillRemoteDataSource
 import ru.hits.hubabank.domain.bill.model.Bill
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
+import ru.hits.hubabank.domain.bill.model.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,8 +28,8 @@ internal class BillRemoteDataSourceImpl @Inject constructor(
 
     private lateinit var socket: WebSocket
 
-    override suspend fun createNewBill(): Bill {
-        return billApi.createNewBill().toDomain()
+    override suspend fun createNewBill(currency: Currency): Bill {
+        return billApi.createNewBill(CreatingBillDto(currency)).toDomain()
     }
 
     override suspend fun getAllBills(): List<Bill> {
@@ -41,8 +44,24 @@ internal class BillRemoteDataSourceImpl @Inject constructor(
         billApi.saveHiddenMode(billId, isHidden)
     }
 
-    override suspend fun updateBillBalance(billId: String, balanceChange: Long) {
-        billApi.updateBillBalance(billId, TransactionCreationDto(balanceChange))
+    override suspend fun giveMoneyForBill(billId: String, balanceChange: Long) {
+        billApi.giveMoneyForBill(
+            TransactionDepositCreationDto(billId = billId, amount = balanceChange)
+        )
+    }
+
+    override suspend fun transferMoneyToBill(
+        sourceBillId: String,
+        balanceChange: Long,
+        targetBillId: String,
+    ) {
+        billApi.transferMoneyToBill(
+            TransactionToBillCreationDto(
+                sourceBillId = sourceBillId,
+                targetBillId = targetBillId,
+                amount = balanceChange,
+            )
+        )
     }
 
     override suspend fun closeBill(billId: String) {

@@ -2,31 +2,22 @@ package ru.hits.hubabank.presentation.common
 
 import androidx.annotation.StringRes
 import ru.hits.hubabank.R
-import ru.hits.hubabank.domain.bill.model.BillChange
+import ru.hits.hubabank.domain.bill.model.BillChangeReason
 
 @StringRes
-fun BillChange.getTitleRes(): Int {
+fun BillChangeReason.getTitleRes(sum: Long): Int {
     return when (this) {
-        BillChange.USER -> R.string.bill_screen_refill
-        BillChange.TRANSFER -> R.string.bill_screen_transfer
-        BillChange.LOAN -> R.string.bill_screen_credit
-        BillChange.TERMINAL -> R.string.bill_screen_refill
+        BillChangeReason.USER -> R.string.bill_screen_transfer
+        BillChangeReason.TRANSFER -> R.string.bill_screen_transfer
+        BillChangeReason.LOAN -> R.string.bill_screen_credit
+        BillChangeReason.TERMINAL -> if (sum < 0) R.string.bill_screen_withdrawal else R.string.bill_screen_refill
     }
 }
 
 @StringRes
-fun BillChange.getActionRes(): Int {
+fun BillChangeReason.getActionRes(): Int {
     return when (this) {
-        BillChange.USER -> R.string.bill_screen_do_refill
+        BillChangeReason.TERMINAL -> R.string.bill_screen_do_refill
         else -> R.string.bill_screen_do_transfer
-    }
-}
-
-fun BillChange.getSign(): Char {
-    return when (this) {
-        BillChange.USER -> '+'
-        BillChange.TERMINAL -> '+'
-        BillChange.TRANSFER -> '-'
-        BillChange.LOAN -> '-'
     }
 }

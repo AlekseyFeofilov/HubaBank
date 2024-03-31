@@ -22,6 +22,7 @@
     <string name="main_screen_bill_number">Счет %1$s</string>
     <string name="main_screen_about">Подробнее</string>
     <string name="main_screen_open_bill">Открыть счет</string>
+    <string name="main_screen_choose_currency">Выберите валюту</string>
     <string name="main_screen_your_credit">Ваши кредиты</string>
     <string name="main_screen_credit_sum">На сумму</string>
     <string name="main_screen_credit_number">Кредит %1$s</string>
@@ -38,12 +39,14 @@
     <string name="bill_screen_do_refill">Пополнить</string>
     <string name="bill_screen_do_transfer">Перевести</string>
     <string name="bill_screen_refill">Пополнение</string>
+    <string name="bill_screen_withdrawal">Снятие</string>
     <string name="bill_screen_transfer">Перевод</string>
     <string name="bill_screen_credit">Списание за кредит</string>
     <string name="bill_screen_history">История операций</string>
     <string name="bill_screen_hidden_bill">Скрытый счёт</string>
     <string name="bill_screen_today">Сегодня</string>
     <string name="bill_screen_input_sum">Введите сумму</string>
+    <string name="bill_screen_input_target_bill">Введите куда перевести</string>
     <string name="bill_screen_close_bill">Закрыть этот счет</string>
 
     <!-- Credit Screen -->

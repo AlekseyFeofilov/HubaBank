@@ -7,6 +7,7 @@ import ru.hits.hubabank.data.database.bill.model.toDomain
 import ru.hits.hubabank.domain.bill.BillRemoteDataSource
 import ru.hits.hubabank.domain.bill.model.Bill
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
+import ru.hits.hubabank.domain.bill.model.Currency
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -14,8 +15,8 @@ internal class BillRemoteDataSourceMockImpl @Inject constructor(
     private val billDao: BillDao,
 ) : BillRemoteDataSource {
 
-    override suspend fun createNewBill(): Bill {
-        return Bill(LocalDateTime.now().toString(), 80000, isHidden = false)
+    override suspend fun createNewBill(currency: Currency): Bill {
+        return Bill(LocalDateTime.now().toString(), 80000, currency = currency, isHidden = false)
     }
 
     override suspend fun getAllBills(): List<Bill> {
@@ -30,7 +31,13 @@ internal class BillRemoteDataSourceMockImpl @Inject constructor(
         return billDao.changeBillHidden(billId, isHidden)
     }
 
-    override suspend fun updateBillBalance(billId: String, balanceChange: Long) { }
+    override suspend fun giveMoneyForBill(billId: String, balanceChange: Long) { }
+
+    override suspend fun transferMoneyToBill(
+        sourceBillId: String,
+        balanceChange: Long,
+        targetBillId: String
+    ) { }
 
     override suspend fun closeBill(billId: String) { }
 

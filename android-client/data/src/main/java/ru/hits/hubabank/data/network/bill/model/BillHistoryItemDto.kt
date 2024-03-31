@@ -1,7 +1,7 @@
 package ru.hits.hubabank.data.network.bill.model
 
 import kotlinx.serialization.Serializable
-import ru.hits.hubabank.domain.bill.model.BillChange
+import ru.hits.hubabank.domain.bill.model.BillChangeReason
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
 import java.time.Instant
 import java.time.LocalDateTime
@@ -22,11 +22,11 @@ internal fun BillHistoryItemDto.toDomain(): BillHistoryItem {
         id = id,
         billId = billId,
         changeSum = balanceChange,
-        billChange = when (reason) {
-            ReasonDto.USER -> BillChange.USER
-            ReasonDto.TERMINAL -> BillChange.TERMINAL
-            ReasonDto.LOAN -> BillChange.LOAN
-            ReasonDto.TRANSFER -> BillChange.TRANSFER
+        billChangeReason = when (reason) {
+            ReasonDto.USER -> BillChangeReason.USER
+            ReasonDto.TERMINAL -> BillChangeReason.TERMINAL
+            ReasonDto.LOAN -> BillChangeReason.LOAN
+            ReasonDto.TRANSFER -> BillChangeReason.TRANSFER
         },
         dateTime = LocalDateTime.parse(instant, DateTimeFormatter.ISO_DATE_TIME).plusSeconds(
             ZoneId.systemDefault().rules.getOffset(Instant.now()).totalSeconds.toLong()

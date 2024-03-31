@@ -55,6 +55,7 @@ class LoginViewModel @Inject constructor(
                     tokenSSO = token,
                 )
             ).onSuccess {
+                fetchProfileUseCase(Unit)
                 sendAction(LoginAction.OpenMainScreen)
             }
         }
