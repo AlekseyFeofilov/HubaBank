@@ -55,7 +55,7 @@ namespace BFF_client.Api.Services
                         BillId = transactionInfo.Source.billId.ToString(),
                         BalanceChange = transactionInfo.Amount,
                         Reason = transactionInfo.Target.type,
-                        Instant = transactionInfo.Instant
+                        Instant = DateTime.UtcNow.ToString("o")
                     };
                     var transactionJson = JsonSerializer.Serialize(transactionDto, ControllersUtils.jsonOptions);
                     var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
@@ -79,7 +79,7 @@ namespace BFF_client.Api.Services
                         BillId = transactionInfo.Target.billId.ToString(),
                         BalanceChange = transactionInfo.Amount,
                         Reason = transactionInfo.Source.type,
-                        Instant = transactionInfo.Instant
+                        Instant = DateTime.UtcNow.ToString("o")
                     };
                     var transactionJson = JsonSerializer.Serialize(transactionDto, ControllersUtils.jsonOptions);
                     var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
