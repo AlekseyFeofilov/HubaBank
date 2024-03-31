@@ -1,6 +1,9 @@
 using BFF_client.Api;
+using BFF_client.Api.HubaWebSocket;
 using BFF_client.Api.model;
-using BFF_client.Api.WebSocket;
+using BFF_client.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
@@ -38,6 +41,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+/*builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyMethod();
+        builder.AllowAnyHeader();
+        builder.AllowCredentials();
+        builder.WithOrigins("*");
+    });
+});*/
+
 //Database
 builder.ConfigureAppDb();
 
@@ -46,7 +60,11 @@ builder.ConfigureAppServices();
 
 builder.Services.Configure<ConfigUrls>(builder.Configuration.GetRequiredSection("MicroserversUrls"));
 
-builder.Services.AddSignalR();
+builder.Services.AddSingleton<IWebSocketUserDb, WebSocketUserDb>();
+/*builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
+builder.Services.AddSignalR(options => { options.AddFilter<AuthHubFilter>(); });*/
+
+builder.Services.AddHostedService<TransactionsListener>();
 
 var app = builder.Build();
 
@@ -55,9 +73,10 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseWebSockets();
+app.UseMiddleware<WebSocketMiddleware>();
 
-app.MapHub<TransactionsHub>("/api/bills/{billId::guid}/transactions/ws");
+app.UseAuthorization();
 
 app.MapControllers();
 

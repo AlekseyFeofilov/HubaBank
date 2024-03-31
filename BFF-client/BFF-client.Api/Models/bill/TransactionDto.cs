@@ -8,7 +8,7 @@
 
         public long BalanceChange { get; set; }
 
-        public ReasonDto Reason { get; set; }
+        public BillTypeDto Reason { get; set; }
 
         public string Instant { get; set; }
     }

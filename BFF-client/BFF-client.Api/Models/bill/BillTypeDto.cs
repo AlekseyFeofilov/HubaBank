@@ -3,9 +3,11 @@
 namespace BFF_client.Api.model.bill
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum ReasonDto
+    public enum BillTypeDto
     {
+        USER,
         TERMINAL,
-        LOAN
+        LOAN,
+        TRANSFER // FOR OLD TRANSACTION
     }
 }
