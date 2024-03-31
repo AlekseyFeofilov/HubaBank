@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,12 +52,11 @@ fun BillInfoScreen(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.fetchBill()
-        viewModel.fetchBillHistory()
     }
 
     if (state.isChangeBillDialogOpen) {
         ChangeBillDialog(
-            billChange = state.howChange,
+            billChange = BillChange.USER, // state.howChange,
             currentSum = state.changeSum,
             onSumChange = viewModel::changeSum,
             onCloseDialog = viewModel::closeDialog,
@@ -104,7 +105,7 @@ fun BillInfoScreen(
                     text = stringResource(R.string.bill_screen_do_refill),
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .clickable { viewModel.openDialog(BillChange.REFILL) }
+                        .clickable { viewModel.openDialog(BillChange.USER) }
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -119,6 +120,28 @@ fun BillInfoScreen(
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelLarge,
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.bill_screen_hidden_bill),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Switch(
+                    checked = bill.isHidden,
+                    onCheckedChange = viewModel::changeBillHidden,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.background,
+                        checkedTrackColor = MaterialTheme.colorScheme.secondary,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.surfaceTint,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))

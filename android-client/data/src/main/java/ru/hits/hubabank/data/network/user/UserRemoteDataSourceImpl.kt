@@ -12,4 +12,8 @@ internal class UserRemoteDataSourceImpl @Inject constructor(
     override suspend fun getProfile(): Profile {
         return userApi.getProfile().toDomain()
     }
+
+    override suspend fun saveTheme(isDark: Boolean) {
+        userApi.saveTheme(isDark)
+    }
 }

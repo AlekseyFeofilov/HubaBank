@@ -7,12 +7,10 @@ import ru.hits.hubabank.data.database.bill.model.toDomain
 import ru.hits.hubabank.data.database.bill.model.toEntity
 import ru.hits.hubabank.domain.bill.BillLocalDataSource
 import ru.hits.hubabank.domain.bill.model.Bill
-import ru.hits.hubabank.domain.bill.model.BillHistoryItem
 import javax.inject.Inject
 
 internal class BillLocalDataSourceImpl @Inject constructor(
     private val billDao: BillDao,
-    private val billHistoryDao: BillHistoryDao,
 ) : BillLocalDataSource {
 
     override suspend fun saveBills(bills: List<Bill>) {
@@ -34,24 +32,19 @@ internal class BillLocalDataSourceImpl @Inject constructor(
         return billDao.observeBill(billId).map { it.toDomain() }
     }
 
-    override suspend fun updateBill(billId: String, balanceChange: Long) {
-        billDao.updateBill(billId, balanceChange)
+    override suspend fun updateBillBalance(billId: String, balanceChange: Long) {
+        billDao.updateBillBalance(billId, balanceChange)
+    }
+
+    override suspend fun changeBillHidden(billId: String, isHidden: Boolean) {
+        billDao.changeBillHidden(billId, isHidden)
     }
 
     override suspend fun deleteBill(billId: String) {
         billDao.deleteBill(billId)
     }
 
-    override suspend fun saveBillHistory(historyItems: List<BillHistoryItem>) {
-        billHistoryDao.saveBillHistory(historyItems.map { it.toEntity() })
-    }
-
-    override fun observeBillHistory(billId: String): Flow<List<BillHistoryItem>> {
-        return billHistoryDao.observeBillHistory(billId).map { list -> list.map { it.toDomain() } }
-    }
-
     override suspend fun deleteAllData() {
         billDao.deleteAllBills()
-        billHistoryDao.deleteAllHistory()
     }
 }

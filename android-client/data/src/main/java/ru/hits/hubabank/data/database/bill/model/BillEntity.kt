@@ -9,12 +9,14 @@ internal data class BillEntity(
     @PrimaryKey
     val id: String,
     val balance: Long,
+    val isHidden: Boolean,
 )
 
 internal fun Bill.toEntity(): BillEntity {
     return BillEntity(
         id = id,
         balance = balance,
+        isHidden = isHidden,
     )
 }
 
@@ -22,5 +24,6 @@ internal fun BillEntity.toDomain(): Bill {
     return Bill(
         id = id,
         balance = balance,
+        isHidden = isHidden,
     )
 }

@@ -2,6 +2,7 @@ package ru.hits.hubabank.presentation.profile
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.hits.hubabank.domain.user.ChangeThemeUseCase
 import ru.hits.hubabank.domain.user.ExitUseCase
 import ru.hits.hubabank.domain.user.FetchProfileUseCase
 import ru.hits.hubabank.domain.user.ObserveProfileUseCase
@@ -14,9 +15,10 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val observeProfileUseCase: ObserveProfileUseCase,
     private val fetchProfileUseCase: FetchProfileUseCase,
+    private val changeThemeUseCase: ChangeThemeUseCase,
     private val exitUseCase: ExitUseCase,
 ) : BaseViewModel<ProfileState, ProfileAction>(
-    ProfileState(isLoading = true, fullName = "", phone = "")
+    ProfileState(isLoading = true, fullName = "", phone = "", isDarkTheme = false)
 ) {
 
     init {
@@ -43,6 +45,12 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun changeTheme(isDark: Boolean) {
+        launch {
+            changeThemeUseCase(isDark)
+        }
+    }
+
     private fun observeProfile() {
         launch {
             observeProfileUseCase(Unit).collect { result ->
@@ -50,6 +58,7 @@ class ProfileViewModel @Inject constructor(
                     _screenState.value = _screenState.value.copy(
                         fullName = it?.name ?: "",
                         phone = it?.phone ?: "",
+                        isDarkTheme = it?.isDarkTheme ?: false
                     )
                 }
             }

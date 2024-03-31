@@ -9,5 +9,7 @@ interface UserLocalDataSource {
 
     fun observeProfile(): Flow<Profile?>
 
+    suspend fun changeTheme(isDark: Boolean)
+
     suspend fun deleteProfile()
 }

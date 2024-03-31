@@ -4,26 +4,30 @@ import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.hits.hubabank.domain.bill.ChangeBillBalanceUseCase
+import ru.hits.hubabank.domain.bill.ChangeBillHiddenUseCase
 import ru.hits.hubabank.domain.bill.CloseBillUseCase
-import ru.hits.hubabank.domain.bill.FetchBillHistoryUseCase
+import ru.hits.hubabank.domain.bill.EndObserveBillHistoryUseCase
 import ru.hits.hubabank.domain.bill.FetchBillUseCase
-import ru.hits.hubabank.domain.bill.ObserveBillHistoryUseCase
 import ru.hits.hubabank.domain.bill.ObserveBillUseCase
+import ru.hits.hubabank.domain.bill.StartObserveBillHistoryUseCase
 import ru.hits.hubabank.domain.bill.model.BillChange
 import ru.hits.hubabank.domain.bill.model.ChangeBillBalanceModel
+import ru.hits.hubabank.domain.bill.model.ChangeBillHiddenModel
 import ru.hits.hubabank.presentation.bill.model.BillInfoAction
 import ru.hits.hubabank.presentation.bill.model.BillInfoState
 import ru.hits.hubabank.presentation.core.BaseViewModel
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class BillInfoViewModel @Inject constructor(
     private val observeBillUseCase: ObserveBillUseCase,
-    private val observeBillHistoryUseCase: ObserveBillHistoryUseCase,
+    private val startObserveBillHistoryUseCase: StartObserveBillHistoryUseCase,
+    private val endObserveBillHistoryUseCase: EndObserveBillHistoryUseCase,
     private val fetchBillUseCase: FetchBillUseCase,
-    private val fetchBillHistoryUseCase: FetchBillHistoryUseCase,
     private val changeBillBalanceUseCase: ChangeBillBalanceUseCase,
+    private val changeBillHiddenUseCase: ChangeBillHiddenUseCase,
     private val closeBillUseCase: CloseBillUseCase,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<BillInfoState, BillInfoAction>(
@@ -33,7 +37,7 @@ class BillInfoViewModel @Inject constructor(
         billHistory = emptyMap(),
         today = LocalDate.now(),
         isChangeBillDialogOpen = false,
-        howChange = BillChange.REFILL,
+        // howChange = BillChange.REFILL,
         changeSum = "",
     )
 ) {
@@ -43,15 +47,14 @@ class BillInfoViewModel @Inject constructor(
     init {
         observeBill()
         observeBillHistory()
-
     }
 
     fun navigateBack() {
-        sendAction(BillInfoAction.NavigateBack)
+        endObserveBillHistory()
     }
 
     fun openDialog(howChange: BillChange) {
-        _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = true, howChange = howChange)
+        _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = true, /*howChange = howChange*/)
     }
 
     fun changeSum(value: String) {
@@ -69,8 +72,7 @@ class BillInfoViewModel @Inject constructor(
             return
         }
         launch {
-            var balanceChange = currentState.changeSum.toLong()
-            if (currentState.howChange == BillChange.TRANSFER) balanceChange = -balanceChange
+            val balanceChange = currentState.changeSum.toLong()
             changeBillBalanceUseCase(
                 ChangeBillBalanceModel(
                     billId = billId,
@@ -79,15 +81,22 @@ class BillInfoViewModel @Inject constructor(
             ).onSuccess {
                 _screenState.value = _screenState.value.copy(changeSum = "")
                 _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = false)
-                fetchBillHistory()
             }
+        }
+    }
+
+    fun changeBillHidden(isHidden: Boolean) {
+        launch {
+            changeBillHiddenUseCase(
+                ChangeBillHiddenModel(billId, isHidden)
+            )
         }
     }
 
     fun closeBill() {
         launch {
             closeBillUseCase(billId).onSuccess {
-                sendAction(BillInfoAction.NavigateBack)
+                endObserveBillHistory()
             }
         }
     }
@@ -95,12 +104,6 @@ class BillInfoViewModel @Inject constructor(
     fun fetchBill() {
         launch {
             fetchBillUseCase(billId)
-        }
-    }
-
-    fun fetchBillHistory() {
-        launch {
-            fetchBillHistoryUseCase(billId)
         }
     }
 
@@ -116,13 +119,35 @@ class BillInfoViewModel @Inject constructor(
 
     private fun observeBillHistory() {
         launch {
-            observeBillHistoryUseCase(billId).collect {result ->
-                result.onSuccess {
-                    _screenState.value = _screenState.value.copy(
-                        billHistory = it,
-                        today = LocalDate.now(),
-                    )
+            startObserveBillHistoryUseCase(billId).collect { historyItem ->
+                val billHistory = currentState.billHistory.toMutableMap()
+                val sameDateItems = billHistory[historyItem.dateTime.toLocalDate()]
+                val newList = if (sameDateItems == null) {
+                    listOf(historyItem)
+                } else {
+                    listOf(historyItem).plus(sameDateItems)
                 }
+                billHistory[historyItem.dateTime.toLocalDate()] = newList
+                _screenState.value = _screenState.value.copy(
+                    billHistory = billHistory.toSortedMap(compareByDescending { it.toString() }),
+                    today = LocalDate.now(),
+                )
+
+                if (LocalDateTime.now().minusMinutes(1) < historyItem.dateTime) {
+                    fetchBill()
+                }
+            }
+        }
+    }
+
+    private fun endObserveBillHistory() {
+        launch {
+            kotlin.runCatching {
+                endObserveBillHistoryUseCase()
+            }.onSuccess {
+                sendAction(BillInfoAction.NavigateBack)
+            }.onFailure {
+                sendAction(BillInfoAction.NavigateBack)
             }
         }
     }

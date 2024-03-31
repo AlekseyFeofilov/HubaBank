@@ -22,10 +22,11 @@ internal fun BillHistoryItemDto.toDomain(): BillHistoryItem {
         id = id,
         billId = billId,
         changeSum = balanceChange,
-        billChange = when {
-            reason == ReasonDto.LOAN -> BillChange.CREDIT
-            balanceChange < 0 -> BillChange.TRANSFER
-            else -> BillChange.REFILL
+        billChange = when (reason) {
+            ReasonDto.USER -> BillChange.USER
+            ReasonDto.TERMINAL -> BillChange.TERMINAL
+            ReasonDto.LOAN -> BillChange.LOAN
+            ReasonDto.TRANSFER -> BillChange.TRANSFER
         },
         dateTime = LocalDateTime.parse(instant, DateTimeFormatter.ISO_DATE_TIME).plusSeconds(
             ZoneId.systemDefault().rules.getOffset(Instant.now()).totalSeconds.toLong()

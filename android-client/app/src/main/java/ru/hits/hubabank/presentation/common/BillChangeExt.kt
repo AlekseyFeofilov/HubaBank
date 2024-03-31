@@ -7,24 +7,26 @@ import ru.hits.hubabank.domain.bill.model.BillChange
 @StringRes
 fun BillChange.getTitleRes(): Int {
     return when (this) {
-        BillChange.REFILL -> R.string.bill_screen_refill
+        BillChange.USER -> R.string.bill_screen_refill
         BillChange.TRANSFER -> R.string.bill_screen_transfer
-        BillChange.CREDIT -> R.string.bill_screen_credit
+        BillChange.LOAN -> R.string.bill_screen_credit
+        BillChange.TERMINAL -> R.string.bill_screen_refill
     }
 }
 
 @StringRes
 fun BillChange.getActionRes(): Int {
     return when (this) {
-        BillChange.REFILL -> R.string.bill_screen_do_refill
+        BillChange.USER -> R.string.bill_screen_do_refill
         else -> R.string.bill_screen_do_transfer
     }
 }
 
 fun BillChange.getSign(): Char {
     return when (this) {
-        BillChange.REFILL -> '+'
+        BillChange.USER -> '+'
+        BillChange.TERMINAL -> '+'
         BillChange.TRANSFER -> '-'
-        BillChange.CREDIT -> '-'
+        BillChange.LOAN -> '-'
     }
 }
