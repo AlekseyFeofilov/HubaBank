@@ -11,6 +11,11 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: Server=database;Port=5432;Database=gateway_client_service;Username=postgres;Password=${DATABASE_PASSWORD}
       ASPNETCORE_ENVIRONMENT: Staging
+      RABBITMQ_HOST: 194.147.90.192
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
     depends_on:
       - local-database
     networks:
