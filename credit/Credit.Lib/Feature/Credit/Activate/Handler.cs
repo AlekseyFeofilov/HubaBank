@@ -1,5 +1,6 @@
 using Credit.Primitives;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Utils.DateTime;
 
 namespace Credit.Lib.Feature.Credit.Activate;
@@ -7,15 +8,17 @@ namespace Credit.Lib.Feature.Credit.Activate;
 public class Handler : IRequestHandler<Request>
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<Handler> _logger;
 
-    public Handler(IMediator mediator)
+    public Handler(IMediator mediator, ILogger<Handler> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
 
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
-        var credit = await _mediator.Send(new Credit.FetchById.Request(request.Id), cancellationToken);
+        var credit = await _mediator.Send(new Fetch.ById.Request(request.CreditId), cancellationToken);
         var monthsToComplete = credit.CompletionDate.GetDifferenceInMonths(DateTime.Now);
         var payments = Array.Empty<Data.Requests.Payment.CreateRequest>().ToList();
         
@@ -32,8 +35,9 @@ public class Handler : IRequestHandler<Request>
             
             payments.Add(payment);
         }
-
+        
+        _logger.LogWarning("Trying to create payments for credit with id {creditId}", credit.Id);
         await _mediator.Send(new Payment.Create.Request(payments), cancellationToken);
-        Console.WriteLine($"Credit {credit.Id} was activated");
+        _logger.LogWarning("Credit with id {creditId} was activated", credit.Id);
     }
 }

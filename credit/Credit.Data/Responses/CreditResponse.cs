@@ -14,7 +14,7 @@ public class CreditResponse
     public DateOnly LastArrearsUpdate { get; set; } 
     public float InterestRate { get; set; }
     public int CollectionDay { get; set; }
-    public long Debt { get; set; }
+    public long Principal { get; set; }
     public long AccountsPayable { get; set; }
     public long ArrearsInterest { get; set; }
     public long Arrears { get; set; }

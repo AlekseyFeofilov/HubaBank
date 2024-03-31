@@ -27,4 +27,16 @@ public class UpdateRequest
     /// Id предсозданных кредитных условий (если указан, то InterestRate будет проигнорирован) 
     /// </summary>
     public Guid? CreditTermsId { get; set; }
+    
+    [JsonIgnore]
+    public long? ArrearsInterest { get; set; }
+    
+    [JsonIgnore]
+    public long? Arrears { get; set; }
+    
+    [JsonIgnore]
+    public long? Fine { get; set; }
+    
+    [JsonIgnore]
+    public long? PayOffAccountsPayable { get; set; }
 }

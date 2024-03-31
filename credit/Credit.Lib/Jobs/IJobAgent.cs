@@ -11,7 +11,7 @@ public interface IJobAgent
 
     [DisplayName("Запуск отложенных оплат по кредиту")]
     [AutomaticRetry(Attempts = 3)]
-    public Task EnqueueNextDayPayments();
+    public Task EnqueueTodayPayments();
     
     [DisplayName("Запуск отложенной оплаты {0} по кредита")]
     [AutomaticRetry(Attempts = 10)]

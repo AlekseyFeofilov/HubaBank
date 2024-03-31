@@ -4,10 +4,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Credit.Api.Middlewares
 {
-    public class ErrorHandlingMiddleware //todo не работает
+    public class ErrorHandlingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
+        private readonly ILogger<ErrorHandlingMiddleware> _logger;
 
         public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
         {
@@ -40,7 +40,7 @@ namespace Credit.Api.Middlewares
                     LogCustomException(e, e.Entity);
                     break;
                 default:
-                    _logger.LogError(exception, $"Произошла ошибка. Ошибка: {exception.Message}");
+                    _logger.LogError(exception, "Произошла ошибка. Ошибка: {exception}", exception.Message);
                     break;
             }
             
@@ -51,7 +51,7 @@ namespace Credit.Api.Middlewares
 
         private void LogCustomException(Exception ex, object entity)
         {
-            _logger.LogError(ex, $"Запрос {JsonSerializer.Serialize(entity)}");
+            _logger.LogError(ex, "Запрос {entity}", JsonSerializer.Serialize(entity));
         }
     }
 }

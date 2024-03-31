@@ -4,9 +4,15 @@ namespace Credit.Lib.Feature.Payment.Update;
 
 public class Request : Base.Update.Request<Dal.Models.Payment, Data.Requests.Payment.UpdateRequest>
 {
+    public Guid PaymentId { get; set; }
+    public Data.Requests.Payment.UpdateRequest UpdateRequest { get; set; }
+    
     public Request(Guid id, Data.Requests.Payment.UpdateRequest request) 
         : base(new IdentitySpecification<Dal.Models.Payment, Guid>(id))
     {
+        PaymentId = id;
+        UpdateRequest = request;
+        
         Expression = payment =>
         {
             if (request.PaymentStatus.HasValue)

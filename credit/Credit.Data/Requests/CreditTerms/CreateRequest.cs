@@ -15,4 +15,10 @@ public class CreateRequest
     [Required]
     [Range(0.1, float.MaxValue)]
     public float InterestRate { get; set; }
+    
+    /// <summary>
+    /// Название кредитных условий
+    /// </summary>
+    [Required]
+    public string Title { get; set; }
 }

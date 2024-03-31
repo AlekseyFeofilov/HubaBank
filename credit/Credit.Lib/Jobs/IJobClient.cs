@@ -3,6 +3,6 @@ namespace Credit.Lib.Jobs;
 public interface IJobClient
 {
     void EnqueuePing();
-    void EnqueueNextDayPayments();
+    void EnqueueTodayPayments();
     void EnqueuePayment(Guid id);
 }

@@ -23,12 +23,11 @@ public class JobClient : IJobClient
             agent => agent.Ping(), 
             "0/30 * * * *");
     }
-
-    //todo переделать локигу на поиск сегодняшних оплат, потому что джобы отрабатывают сразу
-    public void EnqueueNextDayPayments()
+    
+    public void EnqueueTodayPayments()
     {
-        _recurringJobManager.AddOrUpdate<IJobAgent>("EnqueueNextDayPayments",
-            agent => agent.EnqueueNextDayPayments(),
+        _recurringJobManager.AddOrUpdate<IJobAgent>("EnqueueTodayPayments",
+            agent => agent.EnqueueTodayPayments(),
             "0 0 * * *");
     }
 

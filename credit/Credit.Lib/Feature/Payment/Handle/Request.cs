@@ -4,10 +4,10 @@ namespace Credit.Lib.Feature.Payment.Handle;
 
 public class Request : IRequest
 {
-    public Guid Id { get; set; }
+    public Guid PaymentId { get; set; }
     
-    public Request(Guid id)
+    public Request(Guid paymentId)
     {
-        Id = id;
+        PaymentId = paymentId;
     }
 }

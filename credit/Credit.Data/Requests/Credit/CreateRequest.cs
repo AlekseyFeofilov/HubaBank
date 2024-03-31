@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Credit.Data.Requests.Credit;
 
@@ -26,6 +27,9 @@ public class CreateRequest
     /// </summary>
     [Required]
     public long Principal { get; set; }
+    
+    [JsonIgnore]
+    public long? AccountsPayable { get; set; }
     
     /// <summary>
     /// Дата окончания кредита

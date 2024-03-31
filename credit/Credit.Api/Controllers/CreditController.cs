@@ -1,5 +1,6 @@
 using Credit.Data;
 using Credit.Data.Responses;
+using Credit.Lib.Feature.Credit.Fetch.ById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,15 +21,16 @@ public class CreditController : ControllerBase
     [HttpGet("{id:guid}")] 
     public Task<CreditResponse> FetchCredit(Guid id)
     {
-        return _mediator.Send(new Lib.Feature.Credit.FetchById.Request(id), HttpContext.RequestAborted);
+        return _mediator.Send(new Request(id), HttpContext.RequestAborted);
     }
     
     [HttpGet("users/{userid:guid}")]
     public async Task<IReadOnlyCollection<CreditResponse>> FetchCreditByUser(Guid userid, [FromQuery] PageFilter pageFilter)
     {
-        return await _mediator.Send(new Lib.Feature.Credit.FetchByUserId.Request(userid, pageFilter), HttpContext.RequestAborted);
+        return await _mediator.Send(new Lib.Feature.Credit.Fetch.ByUserId.Request(userid, pageFilter), HttpContext.RequestAborted);
     }
     
+    //todo проверить с несуществующим bill id
     /// <response code="400">BadRequest</response>
     [HttpPost]
     public async Task<Guid> CreateCredit(Data.Requests.Credit.CreateRequest data)

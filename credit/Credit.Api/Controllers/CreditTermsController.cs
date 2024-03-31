@@ -22,6 +22,12 @@ public class CreditTermsController : ControllerBase
         return _mediator.Send(new Lib.Feature.CreditTerms.FetchById.Request(id), HttpContext.RequestAborted);
     }
     
+    [HttpGet]
+    public Task<IReadOnlyCollection<CreditTermsResponse>> FetchAllCreditTerms()
+    {
+        return _mediator.Send(new Lib.Feature.CreditTerms.FetchAll.Request(), HttpContext.RequestAborted);
+    }
+    
     /// <response code="400">BadRequest</response>
     [HttpPost]
     public async Task<Guid> CreateCreditTerms(Data.Requests.CreditTerms.CreateRequest data)

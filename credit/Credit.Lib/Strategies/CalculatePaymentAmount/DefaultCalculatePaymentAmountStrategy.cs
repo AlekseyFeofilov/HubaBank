@@ -4,13 +4,13 @@ namespace Credit.Lib.Strategies.CalculatePaymentAmount;
 
 public class DefaultCalculatePaymentAmountStrategy : ICalculatePaymentAmountStrategy
 {
-    private long AccountsPayable { get; }
+    private long Principal { get; }
     private DateOnly CompletionDate { get; }
     private int MonthsToComplete { get; }
     
-    public DefaultCalculatePaymentAmountStrategy(long accountsPayable, DateOnly completionDate)
+    public DefaultCalculatePaymentAmountStrategy(long principal, DateOnly completionDate)
     {
-        AccountsPayable = accountsPayable;
+        Principal = principal;
         CompletionDate = completionDate;
         
         MonthsToComplete = CompletionDate.GetDifferenceInMonths(DateTime.Now);
@@ -20,9 +20,10 @@ public class DefaultCalculatePaymentAmountStrategy : ICalculatePaymentAmountStra
     {
         if (monthsAfterToday == MonthsToComplete)
         {
-            return AccountsPayable - AccountsPayable / MonthsToComplete * MonthsToComplete;
+            return Principal - Principal / MonthsToComplete * MonthsToComplete;
         }
 
-        return AccountsPayable / MonthsToComplete;
+        //todo здесть надо округлять не до меньшего, а до большего, чтобы в последний месяц нужно было платить меньше денег, а не больше
+        return Principal / MonthsToComplete;
     }
 }

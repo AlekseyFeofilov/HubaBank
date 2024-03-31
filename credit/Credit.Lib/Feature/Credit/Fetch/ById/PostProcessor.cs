@@ -2,7 +2,7 @@ using Credit.Data.Responses;
 using Credit.Lib.Exceptions;
 using MediatR.Pipeline;
 
-namespace Credit.Lib.Feature.Credit.FetchById;
+namespace Credit.Lib.Feature.Credit.Fetch.ById;
 
 public class PostProcessor : IRequestPostProcessor<Request, CreditResponse>
 {

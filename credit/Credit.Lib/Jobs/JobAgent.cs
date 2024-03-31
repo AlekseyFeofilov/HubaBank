@@ -1,3 +1,4 @@
+using Credit.Lib.Feature.Payment.EnqueueTodayPayments;
 using MediatR;
 
 namespace Credit.Lib.Jobs;
@@ -16,9 +17,9 @@ public class JobAgent : IJobAgent
         return _mediator.Send(new Feature.Ping.Request());
     }
 
-    public Task EnqueueNextDayPayments()
+    public Task EnqueueTodayPayments()
     {
-        return _mediator.Send(new Feature.Payment.EnqueueForNextDay.Request());
+        return _mediator.Send(new Request());
     }
 
     public Task EnqueuePayment(Guid id)

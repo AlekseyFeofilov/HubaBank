@@ -1,4 +1,5 @@
 using Core.Provider.v1;
+using Credit.Lib.Exceptions;
 using Credit.Lib.Models;
 using MediatR;
 
@@ -18,6 +19,11 @@ public class Handler : IRequestHandler<Request>
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
         //todo желательно делать это одной операцией, но это к Роме
+        if (request.AmountOfMoney == 0)
+        {
+            throw new BadRequestException("Transaction must be with non zero balance change");
+        }
+        
         await _coreProviderV1.CreateTransactionAsync(_masterBillSettings.MasterBillId, new TransactionCreationDto
         {
             BalanceChange = request.AmountOfMoney

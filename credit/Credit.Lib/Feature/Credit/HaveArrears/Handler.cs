@@ -13,7 +13,7 @@ public class Handler : IRequestHandler<Request, bool>
 
     public async Task<bool> Handle(Request request, CancellationToken cancellationToken)
     {
-        var credit = await _mediator.Send(new FetchById.Request(request.CreditId), cancellationToken);
+        var credit = await _mediator.Send(new Fetch.ById.Request(request.CreditId), cancellationToken);
         return credit.Arrears > 0 || credit.Fine > 0 || credit.ArrearsInterest > 0;
     }
 }

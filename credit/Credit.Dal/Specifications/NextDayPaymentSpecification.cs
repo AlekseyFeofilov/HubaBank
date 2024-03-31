@@ -3,9 +3,9 @@ using EntityFrameworkCore.CommonTools;
 
 namespace Credit.Dal.Specifications;
 
-public class TomorrowPaymentSpecification : Specification<Payment>
+public class TodayPaymentSpecification : Specification<Payment>
 {
-    public TomorrowPaymentSpecification() : base(x => x.PaymentDay == DateOnly.FromDateTime(DateTime.Now.AddDays(1)))
+    public TodayPaymentSpecification() : base(x => x.PaymentDay == DateOnly.FromDateTime(DateTime.Now.AddDays(0)))
     {
     }
 }

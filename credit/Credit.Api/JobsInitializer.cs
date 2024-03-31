@@ -28,8 +28,8 @@ public class JobsInitializer : IAsyncInitializer
 
     private Task StartJobs()
     {
-        _jobClient.EnqueuePing();
-        _jobClient.EnqueueNextDayPayments();
+        // _jobClient.EnqueuePing();
+        _jobClient.EnqueueTodayPayments();
         return Task.CompletedTask;
     }
 
@@ -42,7 +42,7 @@ public class JobsInitializer : IAsyncInitializer
         // Console.WriteLine(bill.Balance);
         // Console.WriteLine();
 
-        // await _mediator.Send(new Lib.Feature.Ping.Request(), cancellationToken);
+        await _mediator.Send(new Lib.Feature.Ping.Request(), cancellationToken);
         // Console.WriteLine("Pong");
     }
 }

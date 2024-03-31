@@ -1,7 +1,7 @@
 using Credit.Dal.Specifications;
 using Credit.Data.Responses;
 
-namespace Credit.Lib.Feature.Credit.FetchById;
+namespace Credit.Lib.Feature.Credit.Fetch.ById;
 
 public class Request : Base.Fetch.Request<Dal.Models.Credit, CreditResponse>
 {

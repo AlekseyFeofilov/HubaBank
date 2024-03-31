@@ -1,50 +1,101 @@
+using Credit.Dal.Specifications;
+using Credit.Data.Requests.Payment;
+using Credit.Primitives;
 using MediatR;
-using Utils.DateTime;
+using Microsoft.Extensions.Logging;
 
 namespace Credit.Lib.Feature.Credit.Arrears.Handle;
 
 public class Handler : IRequestHandler<Request>
 {
     private readonly IMediator _mediator;
+    private readonly ILogger<Handler> _logger;
 
-    public Handler(IMediator mediator)
+    public Handler(IMediator mediator, ILogger<Handler> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
 
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
-        var credit = await _mediator.Send(new Credit.FetchById.Request(request.CreditId), cancellationToken);
-        var bill = await _mediator.Send(new Bill.Fetch.Request(credit.BillId), cancellationToken);
-        var balance = bill.Balance;
+        var credit = await _mediator.Send(new Credit.Fetch.ById.Request(request.CreditId), cancellationToken);
+        var billBalance = await _mediator.Send(new Bill.FetchBalance.Request(credit.BillId), cancellationToken);
         
-        if (credit.LastArrearsUpdate < DateTime.Today.ToDateOnly())
-        {
-            await _mediator.Send(new Credit.Arrears.Actualise.Request(credit.Id), cancellationToken);
-        }
-        
-        if (balance > 0)
-        {
-            await PayOff(credit.ArrearsInterest);
-        }
+        var creditUpdateRequest = new Data.Requests.Credit.UpdateRequest();
+        var paymentAmount = 0L;
 
-        if (balance > 0)
-        {
-            await PayOff(credit.Arrears);
-        }
+        await TryPayOffArrearsInterest();
+        await TryPayOffOverdidPayments();
+        await TryPayOffFine();
+        await _mediator.Send(new Credit.Update.Request(credit.Id, creditUpdateRequest), cancellationToken);
         
-        if (balance > 0)
-        {
-            await PayOff(credit.Fine);
-        }
-
+        _logger.LogWarning("Credit with id {creditId} has arrears interest equal to {arrears} " +
+                           "and fine equal to {fine}",
+            credit.Id, creditUpdateRequest.ArrearsInterest, creditUpdateRequest.Fine);
         return;
 
         async Task PayOff(long wantedPayment)
         {
-            var payment = Math.Min(wantedPayment, balance);
-            await _mediator.Send(new MasterBill.Deposit.Request(bill.Id, payment), cancellationToken);
-            balance -= payment;
+            paymentAmount = Math.Min(wantedPayment, billBalance);
+            await _mediator.Send(new MasterBill.Deposit.Request(credit.BillId, paymentAmount), cancellationToken);
+            billBalance -= paymentAmount;
+        }
+
+        async Task TryPayOffArrearsInterest()
+        {
+            if (billBalance > 0)
+            {
+                await PayOff(credit.ArrearsInterest);
+                creditUpdateRequest.ArrearsInterest = credit.ArrearsInterest - paymentAmount;
+            
+                _logger.LogWarning(
+                    "Arrears interest of credit with id {creditId} were paid off in the amount off {paymentAmount}",
+                    credit.Id, paymentAmount);
+            }
+        }
+        
+        async Task TryPayOffOverdidPayments()
+        {
+            var payments =
+                (await _mediator.Send(new Payment.Fetch.All.Request(new OverdidPaymentSpecification()), cancellationToken))
+                .OrderBy(x => x.PaymentDay);
+        
+            foreach (var payment in payments)
+            {
+                if (billBalance == 0) continue;
+
+                await PayOff(payment.Arrears);
+                
+                var paymentUpdateRequest = new UpdateRequest
+                {
+                    Arrears = payment.Arrears - paymentAmount,
+                    PaymentStatus = payment.Arrears - paymentAmount == 0
+                        ? PaymentStatus.PaidLate
+                        : PaymentStatus.Overdue
+                };
+
+                await _mediator.Send(new Payment.Update.Request(payment.Id, paymentUpdateRequest), cancellationToken);
+                paymentUpdateRequest.Arrears = credit.ArrearsInterest - paymentAmount;
+
+                _logger.LogWarning("Payment with id {paymentId} of credit with id {creditId} were paid off in " +
+                                   "the amount off {paymentAmount}. Now arrears for the payment equal to {arrears} and their " +
+                                   "status is {status}",
+                    payment.Id, credit.Id, paymentAmount, paymentUpdateRequest.Arrears,
+                    paymentUpdateRequest.PaymentStatus == PaymentStatus.PaidLate ? "Paid Late" : "Overdue");
+            }
+        }
+
+        async Task TryPayOffFine()
+        {
+            if (billBalance > 0)
+            {
+                await PayOff(credit.Fine);
+                creditUpdateRequest.Fine = credit.Fine - paymentAmount;
+            
+                _logger.LogWarning("Fine of credit with id {creditId} were paid off in the amount off {paymentAmount}",
+                    credit.Id, paymentAmount);
+            }
         }
     }
 }

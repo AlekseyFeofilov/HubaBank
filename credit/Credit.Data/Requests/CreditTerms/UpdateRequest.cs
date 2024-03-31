@@ -9,4 +9,9 @@ public class UpdateRequest
     /// </summary>
     [Range(0.1, float.MaxValue)]
     public float InterestRate { get; set; }
+    
+    /// <summary>
+    /// Название кредитных условий
+    /// </summary>
+    public string Title { get; set; }
 }
