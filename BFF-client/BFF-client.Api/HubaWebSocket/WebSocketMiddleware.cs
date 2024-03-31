@@ -1,4 +1,4 @@
-﻿using BFF_client.Api.Controllers;
+using BFF_client.Api.Controllers;
 using BFF_client.Api.model;
 using BFF_client.Api.model.bill;
 using BFF_client.Api.Models;
@@ -39,7 +39,7 @@ namespace BFF_client.Api.HubaWebSocket
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
-                // /ws/bills/{billId}
+                // <Host>/ws/bills/{billId}
                 if (await IsRequstValid(context) == false)
                 {
                     return;
