@@ -31,7 +31,9 @@ namespace BFF_client.Api.Services
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var consumer = new EventingBasicConsumer(_channel);
+            stoppingToken.ThrowIfCancellationRequested();
+
+            var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (model, eventArgs) =>
             {
                 var body = eventArgs.Body.ToArray();
@@ -53,9 +55,9 @@ namespace BFF_client.Api.Services
                     {
                         Id = transactionInfo.Id,
                         BillId = transactionInfo.Source.billId.ToString(),
-                        BalanceChange = transactionInfo.Amount,
+                        BalanceChange = -transactionInfo.Amount,
                         Reason = transactionInfo.Target.type,
-                        Instant = DateTime.UtcNow.ToString("o")
+                        Instant = transactionInfo.Instant
                     };
                     var transactionJson = JsonSerializer.Serialize(transactionDto, ControllersUtils.jsonOptions);
                     var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
@@ -79,7 +81,7 @@ namespace BFF_client.Api.Services
                         BillId = transactionInfo.Target.billId.ToString(),
                         BalanceChange = transactionInfo.Amount,
                         Reason = transactionInfo.Source.type,
-                        Instant = DateTime.UtcNow.ToString("o")
+                        Instant = transactionInfo.Instant
                     };
                     var transactionJson = JsonSerializer.Serialize(transactionDto, ControllersUtils.jsonOptions);
                     var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
@@ -89,9 +91,17 @@ namespace BFF_client.Api.Services
                 _logger.LogInformation(message);
 
                 _channel.BasicAck(eventArgs.DeliveryTag, false);
+                await Task.Yield();
             };
 
-            _channel.BasicConsume("client_transfer_response_queue", true, consumer);
+            _channel.BasicConsume("client_transfer_response_queue", false, consumer);
+
+            return Task.CompletedTask;
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("MessageListener is stopping.");
 
             return Task.CompletedTask;
         }
