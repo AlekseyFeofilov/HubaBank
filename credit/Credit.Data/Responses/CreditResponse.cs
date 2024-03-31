@@ -7,8 +7,11 @@ public class CreditResponse
 { 
     public Guid Id { get; set; }
     public Guid AccountId { get; set; }
+    public Guid BillId { get; set; }
     [JsonConverter(typeof(DateOnlyJsonConverter))]
     public DateOnly CompletionDate { get; set; } 
+    [JsonConverter(typeof(DateOnlyJsonConverter))]
+    public DateOnly LastArrearsUpdate { get; set; } 
     public float InterestRate { get; set; }
     public int CollectionDay { get; set; }
     public long Debt { get; set; }

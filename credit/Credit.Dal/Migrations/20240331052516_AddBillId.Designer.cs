@@ -3,6 +3,7 @@ using System;
 using Credit.Dal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Credit.Dal.Migrations
 {
     [DbContext(typeof(CreditContext))]
-    partial class CreditContextModelSnapshot : ModelSnapshot
+    [Migration("20240331052516_AddBillId")]
+    partial class AddBillId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,9 +63,6 @@ namespace Credit.Dal.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<DateOnly>("LastArrearsUpdate")
-                        .HasColumnType("date");
 
                     b.Property<long>("Principal")
                         .HasColumnType("bigint");

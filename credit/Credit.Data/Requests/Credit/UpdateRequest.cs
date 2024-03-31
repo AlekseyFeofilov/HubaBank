@@ -12,6 +12,12 @@ public class UpdateRequest
     public DateOnly? CompletionDate { get; set; } 
     
     /// <summary>
+    /// Id счёта пользователя, с которого будут списываться средтсва
+    /// </summary>
+    [Required]
+    public Guid BillId { get; set; }
+    
+    /// <summary>
     /// Процентная ставка по кредиту
     /// </summary>
     [Range(0.1, float.MaxValue)]

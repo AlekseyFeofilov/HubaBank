@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Core.Provider\Core.Provider.csproj" />
       <ProjectReference Include="..\Credit.Lib\Credit.Lib.csproj" />
     </ItemGroup>
 </Project>

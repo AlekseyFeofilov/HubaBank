@@ -16,6 +16,12 @@ public class CreateRequest
     public Guid AccountId { get; set; }
     
     /// <summary>
+    /// Id счёта пользователя, с которого будут списываться средтсва
+    /// </summary>
+    [Required]
+    public Guid BillId { get; set; }
+    
+    /// <summary>
     /// Размер кредита в копейках
     /// </summary>
     [Required]
