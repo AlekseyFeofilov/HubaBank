@@ -12,7 +12,8 @@ namespace BFF_client.Api
                 Port = configuration.GetValue<int>("RABBITMQ_PORT"),
                 UserName = configuration["RABBITMQ_USER"],
                 Password = configuration["RABBITMQ_PASSWORD"],
-                VirtualHost = configuration["RABBITMQ_VHOST"]
+                VirtualHost = configuration["RABBITMQ_VHOST"],
+                DispatchConsumersAsync = true
             };
             return factory.CreateConnection();
         }
