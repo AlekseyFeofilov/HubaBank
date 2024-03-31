@@ -16,6 +16,9 @@ internal interface UserDao {
     @Query("SELECT * FROM Profile LIMIT 1")
     fun observeProfile(): Flow<ProfileEntity?>
 
+    @Query("UPDATE Profile SET isDarkTheme = :isDark")
+    suspend fun changeTheme(isDark: Boolean)
+
     @Query("DELETE FROM Profile")
     suspend fun deleteProfile()
 }

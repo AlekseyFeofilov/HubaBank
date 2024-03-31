@@ -10,6 +10,7 @@ internal data class ProfileEntity(
     val id: String,
     val name: String,
     val phone: String,
+    val isDarkTheme: Boolean,
 )
 
 internal fun Profile.toEntity(): ProfileEntity {
@@ -17,6 +18,7 @@ internal fun Profile.toEntity(): ProfileEntity {
         id = userId,
         name = name,
         phone = phone,
+        isDarkTheme = isDarkTheme,
     )
 }
 
@@ -25,5 +27,6 @@ internal fun ProfileEntity.toDomain(): Profile {
         userId = id,
         name = name,
         phone = phone,
+        isDarkTheme = isDarkTheme,
     )
 }

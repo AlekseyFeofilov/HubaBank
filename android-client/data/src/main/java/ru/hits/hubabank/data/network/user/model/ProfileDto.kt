@@ -8,7 +8,8 @@ import ru.hits.hubabank.domain.user.model.Profile
 internal data class ProfileDto(
     val id: String,
     val fullNameDto: FullNameDto,
-    val phone: String, // В Gateway не забыть убрать остальные поля!!!
+    val phone: String,
+    val isDarkTheme: Boolean,
 )
 
 internal fun ProfileDto.toDomain(): Profile {
@@ -17,5 +18,6 @@ internal fun ProfileDto.toDomain(): Profile {
         name = "${fullNameDto.firstName} ${fullNameDto.secondName}" +
                 if (fullNameDto.thirdName == null) "" else ' ' + fullNameDto.thirdName,
         phone = phone,
+        isDarkTheme = isDarkTheme,
     )
 }

@@ -6,4 +6,5 @@ data class ProfileState(
     val isLoading: Boolean,
     val fullName: String,
     val phone: String,
+    val isDarkTheme: Boolean,
 ) : ScreenState

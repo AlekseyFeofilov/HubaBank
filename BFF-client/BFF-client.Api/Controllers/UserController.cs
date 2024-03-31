@@ -136,7 +136,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
 
-            var profileWithPrivileges = await this.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();

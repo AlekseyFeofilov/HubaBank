@@ -7,6 +7,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 import ru.greenpix.hubabank.constants.TestConstants;
@@ -28,6 +29,9 @@ public abstract class AbstractIntegrationTest {
                     .withPassword("core")
                     .withDatabaseName("core");
 
+    private static final RabbitMQContainer RABBITMQ =
+            new RabbitMQContainer("rabbitmq:3.13.0-management-alpine");
+
     @SuppressWarnings("resource")
     private static final GenericContainer<?> WIREMOCK =
             new GenericContainer<>("wiremock/wiremock:3.4.2-alpine")
@@ -43,19 +47,26 @@ public abstract class AbstractIntegrationTest {
     public static void configureProperties(DynamicPropertyRegistry registry) {
         Startables.deepStart(
                 POSTGRES,
+                RABBITMQ,
                 WIREMOCK
         ).join();
 
         WireMock.configureFor(WIREMOCK.getHost(), WIREMOCK.getFirstMappedPort());
 
         registry.add("api-key", () -> TestConstants.API_KEY);
+        registry.add("currency-api-key", () -> TestConstants.CURRENCY_API_KEY);
         registry.add("spring.datasource.url", POSTGRES::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRES::getUsername);
         registry.add("spring.datasource.password", POSTGRES::getPassword);
         registry.add("spring.flyway.url", POSTGRES::getJdbcUrl);
         registry.add("spring.flyway.user", POSTGRES::getUsername);
         registry.add("spring.flyway.password", POSTGRES::getPassword);
+        registry.add("spring.rabbitmq.host", RABBITMQ::getHost);
+        registry.add("spring.rabbitmq.port", RABBITMQ::getFirstMappedPort);
+        registry.add("spring.rabbitmq.username", RABBITMQ::getAdminUsername);
+        registry.add("spring.rabbitmq.password", RABBITMQ::getAdminPassword);
         registry.add("spring.cloud.openfeign.client.config.users.url", AbstractIntegrationTest::getWireMockUrl);
+        registry.add("spring.cloud.openfeign.client.config.currency.url", AbstractIntegrationTest::getWireMockUrl);
 
         Awaitility.setDefaultTimeout(5, TimeUnit.SECONDS);
     }

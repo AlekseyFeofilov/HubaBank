@@ -22,6 +22,8 @@ public enum ErrorType {
             "Нельзя закрыть счет с отрицательным балансом"),
     TRANSACTION_WITH_ZERO_BALANCE_CHANGE(HttpStatus.BAD_REQUEST, 103,
             "Транзакция не может быть с нулевой суммой изменения"),
+    CLOSING_SYSTEM_BILL(HttpStatus.BAD_REQUEST, 104,
+            "Нельзя закрыть служебный счет"),
 
     BILL_NOT_FOUND(HttpStatus.NOT_FOUND, 200,
             "Счет не найден"),

@@ -9,6 +9,11 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: Server=hits-huba-database;Port=5432;Database=gateway_client_service;Username=postgres;Password='${POSTGRES_PASSWORD}'
       ASPNETCORE_ENVIRONMENT: Staging
+      RABBITMQ_HOST: hits-huba-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
     volumes:
       - ./gateway-client/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     networks:
@@ -45,6 +50,8 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       RABBITMQ_VHOST: huba
       USERS_SERVICE_URL: http://hits-huba-users:8080/users/api/v1/
+      CURRENCY_SERVICE_URL: https://api.currencyapi.com/v3/
+      CURRENCY_API_KEY: ${CURRENCY_API_KEY}
     networks:
       - 'hits-huba-network'
     restart: always

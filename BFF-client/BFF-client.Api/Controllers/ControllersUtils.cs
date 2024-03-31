@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text.Json;
 using static BFF_client.Api.Controllers.ControllersUtils;
+using BFF_client.Api.model.bill;
 
 namespace BFF_client.Api.Controllers
 {
@@ -91,7 +92,6 @@ namespace BFF_client.Api.Controllers
         }
 
         public static async Task<ProfileWithPrivileges?> GetProfileWithPrivileges(
-            this ControllerBase controllerBase,
             string authHeader,
             ConfigUrls configUrls, 
             HttpClient client
@@ -116,6 +116,28 @@ namespace BFF_client.Api.Controllers
                 return body;
             }
             else { return null; }
+        }
+
+        public static async Task<bool> IsBillBelongToUser(string userId, Guid billId, ConfigUrls configUrls, HttpClient client)
+        {
+            string downstreamUrl = configUrls.core + "bills/" + billId.ToString();
+
+            var message = new HttpRequestMessage(HttpMethod.Get, downstreamUrl);
+            var response = await client.SendAsync(message);
+            if (response.IsSuccessStatusCode)
+            {
+                var downstreamResponse = await response.Content.ReadAsStringAsync();
+                var body = JsonSerializer.Deserialize<BillDto>(downstreamResponse, jsonOptions);
+                if (body != null)
+                {
+                    return userId == body.UserId;
+                }
+                return false;
+            } 
+            else 
+            { 
+                return false; 
+            }
         }
     }
 }

@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 enum class ReasonDto {
     TERMINAL,
     LOAN,
+    USER,
+    TRANSFER,
 }

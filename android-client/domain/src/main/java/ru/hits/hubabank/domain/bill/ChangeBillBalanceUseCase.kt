@@ -11,6 +11,6 @@ class ChangeBillBalanceUseCase @Inject constructor(
 
     override suspend fun execute(param: ChangeBillBalanceModel) {
         billRemoteDataSource.updateBillBalance(param.billId, param.balanceChange)
-        billLocalDataSource.updateBill(param.billId, param.balanceChange)
+        billLocalDataSource.updateBillBalance(param.billId, param.balanceChange)
     }
 }

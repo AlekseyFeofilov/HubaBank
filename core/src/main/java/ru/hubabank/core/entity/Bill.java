@@ -38,7 +38,19 @@ public class Bill {
     @Enumerated(EnumType.STRING)
     private BillType type;
 
+    @Column(name = "currency")
+    @Enumerated(EnumType.STRING)
+    private CurrencyType currency;
+
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Transaction> transactions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "source", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Transfer> outgoingTransfers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "target", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Transfer> incomingTransfers = new ArrayList<>();
 }
