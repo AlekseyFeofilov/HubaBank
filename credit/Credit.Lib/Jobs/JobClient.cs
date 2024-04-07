@@ -31,8 +31,13 @@ public class JobClient : IJobClient
             "0 0 * * *");
     }
 
-    public void EnqueuePayment(Guid id)
+    public void EnqueuePayment(Guid paymentId)
     {
-        _backgroundJobClient.Enqueue<IJobAgent>(agent => agent.EnqueuePayment(id));
+        _backgroundJobClient.Enqueue<IJobAgent>(agent => agent.EnqueuePayment(paymentId));
+    }
+
+    public void EnqueueCreditActivation(Guid creditId)
+    {
+        _backgroundJobClient.Enqueue<IJobAgent>(agent => agent.EnqueueCreditActivation(creditId));
     }
 }

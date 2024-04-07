@@ -1,3 +1,4 @@
+using Credit.Lib.Strategies.CalculatePaymentAmount;
 using Credit.Primitives;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -18,9 +19,12 @@ public class Handler : IRequestHandler<Request>
 
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
+        _logger.LogWarning("Trying to activate credit with id {creditId}", request.CreditId);
         var credit = await _mediator.Send(new Fetch.ById.Request(request.CreditId), cancellationToken);
         var monthsToComplete = credit.CompletionDate.GetDifferenceInMonths(DateTime.Now);
         var payments = Array.Empty<Data.Requests.Payment.CreateRequest>().ToList();
+        var calculatedStrategy =
+            new DefaultCalculatePaymentAmountStrategy(credit.Principal, credit.CompletionDate); 
         
         for (var monthsAfterToday = 1; monthsAfterToday <= monthsToComplete; monthsAfterToday++)
         {
@@ -28,7 +32,7 @@ public class Handler : IRequestHandler<Request>
             {
                 PaymentStatus = PaymentStatus.Scheduled,
                 PaymentDay = DateOnly.FromDateTime(DateTime.Now.AddMonths(monthsAfterToday)),
-                PaymentAmount = request.CalculatePaymentAmountStrategy.Calculate(monthsAfterToday),
+                PaymentAmount = calculatedStrategy.Calculate(monthsAfterToday),
                 CreditId = credit.Id,
                 Arrears = 0,
             };

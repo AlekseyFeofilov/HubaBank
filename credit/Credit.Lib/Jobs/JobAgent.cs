@@ -22,8 +22,13 @@ public class JobAgent : IJobAgent
         return _mediator.Send(new Request());
     }
 
-    public Task EnqueuePayment(Guid id)
+    public Task EnqueuePayment(Guid paymentId)
     {
-        return _mediator.Send(new Feature.Payment.Handle.Request(id));
+        return _mediator.Send(new Feature.Payment.Handle.Request(paymentId));
+    }
+
+    public Task EnqueueCreditActivation(Guid creditId)
+    {
+        return _mediator.Send(new Feature.Credit.Activate.Request(creditId));
     }
 }
