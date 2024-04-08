@@ -20,7 +20,7 @@ public class Handler : IRequestHandler<Request>
         _logger.LogWarning("Start enqueueing payments for today");
         
         var payments = await _mediator.Send(new Fetch.All.Request(
-            new TodayPaymentSpecification()), cancellationToken);
+            new PaymentDayPaymentSpecification(DateTime.Now)), cancellationToken);
 
         foreach (var payment in payments)
         {
