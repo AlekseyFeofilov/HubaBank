@@ -40,4 +40,9 @@ public class JobClient : IJobClient
     {
         _backgroundJobClient.Enqueue<IJobAgent>(agent => agent.EnqueueCreditActivation(creditId));
     }
+
+    public void EnqueueCreditArrearsActualisation(Guid creditId)
+    {
+        _backgroundJobClient.Enqueue<IJobAgent>(agent => agent.EnqueueCreditArrearsActualisation(creditId));
+    }
 }

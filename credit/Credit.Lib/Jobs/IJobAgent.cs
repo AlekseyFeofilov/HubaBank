@@ -20,4 +20,8 @@ public interface IJobAgent
     [DisplayName("Запуск активации кредита {0}")]
     [AutomaticRetry(Attempts = 10)]
     public Task EnqueueCreditActivation(Guid creditId);
+    
+    [DisplayName("Актуализация задолженности по кредиту {0}")]
+    [AutomaticRetry(Attempts = 3)]
+    public Task EnqueueCreditArrearsActualisation(Guid creditId);
 }

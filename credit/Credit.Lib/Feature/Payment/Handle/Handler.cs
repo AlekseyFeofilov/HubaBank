@@ -28,13 +28,19 @@ public class Handler : IRequestHandler<Request>
             await _mediator.Send(new MasterBill.Deposit.Request(bill.Id, paymentAmount), cancellationToken);
         }
         
-        await _mediator.Send(new Payment.Update.Request(payment.Id, new UpdateRequest
+        var paymentUpdateRequest = new UpdateRequest
         {
             PaymentStatus = bill.Balance < payment.PaymentAmount
                 ? PaymentStatus.Overdue
                 : PaymentStatus.Paid,
             Arrears = payment.PaymentAmount - paymentAmount
-        }), cancellationToken);
+        };
         
+        await _mediator.Send(new Payment.Update.Request(payment.Id, paymentUpdateRequest), cancellationToken);
+
+        if (paymentUpdateRequest.PaymentStatus == PaymentStatus.Overdue)
+        {
+            await _mediator.Send(new Credit.Arrears.EnqueueActualisation.Request(payment.CreditId), cancellationToken);
+        }
     }
 }

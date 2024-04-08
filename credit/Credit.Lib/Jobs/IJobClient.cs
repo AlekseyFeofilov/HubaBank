@@ -6,4 +6,5 @@ public interface IJobClient
     void EnqueueTodayPayments();
     void EnqueuePayment(Guid paymentId);
     void EnqueueCreditActivation(Guid creditId);
+    void EnqueueCreditArrearsActualisation(Guid creditId);
 }

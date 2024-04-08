@@ -31,4 +31,9 @@ public class JobAgent : IJobAgent
     {
         return _mediator.Send(new Feature.Credit.Activate.Request(creditId));
     }
+
+    public Task EnqueueCreditArrearsActualisation(Guid creditId)
+    {
+        return _mediator.Send(new Feature.Credit.Arrears.Actualise.Request(creditId));
+    }
 }
