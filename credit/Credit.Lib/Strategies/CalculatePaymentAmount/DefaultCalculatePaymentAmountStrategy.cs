@@ -8,7 +8,6 @@ public class DefaultCalculatePaymentAmountStrategy : ICalculatePaymentAmountStra
     private long Principal { get; }
     private DateOnly CompletionDate { get; }
     private int MonthsToComplete { get; }
-
     private long MonthPayment { get; }
     
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
@@ -18,7 +17,7 @@ public class DefaultCalculatePaymentAmountStrategy : ICalculatePaymentAmountStra
         CompletionDate = completionDate;
         MonthsToComplete = CompletionDate.GetDifferenceInMonths(DateTime.Now);
         
-        // todo если булет слишком маленький кредит, то он вырастет за счёт этой логике. В дальнейшем, такие маленькие кредиты просто будет нельзя взять
+        // todo если булет слишком маленький кредит, то он вырастет за счёт этой логике. Надо запретить делать такие маленькие кредиты
         MonthPayment = (long)Math.Ceiling(1.0 * Principal / MonthsToComplete / 10) * 10;
     }
     
