@@ -24,6 +24,11 @@ public class OpenApiConfiguration extends AbstractOpenApiConfiguration {
     }
 
     @Bean
+    public GroupedOpenApi groupedOpenApiV3() {
+        return createGroupedOpenApiBuilder(ApiVersion.VERSION_3, false).build();
+    }
+
+    @Bean
     public GroupedOpenApi groupedOpenApiOldFormat() {
         String[] paths = {"/users/**", "/bills/**", "/internal/**"};
         return createGroupedOpenApiBuilder("v1", "old-format-version-001", paths, true)

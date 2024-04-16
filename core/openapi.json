@@ -17,6 +17,180 @@
     }
   ],
   "paths": {
+    "/core/api/v3/users/{userId}/bills": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть все счета пользователя",
+        "operationId": "getUserBillsV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientBillDtoV2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Создать счет для пользователя",
+        "description": "Возвращает информацию о созданном счете.",
+        "operationId": "createBillV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BillCreationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientBillDtoV2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/core/api/v2/users/{userId}/bills": {
       "get": {
         "tags": [
@@ -973,6 +1147,318 @@
             "Internal Authentication": []
           }
         ]
+      }
+    },
+    "/core/api/v3/bills": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть все счета",
+        "operationId": "getBillsV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BillDtoV2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/core/api/v3/bills/{billId}": {
+      "get": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Посмотреть информацию о счете",
+        "operationId": "getBillV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillDtoV2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "bill-controller"
+        ],
+        "summary": "Закрыть счет",
+        "operationId": "closeBillV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/core/api/v3/bills/{billId}/transfers": {
+      "get": {
+        "tags": [
+          "transfer-controller"
+        ],
+        "summary": "Посмотреть историю переводов по счету",
+        "operationId": "getTransfersV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "billId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Бизнес ошибка: что-то не найдено",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бизнес ошибка или ошибка валидации",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Ошибка взаимодействия с другими с сервисами",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Внутренняя ошибка сервиса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransferDto"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/core/api/v2/users/{userId}/bills/{billId}": {
@@ -2252,40 +2738,6 @@
           }
         }
       },
-      "TransactionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Идентификатор транзакции",
-            "format": "uuid"
-          },
-          "billId": {
-            "type": "string",
-            "description": "Идентификатор счета транзакции",
-            "format": "uuid"
-          },
-          "balanceChange": {
-            "type": "integer",
-            "description": "Изменение баланса счета в копейках",
-            "format": "int64"
-          },
-          "reason": {
-            "type": "string",
-            "description": "Причина выполнения транзакции",
-            "enum": [
-              "TERMINAL",
-              "LOAN",
-              "TRANSFER"
-            ]
-          },
-          "instant": {
-            "type": "string",
-            "description": "Момент времени выполнения транзакции",
-            "format": "date-time"
-          }
-        }
-      },
       "BillDtoV2": {
         "type": "object",
         "properties": {
@@ -2384,6 +2836,40 @@
             "type": "integer",
             "description": "Изменение баланса счета в копейках",
             "format": "int64"
+          },
+          "instant": {
+            "type": "string",
+            "description": "Момент времени выполнения транзакции",
+            "format": "date-time"
+          }
+        }
+      },
+      "TransactionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Идентификатор транзакции",
+            "format": "uuid"
+          },
+          "billId": {
+            "type": "string",
+            "description": "Идентификатор счета транзакции",
+            "format": "uuid"
+          },
+          "balanceChange": {
+            "type": "integer",
+            "description": "Изменение баланса счета в копейках",
+            "format": "int64"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Причина выполнения транзакции",
+            "enum": [
+              "TERMINAL",
+              "LOAN",
+              "TRANSFER"
+            ]
           },
           "instant": {
             "type": "string",
