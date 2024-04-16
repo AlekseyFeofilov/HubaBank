@@ -9,7 +9,7 @@ import ru.hubabank.core.exception.ServiceException;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ErrorType {
-    UNKNOWN(HttpStatus.BAD_REQUEST, 0,
+    UNKNOWN(HttpStatus.INTERNAL_SERVER_ERROR, 0,
             "Неизвестная ошибка"),
     BAD_GATEWAY(HttpStatus.BAD_GATEWAY, 1,
             "Ошибка подключения к смежным службам"),

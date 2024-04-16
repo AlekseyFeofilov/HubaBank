@@ -18,6 +18,7 @@ import ru.hubabank.core.versioning.ApiVersionRange;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.hubabank.core.constant.HeaderConstants.REQUEST_ID_HEADER;
 import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 import static ru.hubabank.core.versioning.ApiVersion.*;
 
@@ -49,9 +50,21 @@ public class BillController {
     }
 
     @GetMapping(value = "bills")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть все счета")
     public List<BillDtoV2> getBillsV2() {
+        return billService.getBills()
+                .stream()
+                .map(billMapper::mapEntityToDtoV2)
+                .toList();
+    }
+
+    @GetMapping(value = "bills")
+    @ApiVersionRange(min = VERSION_3, max = MAX)
+    @Operation(summary = "Посмотреть все счета")
+    public List<BillDtoV2> getBillsV3(
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId
+    ) {
         return billService.getBills()
                 .stream()
                 .map(billMapper::mapEntityToDtoV2)
@@ -82,9 +95,21 @@ public class BillController {
     }
 
     @GetMapping("users/{userId}/bills")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть все счета пользователя")
     public List<ClientBillDtoV2> getUserBillsV2(
+            @PathVariable("userId") UUID userId
+    ) {
+        return billService.getClientBills(userId).stream()
+                .map(billMapper::mapEntityToClientDtoV2)
+                .toList();
+    }
+
+    @GetMapping("users/{userId}/bills")
+    @ApiVersionRange(min = VERSION_3, max = MAX)
+    @Operation(summary = "Посмотреть все счета пользователя")
+    public List<ClientBillDtoV2> getUserBillsV3(
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("userId") UUID userId
     ) {
         return billService.getClientBills(userId).stream()
@@ -119,7 +144,7 @@ public class BillController {
      */
     @Deprecated(since = "1.2.2")
     @GetMapping("users/{userId}/bills/{billId}")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть информацию о счете пользователя")
     public ClientBillDtoV2 getUserBillV2(
             @PathVariable("userId") UUID userId,
@@ -129,9 +154,19 @@ public class BillController {
     }
 
     @GetMapping("bills/{billId}")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть информацию о счете")
     public BillDtoV2 getBillV2(@PathVariable("billId") UUID billId) {
+        return billMapper.mapEntityToDtoV2(billService.getBill(SimpleBillSearchStrategy.of(billId)));
+    }
+
+    @GetMapping("bills/{billId}")
+    @ApiVersionRange(min = VERSION_3, max = MAX)
+    @Operation(summary = "Посмотреть информацию о счете")
+    public BillDtoV2 getBillV3(
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @PathVariable("billId") UUID billId
+    ) {
         return billMapper.mapEntityToDtoV2(billService.getBill(SimpleBillSearchStrategy.of(billId)));
     }
 
@@ -159,12 +194,26 @@ public class BillController {
     }
 
     @PostMapping("users/{userId}/bills")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(
             summary = "Создать счет для пользователя",
             description = "Возвращает информацию о созданном счете."
     )
     public ClientBillDtoV2 createBillV2(
+            @PathVariable("userId") UUID userId,
+            @RequestBody BillCreationDto billCreationDto
+    ) {
+        return billMapper.mapEntityToClientDtoV2(billService.createBill(userId, billCreationDto.getCurrency()));
+    }
+
+    @PostMapping("users/{userId}/bills")
+    @ApiVersionRange(min = VERSION_3, max = MAX)
+    @Operation(
+            summary = "Создать счет для пользователя",
+            description = "Возвращает информацию о созданном счете."
+    )
+    public ClientBillDtoV2 createBillV3(
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("userId") UUID userId,
             @RequestBody BillCreationDto billCreationDto
     ) {
@@ -199,7 +248,7 @@ public class BillController {
      */
     @Deprecated(since = "1.2.2")
     @DeleteMapping("users/{userId}/bills/{billId}")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Закрыть счет у пользователя")
     public void closeUserBillV2(
             @PathVariable("userId") UUID userId,
@@ -209,9 +258,19 @@ public class BillController {
     }
 
     @DeleteMapping("bills/{billId}")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Закрыть счет")
     public void closeBillV2(
+            @PathVariable("billId") UUID billId
+    ) {
+        billService.closeBill(billId);
+    }
+
+    @DeleteMapping("bills/{billId}")
+    @ApiVersionRange(min = VERSION_3, max = MAX)
+    @Operation(summary = "Закрыть счет")
+    public void closeBillV3(
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("billId") UUID billId
     ) {
         billService.closeBill(billId);

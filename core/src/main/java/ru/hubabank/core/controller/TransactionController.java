@@ -54,7 +54,7 @@ public class TransactionController {
      */
     @Deprecated(since = "1.2.2")
     @GetMapping("users/{userId}/bills/{billId}/transactions")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть историю транзакций по счету у пользователя")
     public List<TransactionDto> getUserTransactionsV2(
             @PathVariable("userId") UUID userId,
@@ -68,7 +68,7 @@ public class TransactionController {
      */
     @Deprecated(since = "1.2.2")
     @GetMapping("bills/{billId}/transactions")
-    @ApiVersionRange(min = VERSION_2, max = MAX)
+    @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть историю транзакций по счету у пользователя")
     public List<TransactionDto> getTransactionsV2(
             @PathVariable("billId") UUID billId
