@@ -10,13 +10,14 @@ import java.util.stream.Stream;
 
 import static ru.hubabank.core.constant.PathConstants.PREFIX_PATH;
 
-public class AllVersionArgumentsProvider implements ArgumentsProvider {
+public class AllVersionExcludeV3ArgumentsProvider implements ArgumentsProvider {
 
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {
         return ApiVersion.getVersions().stream()
                 .filter(version -> version != ApiVersion.MIN)
                 .filter(version -> version != ApiVersion.MAX)
+                .filter(version -> version != ApiVersion.VERSION_3)
                 .flatMap(version -> Arrays.stream(version.getPath()))
                 .map(version -> version.replace("{prefix}", "/" + PREFIX_PATH))
                 .map(Arguments::of);

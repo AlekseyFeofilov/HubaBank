@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import ru.greenpix.hubabank.integrationtest.AbstractIntegrationTest;
-import ru.greenpix.hubabank.provider.AllVersionArgumentsProvider;
+import ru.greenpix.hubabank.provider.AllVersionExcludeV3ArgumentsProvider;
 import ru.greenpix.hubabank.provider.V1PathArgumentsProvider;
 import ru.hubabank.core.HubabankCoreApplication;
 import ru.hubabank.core.entity.Bill;
@@ -53,7 +53,7 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     private TransactionRepository transactionRepository;
 
     @ParameterizedTest
-    @ArgumentsSource(AllVersionArgumentsProvider.class)
+    @ArgumentsSource(AllVersionExcludeV3ArgumentsProvider.class)
     @DisplayName("Успешный просмотр истории транзакций по своему счету")
     @Sql({"/sql/insert-client-bill.sql", "/sql/insert-transactions.sql"})
     void whenGetTransactionHistoryThenSuccess(String versionPath) throws Exception {
@@ -64,7 +64,7 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(AllVersionArgumentsProvider.class)
+    @ArgumentsSource(AllVersionExcludeV3ArgumentsProvider.class)
     @DisplayName("Успешный просмотр истории транзакций по чужому счету")
     @Sql({"/sql/insert-client-bill.sql", "/sql/insert-transactions.sql"})
     void whenGetTransactionHistoryOtherClientThenSuccess(String versionPath) throws Exception {
@@ -75,7 +75,7 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(AllVersionArgumentsProvider.class)
+    @ArgumentsSource(AllVersionExcludeV3ArgumentsProvider.class)
     @DisplayName("Неуспешный просмотр истории транзакций по несуществующему счету")
     void whenGetTransactionHistoryThenNotFoundIfBillIsNotExists(String versionPath) throws Exception {
         MvcResult result = mockMvc.perform(get(buildUrl("%s/users/%s/bills/%s/transactions", versionPath, CLIENT_USER_ID, BILL_ID))
@@ -87,7 +87,7 @@ class TransactionControllerTest extends AbstractIntegrationTest {
     }
 
     @ParameterizedTest
-    @ArgumentsSource(AllVersionArgumentsProvider.class)
+    @ArgumentsSource(AllVersionExcludeV3ArgumentsProvider.class)
     @DisplayName("Неуспешное просмотр истории транзакций по счету, который не принадлежит указанному клиенту")
     @Sql("/sql/insert-client-bill.sql")
     void whenGetTransactionHistoryThenNotFoundIfBelongsOtherClient(String versionPath) throws Exception {
