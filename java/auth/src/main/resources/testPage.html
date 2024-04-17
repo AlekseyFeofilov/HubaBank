@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Тестовая страница для проверки SSO</title>
+    <script>
+        let SSOPage = "{sso-page}"
+        let testPageURL = "{testPageURL}"
+        let getJWTURL = "{getJWTURL}"
+
+        let url = document.URL;
+        let spl = url.split("?token=");
+        let token = spl.length === 2 ? spl[1] : null
+        if(token === null) {
+            document.getElementById("main-paragraph").innerHTML = "Вы не вошли в аккаунт. Нажмите войти"
+        }
+        else {
+            getToken()
+        }
+
+
+
+        function enter() {
+            window.location.href = SSOPage + "?redirectedUrl=" + testPageURL;
+        }
+
+        async function getToken() {
+            let res = await fetch(getJWTURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: token
+            })
+            if(res.status !== 200) {
+                console.log("WRONG CREDENTIALS")
+            }
+            else {
+                document.getElementById("jwt-paragraph").innerHTML = (await res.text());
+            }
+        }
+    </script>
+</head>
+<body>
+    <p id="main-paragraph"></p>
+    <p id="jwt-paragraph"></p>
+    <button onclick="enter()">Войти</button>
+</body>
+</html>

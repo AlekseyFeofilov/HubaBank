@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.huba.users.dto.token.TokenDto;
 import org.huba.users.dto.user.CredentialsDto;
 import org.huba.users.exception.NotImplementedException;
+import org.huba.users.logger.Loggable;
 import org.huba.users.service.SSOService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import static org.huba.users.utils.MyConstants.USERS_SPI_URL;
 @RequiredArgsConstructor
 public class SSOController {
     private final SSOService ssoService;
+
+    @Loggable
     @GetMapping(value = "auth_page")
     public ResponseEntity<String> getAuthPage(@RequestParam String redirectedUrl) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -23,6 +26,7 @@ public class SSOController {
                 .body(ssoService.getAuthPage(redirectedUrl));
     }
 
+    @Loggable
     @GetMapping(value = "test_page")
     public ResponseEntity<String> getTestPage(@RequestParam(required = false) String token) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -30,11 +34,13 @@ public class SSOController {
                 .body(ssoService.getTestPage(token));
     }
 
+    @Loggable
     @PostMapping(value = "SSO_login")
     public String SSOLogin(@RequestBody CredentialsDto credentialsDto) {
         return ssoService.SSOLogin(credentialsDto);
     }
 
+    @Loggable
     @PostMapping(value = "jwt")
     public TokenDto token(@RequestBody String token) {
         return ssoService.token(token);
