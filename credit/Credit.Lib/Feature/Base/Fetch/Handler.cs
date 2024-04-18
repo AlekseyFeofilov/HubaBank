@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Credit.Lib.Feature.Base.Fetch;
 
-public class Handler<TDal, TData> : IRequestHandler<Request<TDal, TData>, TData?>
+public sealed class Handler<TDal, TData> : IRequestHandler<Request<TDal, TData>, TData?>
     where TDal : class
 {
     private readonly CreditContext _context;

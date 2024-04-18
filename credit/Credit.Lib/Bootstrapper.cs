@@ -1,7 +1,9 @@
 using System.Reflection;
-using Credit.Data.Responses;
+using AutoMapper;
+using Core.Provider;
 using Credit.Lib.Extensions;
 using Credit.Lib.Mapping;
+using Credit.Lib.Models;
 using Hangfire;
 using Hangfire.PostgreSql;
 using MediatR;
@@ -17,15 +19,37 @@ public static class Bootstrapper
     public static IServiceCollection AddCredit(this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddCoreProvider();
+        services.AddScoped<MasterBillSettings>(_ => 
+            configuration.GetRequiredSection("MasterBillSettings").Get<MasterBillSettings>());
+        
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
         services.AddMediatR(cfg =>
+        {
+            cfg.AutoRegisterRequestProcessors = true;
+            cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+            
+        })
+        .AddGenericMediator(typeof(Bootstrapper).Assembly)
+        .AddAutoMapper(x => x
+            .AddProfiles(new Profile[]
             {
-                cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
-                cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
-            })
-            .AddGenericMediatR(typeof(Bootstrapper).Assembly)
-            .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
-            // .AddHangfire(configuration)
-            ;
+                new CreditMappingProfile(),
+                new CreditTermsMappingProfile(),
+                new PaymentMappingProfile(),
+            }));
+
+        // ServiceRegistrar.AddMediatRClasses(services, mediatorServiceConfiguration);
+        // services.AddMediatR(cfg =>
+        //     {
+        //         cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+        //         cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
+        //     });
+        //     .AddGenericMediator(typeof(Bootstrapper).Assembly)
+        //     .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
+        //     // .AddHangfire(configuration)
+        //     ;
 
         return services;
     }
@@ -46,7 +70,7 @@ public static class Bootstrapper
         return services;
     }
 
-    private static IServiceCollection AddGenericMediatR(this IServiceCollection services, Assembly assembly)
+    private static IServiceCollection AddGenericMediator(this IServiceCollection services, Assembly assembly)
     {
         var descriptors = assembly.GetTypes()
             .Where(x => !x.IsAbstract)

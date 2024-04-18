@@ -10,9 +10,10 @@ public class PostProcessor : IRequestPostProcessor<Request, CreditResponse?>
     {
         if (response == null)
         {
-            throw new CreditNotFoundException(request.Id);
+            throw new EntityNotFoundException(request.Id);
         }
         
         return Task.CompletedTask;
+        //todo перезаписывать Payment
     }
 }

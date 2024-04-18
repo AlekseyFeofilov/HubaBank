@@ -1,9 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Credit.Data.Requests.Credit;
 
 public class CreateRequest
 {
+    /// <summary>
+    /// Id кредита
+    /// </summary>
+    public Guid Id { get; set; }
+    
     /// <summary>
     /// Id пользователя, на которого оформляется кредит
     /// </summary>
@@ -11,10 +17,19 @@ public class CreateRequest
     public Guid AccountId { get; set; }
     
     /// <summary>
+    /// Id счёта пользователя, с которого будут списываться средтсва
+    /// </summary>
+    [Required]
+    public Guid BillId { get; set; }
+    
+    /// <summary>
     /// Размер кредита в копейках
     /// </summary>
     [Required]
     public long Principal { get; set; }
+    
+    [JsonIgnore]
+    public long? AccountsPayable { get; set; }
     
     /// <summary>
     /// Дата окончания кредита
@@ -25,7 +40,7 @@ public class CreateRequest
     /// <summary>
     /// Процентная ставка по кредиту
     /// </summary>
-    [Range(0.01f, 100)]
+    [Range(0.1, float.MaxValue)]
     public float? InterestRate { get; set; }
     
     /// <summary>
