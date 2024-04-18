@@ -19,7 +19,6 @@
   script:
     - cp $DOCKERFILE $PROJECT_DIR
     - cd $PROJECT_DIR
-    - echo "$DOCKER_ARGS"
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build $DOCKER_ARGS -t $CI_REGISTRY/hits-tsu/huba/$IMAGE:latest .
     - docker push $CI_REGISTRY/hits-tsu/huba/$IMAGE:latest
