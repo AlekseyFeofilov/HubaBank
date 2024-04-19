@@ -10,8 +10,8 @@ import java.util.UUID;
 @Data
 public class PublishLogDto {
     private UUID requestId;
-    private List<String> stacktrace;
     private String publishService;
-    private Integer status;
-    private LocalDateTime date;
+    private RequestDto request;
+    private ResponseDto response;
+    private String otherInfo;
 }
