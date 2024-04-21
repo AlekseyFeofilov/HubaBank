@@ -18,6 +18,7 @@ import ru.hubabank.core.versioning.ApiVersionRange;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.hubabank.core.constant.HeaderConstants.IDENTITY_KEY_HEADER;
 import static ru.hubabank.core.constant.HeaderConstants.REQUEST_ID_HEADER;
 import static ru.hubabank.core.constant.SwaggerConstants.SECURITY_USER_SCHEME;
 import static ru.hubabank.core.versioning.ApiVersion.*;
@@ -63,7 +64,8 @@ public class BillController {
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Посмотреть все счета")
     public List<BillDtoV2> getBillsV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId
+            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey
     ) {
         return billService.getBills()
                 .stream()
@@ -110,6 +112,7 @@ public class BillController {
     @Operation(summary = "Посмотреть все счета пользователя")
     public List<ClientBillDtoV2> getUserBillsV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey,
             @PathVariable("userId") UUID userId
     ) {
         return billService.getClientBills(userId).stream()
@@ -165,6 +168,7 @@ public class BillController {
     @Operation(summary = "Посмотреть информацию о счете")
     public BillDtoV2 getBillV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey,
             @PathVariable("billId") UUID billId
     ) {
         return billMapper.mapEntityToDtoV2(billService.getBill(SimpleBillSearchStrategy.of(billId)));
@@ -214,6 +218,7 @@ public class BillController {
     )
     public ClientBillDtoV2 createBillV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey,
             @PathVariable("userId") UUID userId,
             @RequestBody BillCreationDto billCreationDto
     ) {
@@ -271,6 +276,7 @@ public class BillController {
     @Operation(summary = "Закрыть счет")
     public void closeBillV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
+            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey,
             @PathVariable("billId") UUID billId
     ) {
         billService.closeBill(billId);
