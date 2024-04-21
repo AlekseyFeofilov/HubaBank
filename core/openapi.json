@@ -35,6 +35,15 @@
             }
           },
           {
+            "name": "identityKey",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "userId",
             "in": "path",
             "required": true,
@@ -110,6 +119,15 @@
         "parameters": [
           {
             "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identityKey",
             "in": "header",
             "required": true,
             "schema": {
@@ -1165,6 +1183,15 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "name": "identityKey",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         ],
         "responses": {
@@ -1234,6 +1261,15 @@
         "parameters": [
           {
             "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identityKey",
             "in": "header",
             "required": true,
             "schema": {
@@ -1321,6 +1357,15 @@
             }
           },
           {
+            "name": "identityKey",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "billId",
             "in": "path",
             "required": true,
@@ -1387,6 +1432,15 @@
         "parameters": [
           {
             "name": "requestId",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "identityKey",
             "in": "header",
             "required": true,
             "schema": {

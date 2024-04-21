@@ -5,8 +5,11 @@ namespace Credit.Lib.Feature.CreditTerms.Delete;
 
 public class Request : Base.Update.Request<Dal.Models.CreditTerms, CreditTermsResponse>
 {
-    public Request(Guid id) : base(new CreditTermsIdentitySpecification(id))
+    public Guid Id { get; }
+    public Request(Guid id) : base(new IdentitySpecification<Dal.Models.CreditTerms, Guid>(id) &&
+                                   new ActiveOnlySpecification<Dal.Models.CreditTerms>())
     {
-        Expression = credit => credit.IsDeleted = true;
+        Id = id;
+        Expression = creditTerms => creditTerms.IsDeleted = true;
     }
 }

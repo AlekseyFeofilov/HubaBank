@@ -71,6 +71,26 @@ services:
       - 'hits-huba-network'
     restart: always
 
+  credit:
+    image: registry.gitlab.com/hits-tsu/huba/credit:latest
+    container_name: hits-huba-credit
+    ports:
+      - "9005:8080"
+    environment:
+      ConnectionStrings__Postgres: Server=hits-huba-database;Port=5432;Database=credit_service;Username=postgres;Password='${POSTGRES_PASSWORD}';Application Name=credit;Pooling=true;Maximum Pool Size=4;Connection idle Lifetime=60;Max Auto Prepare=1000
+      ConnectionStrings__Hangfire: Server=hits-huba-database;Port=5432;Database=credit_service;Username=postgres;Password='${POSTGRES_PASSWORD}';Application Name=credit;Pooling=true;Maximum Pool Size=4;Connection idle Lifetime=60;Max Auto Prepare=1000
+      ASPNETCORE_ENVIRONMENT: Staging
+      RABBITMQ_HOST: hits-huba-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
+    volumes:
+      - ./credit/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    networks:
+      - 'hits-huba-network'
+    restart: always
+
   logger:
     image: registry.gitlab.com/hits-tsu/huba/logger:latest
     container_name: hits-huba-logger
