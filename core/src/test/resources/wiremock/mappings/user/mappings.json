@@ -62,6 +62,15 @@
           "Content-Type": "application/json"
         }
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/log/api/v1"
+      },
+      "response":{
+        "status": 200
+      }
     }
   ]
 }

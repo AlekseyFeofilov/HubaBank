@@ -52,6 +52,7 @@ services:
       USERS_SERVICE_URL: http://hits-huba-users:8080/users/api/v1/
       CURRENCY_SERVICE_URL: https://api.currencyapi.com/v3/
       CURRENCY_API_KEY: ${CURRENCY_API_KEY}
+      LOGGER_SERVICE_URL: http://hits-huba-logger:8080/log/api/v1/
     networks:
       - 'hits-huba-network'
     restart: always
@@ -102,6 +103,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: logger_service
+    networks:
+      - 'hits-huba-network'
+    restart: always
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: hits-huba-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
     networks:
       - 'hits-huba-network'
     restart: always
