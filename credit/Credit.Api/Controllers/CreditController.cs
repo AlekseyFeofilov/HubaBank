@@ -39,16 +39,6 @@ public class CreditController : ControllerBase
         return credit.First().Id;
     }
     
-    /// <desctipion>
-    /// Дабавил, чтобы было, но без надобности не реализуйте
-    /// </desctipion>
-    /// <response code="404">Not Found</response>
-    [HttpPut("{id:guid}")]
-    public async Task<CreditResponse> UpdateCredit(Guid id, Data.Requests.Credit.UpdateRequest data)
-    {
-        return (await _mediator.Send(new Lib.Feature.Credit.Update.Request(id, data), HttpContext.RequestAborted))!;
-    }
-    
     /// <response code="404">Not Found</response>
     [HttpDelete("{id:guid}")]
     public async Task DeleteCredit(Guid id)

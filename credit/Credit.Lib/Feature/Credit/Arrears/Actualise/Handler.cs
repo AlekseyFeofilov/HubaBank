@@ -1,5 +1,4 @@
 using Credit.Dal.Specifications;
-using Credit.Data.Requests.Credit;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Utils.DateTime;
@@ -26,13 +25,13 @@ public class Handler : IRequestHandler<Request>
         
         foreach (var payment in overdidPayments)
         {
-            var lastArrearsUpdatedForPayment = payment.PaymentDay < lastArrearsUpdated
-                ? payment.PaymentDay.GetDifferenceInDays(lastArrearsUpdated)
-                : payment.PaymentDay.GetDifferenceInDays(DateTime.Today);
+            var daysAfterLastArrearsUpdateForPayment = payment.PaymentDay > lastArrearsUpdated
+                ? payment.PaymentDay.GetDifferenceInDays(DateTime.Today)
+                : lastArrearsUpdated.GetDifferenceInDays(DateTime.Today);
             
-            var updateRequest = new UpdateRequest
+            var updateRequest = new Data.Requests.Credit.UpdateRequest
             { 
-                Fine = payment.Arrears * credit.ArrearsInterest * lastArrearsUpdatedForPayment
+                Fine = payment.Arrears * credit.ArrearsInterest * daysAfterLastArrearsUpdateForPayment
             };
             
             _logger.LogWarning("Recalculate fine for credit with id {creditId}. Old fine: {oldFine}, updatedFine: {updatedFine}", 

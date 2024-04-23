@@ -24,9 +24,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
             throw new CreditInterestRateOrCreditTermsRequiredException();
         }
 
-        //todo инкапсулировать + переименовать
-        request.CreateRequest.AccountsPayable = request.CreateRequest.Principal;
-        
+        request.CreateRequest.CurrentAccountsPayable = request.CreateRequest.Principal;
         return Task.CompletedTask;
     }
 }

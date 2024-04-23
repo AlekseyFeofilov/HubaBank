@@ -19,7 +19,7 @@ public class CreditContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.HasDefaultSchema("credit_db");//todo rename
+        modelBuilder.HasDefaultSchema("credit");
 
         modelBuilder.Entity<Models.Credit>(typeBuilder =>
         {
