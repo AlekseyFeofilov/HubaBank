@@ -1,15 +1,11 @@
+using Credit.Primitives;
 using MediatR;
 
 namespace Credit.Lib.Feature.MasterBill.MakeTransaction;
 
 public class Request : IRequest
 {
-    public Request(Guid secondBillId, long amountOfMoney)
-    {
-        AmountOfMoney = amountOfMoney;
-        SecondBillId = secondBillId;
-    }
-
-    public long AmountOfMoney { get; set; }
-    public Guid SecondBillId { get; set; }
+    public required long AmountOfMoney { get; init; }
+    public required Guid SecondBillId { get; init; }
+    public required TransactionType TransactionType { get; init; }
 }

@@ -1,6 +1,7 @@
 using System.Reflection;
 using AutoMapper;
 using Core.Provider;
+using Credit.Dal;
 using Credit.Lib.Extensions;
 using Credit.Lib.Mapping;
 using Credit.Lib.Models;
@@ -11,6 +12,7 @@ using MediatR.Pipeline;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using RabbitMQ.Client;
 
 namespace Credit.Lib;
 
@@ -19,55 +21,66 @@ public static class Bootstrapper
     public static IServiceCollection AddCredit(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddCoreProvider();
-        services.AddScoped<MasterBillSettings>(_ => 
-            configuration.GetRequiredSection("MasterBillSettings").Get<MasterBillSettings>());
-        
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
-        services.AddMediatR(cfg =>
-        {
-            cfg.AutoRegisterRequestProcessors = true;
-            cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
-            
-        })
-        .AddGenericMediator(typeof(Bootstrapper).Assembly)
-        .AddAutoMapper(x => x
-            .AddProfiles(new Profile[]
-            {
-                new CreditMappingProfile(),
-                new CreditTermsMappingProfile(),
-                new PaymentMappingProfile(),
-            }));
+        services.AddCoreProvider()
+            .AddCreditContext(configuration)
+            .AddHangfire(configuration)
+            .AddRabbit(configuration)
+            .AddMediator(configuration)
+            .AddAutoMapper(x => x
+                .AddProfiles(new Profile[]
+                {
+                    new CreditMappingProfile(),
+                    new CreditTermsMappingProfile(),
+                    new PaymentMappingProfile(),
+                }));
 
-        // ServiceRegistrar.AddMediatRClasses(services, mediatorServiceConfiguration);
-        // services.AddMediatR(cfg =>
-        //     {
-        //         cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
-        //         cfg.AddOpenBehavior(typeof(RequestPreProcessorBehavior<,>));
-        //     });
-        //     .AddGenericMediator(typeof(Bootstrapper).Assembly)
-        //     .AddAutoMapper(x => x.AddProfile(new CreditMappingProfile()))
-        //     // .AddHangfire(configuration)
-        //     ;
+        services.AddScoped<MasterBillSettings>(_ =>
+            configuration.GetRequiredSection("MasterBillSettings").Get<MasterBillSettings>()!);
 
         return services;
     }
 
     private static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Postgres");
+        return services
+            .AddHangfire(config =>
+                config.UsePostgreSqlStorage(c =>
+                    c.UseNpgsqlConnection(configuration.GetConnectionString("Hangfire"))))
+            .AddHangfireServer();
+    }
 
-        services.AddHangfire(config =>
+    private static IServiceCollection AddRabbit(this IServiceCollection services, IConfiguration configuration)
+    {
+        var rabbitSettings = configuration.GetRequiredSection("Rabbit").Get<RabbitSettings>()!;
+
+        services.AddScoped<IModel>(_ =>
         {
-            config.UsePostgreSqlStorage(c =>
-                c.UseNpgsqlConnection(connectionString));
-            
-            config.UseSimpleAssemblyNameTypeSerializer();
-            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+            var factory = new ConnectionFactory
+            {
+                HostName = rabbitSettings.RabbitMqHost,
+                Port = rabbitSettings.RabbitMqPort,
+                UserName = rabbitSettings.RabbitMqUser,
+                Password = rabbitSettings.RabbitMqPassword,
+                VirtualHost = rabbitSettings.RabbitMqVhost,
+                DispatchConsumersAsync = true
+            };
+
+            return factory.CreateConnection().CreateModel();
         });
 
         return services;
+    }
+
+    private static IServiceCollection AddMediator(this IServiceCollection services, IConfiguration configuration)
+    {
+        return services.AddMediatR(cfg =>
+            {
+                cfg.AutoRegisterRequestProcessors = true;
+                cfg.RegisterServicesFromAssembly(typeof(Bootstrapper).Assembly);
+            })
+            .AddGenericMediator(typeof(Bootstrapper).Assembly)
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPreProcessorBehavior<,>))
+            .AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>));
     }
 
     private static IServiceCollection AddGenericMediator(this IServiceCollection services, Assembly assembly)
