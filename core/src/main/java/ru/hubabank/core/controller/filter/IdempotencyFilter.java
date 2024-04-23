@@ -14,13 +14,18 @@ import ru.hubabank.core.constant.HeaderConstants;
 import ru.hubabank.core.entity.IdempotentRequest;
 import ru.hubabank.core.entity.IdempotentRequestId;
 import ru.hubabank.core.repository.IdempotentRequestRepository;
+import ru.hubabank.core.versioning.ApiVersion;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class IdempotencyFilter extends OncePerRequestFilter {
+
+    private static final Pattern VERSION_PATTERN = Pattern.compile("(?<=/api/v)\\d+(?=/)");
 
     private final IdempotentRequestRepository idempotentRequestRepository;
 
@@ -28,7 +33,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
-        if (!isIdempotentMethod(method)) {
+        if (!isIdempotentMethod(method) || getVersion(request) < ApiVersion.VERSION_3.getNumber()) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -71,5 +76,17 @@ public class IdempotencyFilter extends OncePerRequestFilter {
                 method == HttpMethod.PUT ||
                 method == HttpMethod.DELETE ||
                 method == HttpMethod.PATCH;
+    }
+
+    private int getVersion(HttpServletRequest request) {
+        Matcher matcher = VERSION_PATTERN.matcher(request.getRequestURI());
+        if (matcher.find()) {
+            try {
+                return Integer.parseInt(matcher.group());
+            } catch (NumberFormatException ignored) {
+                return ApiVersion.MIN.getNumber();
+            }
+        }
+        return ApiVersion.MIN.getNumber();
     }
 }
