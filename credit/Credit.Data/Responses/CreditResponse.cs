@@ -15,9 +15,8 @@ public class CreditResponse
     public float InterestRate { get; set; }
     public int CollectionDay { get; set; }
     public long Principal { get; set; }
-    public long AccountsPayable { get; set; }
+    public long CurrentAccountsPayable { get; set; }
     public long ArrearsInterest { get; set; }
     public long Arrears { get; set; }
     public long Fine { get; set; }
-    public CreditType Type { get; set; }
 }

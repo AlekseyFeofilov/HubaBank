@@ -1,3 +1,4 @@
+using Credit.Primitives;
 using MediatR;
 
 namespace Credit.Lib.Feature.MasterBill.Deposit;
@@ -10,9 +11,14 @@ public class Handler : IRequestHandler<Request>
     {
         _mediator = mediator;
     }
-    
+
     public Task Handle(Request request, CancellationToken cancellationToken)
     {
-        return _mediator.Send(new MakeTransaction.Request(request.SourceBillId, request.AmountOfMoney), cancellationToken);
+        return _mediator.Send(new MakeTransaction.Request
+        {
+            AmountOfMoney = request.AmountOfMoney,
+            SecondBillId = request.SourceBillId,
+            TransactionType = TransactionType.Deposit
+        }, cancellationToken);
     }
 }

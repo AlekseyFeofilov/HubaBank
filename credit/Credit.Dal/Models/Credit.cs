@@ -10,12 +10,11 @@ public class Credit : IIdentity<Guid>, IDeletable
     public float InterestRate { get; set; }
     public int CollectionDay { get; set; }
     public long Principal { get; set; }
-    public long AccountsPayable { get; set; }
+    public long CurrentAccountsPayable { get; set; }
     public long ArrearsInterest { get; set; }
     public long Arrears { get; set; }
     public long Fine { get; set; }
     public Guid? CreditTermsId { get; set; }
     public CreditTerms? CreditTerms { get; set; }
-    // public CreditType Type { get; set; }
     public bool IsDeleted { get; set; }
 }

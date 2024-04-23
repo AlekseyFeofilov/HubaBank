@@ -29,7 +29,7 @@ public class CreateRequest
     public long Principal { get; set; }
     
     [JsonIgnore]
-    public long? AccountsPayable { get; set; }
+    public long? CurrentAccountsPayable { get; set; }
     
     /// <summary>
     /// Дата окончания кредита
@@ -47,6 +47,4 @@ public class CreateRequest
     /// Id предсозданных кредитных условий (если указан, то InterestRate будет проигнорирован) 
     /// </summary>
     public Guid? CreditTermsId { get; set; }
-    
-    // public CreditType Type { get; set; }
 }

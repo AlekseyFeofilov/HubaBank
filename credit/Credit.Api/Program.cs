@@ -1,14 +1,13 @@
 using System.Reflection;
 using Credit.Api;
-using Credit.Api.Converters;
 using Credit.Api.Middlewares;
-using Credit.Dal;
+using Credit.Data;
 using Credit.Lib;
 using Credit.Lib.Jobs;
 using Hangfire;
-using Hangfire.PostgreSql;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using DateOnlyJsonConverter = Credit.Api.Converters.DateOnlyJsonConverter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +20,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
+    options.IncludeCreditDataXmlComments();
 
     options.MapType<DateOnly>(() => new OpenApiSchema
     {
@@ -33,7 +33,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddCredit(builder.Configuration);
-builder.Services.AddCreditContext(builder.Configuration);
 builder.Services.AddAsyncInitializer<JobsInitializer>();
 
 builder.Services.AddControllers()
@@ -42,11 +41,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
     });
 
-builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(c =>
-        c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("Hangfire"))));
-
-builder.Services.AddHangfireServer();
 builder.Services.AddAsyncInitializer<JobsInitializer>();
 builder.Services.AddScoped<IJobAgent, JobAgent>();
 builder.Services.AddScoped<IJobClient, JobClient>();

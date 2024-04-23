@@ -38,5 +38,5 @@ public class UpdateRequest
     public long? Fine { get; set; }
     
     [JsonIgnore]
-    public long? PayOffAccountsPayable { get; set; }
+    public long? CurrentAccountPayable { get; set; }
 }

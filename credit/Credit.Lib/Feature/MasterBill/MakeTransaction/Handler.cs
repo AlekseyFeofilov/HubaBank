@@ -1,6 +1,8 @@
 using Core.Provider.v1;
 using Credit.Lib.Exceptions;
+using Credit.Lib.Extensions;
 using Credit.Lib.Models;
+using Credit.Primitives;
 using MediatR;
 
 namespace Credit.Lib.Feature.MasterBill.MakeTransaction;
@@ -8,30 +10,42 @@ namespace Credit.Lib.Feature.MasterBill.MakeTransaction;
 public class Handler : IRequestHandler<Request>
 {
     private readonly ICoreProviderV1 _coreProviderV1;
-    private readonly MasterBillSettings _masterBillSettings;
+    private readonly IMediator _mediator;
+    private readonly Guid _masterBillId;
 
-    public Handler(ICoreProviderV1 coreProviderV1, MasterBillSettings masterBillSettings)
+    public Handler(ICoreProviderV1 coreProviderV1, MasterBillSettings masterBillSettings, IMediator mediator)
     {
         _coreProviderV1 = coreProviderV1;
-        _masterBillSettings = masterBillSettings;
+        _masterBillId = masterBillSettings.MasterBillId;
+        _mediator = mediator;
     }
 
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
-        //todo желательно делать это одной операцией, но это к Роме
         if (request.AmountOfMoney == 0)
         {
             throw new BadRequestException("Transaction must be with non zero balance change");
         }
         
-        await _coreProviderV1.CreateTransactionAsync(_masterBillSettings.MasterBillId, new TransactionCreationDto
+        var (sourceBillId, targetBillId) = request.TransactionType switch
         {
-            BalanceChange = request.AmountOfMoney
-        }, cancellationToken);
+            TransactionType.Deposit => (request.SecondBillId, _masterBillId),
+            TransactionType.Withdraw => (_masterBillId, request.SecondBillId),
+            _ => throw new ArgumentOutOfRangeException()
+        };
         
-        await _coreProviderV1.CreateTransactionAsync(request.SecondBillId, new TransactionCreationDto
+        var body = new Data.Requests.Core.Transfer.Request
         {
-            BalanceChange = -request.AmountOfMoney
+            SourceBillId = sourceBillId,
+            TargetBillId = targetBillId,
+            Amount = request.AmountOfMoney,
+        }.ToJsonByteArray();
+
+        await _mediator.Send(new Rabbit.QueueDeclare.Request
+        {
+            Body = body,
+            Queue = RabbitConstants.TransferToBillRequestQueue,
+            RoutingKey = "to_bill"
         }, cancellationToken);
     }
 }

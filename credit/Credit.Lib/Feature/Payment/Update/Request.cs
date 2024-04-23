@@ -30,9 +30,19 @@ public class Request : Base.Update.Request<Dal.Models.Payment, Data.Requests.Pay
                 payment.PaymentAmount = request.PaymentAmount.Value;
             }
             
+            if (request.Interest.HasValue)
+            {
+                payment.Interest = request.Interest.Value;
+            }
+            
             if (request.Arrears.HasValue)
             {
                 payment.Arrears = request.Arrears.Value;
+            }
+            
+            if (request.ArrearsInterest.HasValue)
+            {
+                payment.ArrearsInterest = request.ArrearsInterest.Value;
             }
         };
     }
