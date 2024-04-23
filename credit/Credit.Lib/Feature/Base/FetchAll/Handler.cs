@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Credit.Lib.Feature.Base.FetchAll;
 
-public class Handler<TDal, TData> : IRequestHandler<Request<TDal, TData>, IReadOnlyCollection<TData>>
+public sealed class Handler<TDal, TData> : IRequestHandler<Request<TDal, TData>, IReadOnlyCollection<TData>>
     where TDal : class
 {
     private readonly CreditContext _context;

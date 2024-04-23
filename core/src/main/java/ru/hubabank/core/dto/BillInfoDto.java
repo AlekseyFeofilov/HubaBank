@@ -23,4 +23,7 @@ public class BillInfoDto {
 
     @Schema(description = "Тип валюты счета")
     private CurrencyType currency;
+
+    @Schema(description = "Изменение баланса счета в копейках", nullable = true)
+    private Long amount;
 }

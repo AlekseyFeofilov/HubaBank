@@ -1,12 +1,16 @@
 package ru.hubabank.core.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import ru.hubabank.core.constant.HeaderConstants;
 import ru.hubabank.core.dto.*;
 import ru.hubabank.core.entity.CurrencyType;
 import ru.hubabank.core.mapper.BillMapper;
@@ -29,6 +33,7 @@ public class BillController {
     private final BillService billService;
     private final BillMapper billMapper;
 
+    //<editor-fold desc="GET /bills">
     @GetMapping(value = "bills")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @SecurityRequirement(name = SECURITY_USER_SCHEME)
@@ -70,7 +75,9 @@ public class BillController {
                 .map(billMapper::mapEntityToDtoV2)
                 .toList();
     }
+    //</editor-fold>
 
+    //<editor-fold desc="GET /users/{userId}/bills">
     @GetMapping("users/{userId}/bills")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
@@ -116,7 +123,9 @@ public class BillController {
                 .map(billMapper::mapEntityToClientDtoV2)
                 .toList();
     }
+    //</editor-fold>
 
+    //<editor-fold desc="GET /users/{userId}/bills/{billId}">
     @GetMapping("users/{userId}/bills/{billId}")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_READ') and #userId == authentication.principal.id) " +
@@ -152,7 +161,9 @@ public class BillController {
     ) {
         return billMapper.mapEntityToClientDtoV2(billService.getBill(UserBillSearchStrategy.of(userId, billId)));
     }
+    //</editor-fold>
 
+    //<editor-fold desc="GET /bills/{billId}">
     @GetMapping("bills/{billId}")
     @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть информацию о счете")
@@ -169,7 +180,9 @@ public class BillController {
     ) {
         return billMapper.mapEntityToDtoV2(billService.getBill(SimpleBillSearchStrategy.of(billId)));
     }
+    //</editor-fold>
 
+    //<editor-fold desc="POST /users/{userId}/bills">
     @PostMapping("users/{userId}/bills")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @PreAuthorize("(hasAuthority('PRIVILEGE_BILL_WRITE') and #userId == authentication.principal.id) " +
@@ -212,6 +225,12 @@ public class BillController {
             summary = "Создать счет для пользователя",
             description = "Возвращает информацию о созданном счете."
     )
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = HeaderConstants.IDEMPOTENT_KEY_HEADER, description = "Ключ идемпотентности",
+            required = true, schema = @Schema(type = "string")
+    )
+    @ApiResponse(responseCode = "409", content = @Content(), description = "Запрос уже был выполнен с данным ключом идемпотентности")
     public ClientBillDtoV2 createBillV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("userId") UUID userId,
@@ -219,7 +238,9 @@ public class BillController {
     ) {
         return billMapper.mapEntityToClientDtoV2(billService.createBill(userId, billCreationDto.getCurrency()));
     }
+    //</editor-fold>
 
+    //<editor-fold desc="DELETE /users/{userId}/bills/{billId}">
     @SuppressWarnings("deprecation")
     @DeleteMapping("users/{userId}/bills/{billId}")
     @ApiVersionRange(min = MIN, max = VERSION_1)
@@ -256,7 +277,9 @@ public class BillController {
     ) {
         billService.closeBill(userId, billId);
     }
+    //</editor-fold>
 
+    //<editor-fold desc="DELETE /bills/{billId}">
     @DeleteMapping("bills/{billId}")
     @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Закрыть счет")
@@ -269,10 +292,17 @@ public class BillController {
     @DeleteMapping("bills/{billId}")
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Закрыть счет")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = HeaderConstants.IDEMPOTENT_KEY_HEADER, description = "Ключ идемпотентности",
+            required = true, schema = @Schema(type = "string")
+    )
+    @ApiResponse(responseCode = "409", content = @Content(), description = "Запрос уже был выполнен с данным ключом идемпотентности")
     public void closeBillV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("billId") UUID billId
     ) {
         billService.closeBill(billId);
     }
+    //</editor-fold>
 }

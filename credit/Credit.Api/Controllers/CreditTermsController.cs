@@ -16,16 +16,40 @@ public class CreditTermsController : ControllerBase
     }
 
     /// <response code="404">Not Found</response>
-    [HttpGet("{id:guid}")]
-    public async Task<CreditTermsResponse> GetCreditTerms(Guid id)
+    [HttpGet("{id:guid}")] 
+    public Task<CreditTermsResponse> FetchCreditTerms(Guid id)
     {
-        return await _mediator.Send(new Lib.Feature.CreditTerms.FetchById.Request(id), HttpContext.RequestAborted);
+        return _mediator.Send(new Lib.Feature.CreditTerms.FetchById.Request(id), HttpContext.RequestAborted);
     }
-
-    // /// <response code="404">Not Found</response>
-    // [HttpDelete("{id:guid}")]
-    // public async Task<CreditTermsResponse> CreditTerms(Guid id)
-    // {
-    //     return await _mediator.Send(new Lib.Feature.CreditTerms.FetchById.Request(id), HttpContext.RequestAborted);
-    // }
+    
+    [HttpGet]
+    public Task<IReadOnlyCollection<CreditTermsResponse>> FetchAllCreditTerms()
+    {
+        return _mediator.Send(new Lib.Feature.CreditTerms.FetchAll.Request(), HttpContext.RequestAborted);
+    }
+    
+    /// <response code="400">BadRequest</response>
+    [HttpPost]
+    public async Task<Guid> CreateCreditTerms(Data.Requests.CreditTerms.CreateRequest data)
+    {
+        var credit = await _mediator.Send(new Lib.Feature.CreditTerms.Create.Request(data), HttpContext.RequestAborted);
+        return credit.First().Id;
+    }
+    
+    /// <desctipion>
+    /// Дабавил, чтобы было, но без надобности не реализуйте
+    /// </desctipion>
+    /// <response code="404">Not Found</response>
+    [HttpPut("{id:guid}")]
+    public async Task<CreditTermsResponse> UpdateCreditTerms(Guid id, Data.Requests.CreditTerms.UpdateRequest data)
+    {
+        return (await _mediator.Send(new Lib.Feature.CreditTerms.Update.Request(id, data), HttpContext.RequestAborted))!;
+    }
+    
+    /// <response code="404">Not Found</response>
+    [HttpDelete("{id:guid}")]
+    public async Task DeleteCreditTerms(Guid id)
+    {
+        await _mediator.Send(new Lib.Feature.CreditTerms.Delete.Request(id), HttpContext.RequestAborted);
+    }
 }

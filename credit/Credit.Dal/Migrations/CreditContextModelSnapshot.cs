@@ -41,6 +41,9 @@ namespace Credit.Dal.Migrations
                     b.Property<long>("ArrearsInterest")
                         .HasColumnType("bigint");
 
+                    b.Property<Guid>("BillId")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("CollectionDay")
                         .HasColumnType("integer");
 
@@ -59,6 +62,9 @@ namespace Credit.Dal.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<DateOnly>("LastArrearsUpdate")
+                        .HasColumnType("date");
+
                     b.Property<long>("Principal")
                         .HasColumnType("bigint");
 
@@ -75,12 +81,47 @@ namespace Credit.Dal.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<float>("InterestRate")
+                        .HasColumnType("real");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("CreditTerms", "credit_db");
+                });
+
+            modelBuilder.Entity("Credit.Dal.Models.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Arrears")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("CreditId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("PaymentAmount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("PaymentDay")
+                        .HasColumnType("date");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreditId");
+
+                    b.ToTable("Payments", "credit_db");
                 });
 
             modelBuilder.Entity("Credit.Dal.Models.Credit", b =>
@@ -91,6 +132,17 @@ namespace Credit.Dal.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreditTerms");
+                });
+
+            modelBuilder.Entity("Credit.Dal.Models.Payment", b =>
+                {
+                    b.HasOne("Credit.Dal.Models.Credit", "Credit")
+                        .WithMany()
+                        .HasForeignKey("CreditId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Credit");
                 });
 #pragma warning restore 612, 618
         }

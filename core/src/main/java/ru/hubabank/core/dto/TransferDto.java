@@ -18,9 +18,6 @@ public class TransferDto {
     @Schema(description = "Счет, на который поступили деньги")
     private BillInfoDto target;
 
-    @Schema(description = "Изменение баланса счета в копейках")
-    private long amount;
-
     @Schema(description = "Момент времени выполнения транзакции")
     private Instant instant;
 }

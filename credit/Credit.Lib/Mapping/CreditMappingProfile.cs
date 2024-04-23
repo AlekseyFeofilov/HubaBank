@@ -11,9 +11,6 @@ public class CreditMappingProfile : Profile
         CreateMap<Dal.Models.Credit, CreditResponse>();
         CreateMap<CreditResponse, Dal.Models.Credit>();
         
-        CreateMap<CreditTerms, CreditTermsResponse>();
-        CreateMap<CreditTermsResponse, CreditTerms>();
-        
         CreateMap<Data.Requests.Credit.CreateRequest, Dal.Models.Credit>();
         CreateMap<Dal.Models.Credit, Data.Requests.Credit.CreateRequest>();
         

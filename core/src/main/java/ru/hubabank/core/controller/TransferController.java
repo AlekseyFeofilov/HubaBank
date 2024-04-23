@@ -24,6 +24,7 @@ public class TransferController {
     private final TransferService transferService;
     private final TransferMapper transferMapper;
 
+    //<editor-fold desc="GET /bills/{billId}/transfers">
     @GetMapping("bills/{billId}/transfers")
     @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть историю переводов по счету")
@@ -46,4 +47,5 @@ public class TransferController {
                 .map(transferMapper::mapEntityToDto)
                 .toList();
     }
+    //</editor-fold>
 }

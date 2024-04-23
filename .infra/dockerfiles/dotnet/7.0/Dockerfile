@@ -3,5 +3,5 @@ ARG DLL
 WORKDIR /app
 COPY bin/publish .
 RUN echo "dotnet $DLL" >> entrypoint.sh
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["sh", "entrypoint.sh"]

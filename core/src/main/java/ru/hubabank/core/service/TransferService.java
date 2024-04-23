@@ -41,9 +41,9 @@ public class TransferService {
                 .orElseThrow(ErrorType.BILL_NOT_FOUND::createException);
 
         long withdrawal = -amount;
-        long admission = amount;
+        long deposit = amount;
         if (sourceBill.getCurrency() != targetBill.getCurrency()) {
-            admission = currencyService.convertCurrency(
+            deposit = currencyService.convertCurrency(
                     sourceBill.getCurrency().name(),
                     targetBill.getCurrency().name(),
                     amount
@@ -56,12 +56,13 @@ public class TransferService {
                 TransactionReason.TRANSFER
         );
         Transaction target = transactionService.createTransaction(
-                admission,
+                deposit,
                 targetBill,
                 TransactionReason.TRANSFER
         );
         return transferRepository.save(Transfer.builder()
-                .amount(amount)
+                .withdrawal(withdrawal)
+                .deposit(deposit)
                 .source(source.getBill())
                 .target(target.getBill())
                 .instant(Instant.now())

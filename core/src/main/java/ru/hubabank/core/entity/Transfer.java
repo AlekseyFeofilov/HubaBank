@@ -28,8 +28,11 @@ public class Transfer {
     @JoinColumn(name = "target_bill_id", nullable = false)
     private Bill target;
 
-    @Column(name = "amount", nullable = false)
-    private long amount;
+    @Column(name = "deposit")
+    private Long deposit;
+
+    @Column(name = "withdrawal", nullable = false)
+    private long withdrawal;
 
     @Column(name = "instant", nullable = false)
     private Instant instant;

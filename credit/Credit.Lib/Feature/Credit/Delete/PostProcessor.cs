@@ -4,13 +4,13 @@ using MediatR.Pipeline;
 
 namespace Credit.Lib.Feature.Credit.Delete;
 
-public class PostProcessor : IRequestPostProcessor<Request, CreditResponse?>
+public class PostProcessor : IRequestPostProcessor<Request, CreditResponse>
 {
-    public Task Process(Request request, CreditResponse? response, CancellationToken cancellationToken)
+    public Task Process(Request request, CreditResponse response, CancellationToken cancellationToken)
     {
         if (response == null)
         {
-            throw new CreditNotFoundException(request.Id);
+            throw new EntityNotFoundException(request.Id);
         }
         
         return Task.CompletedTask;
