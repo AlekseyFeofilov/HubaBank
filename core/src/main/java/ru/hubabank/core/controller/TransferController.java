@@ -14,7 +14,6 @@ import ru.hubabank.core.versioning.ApiVersionRange;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.hubabank.core.constant.HeaderConstants.IDENTITY_KEY_HEADER;
 import static ru.hubabank.core.constant.HeaderConstants.REQUEST_ID_HEADER;
 import static ru.hubabank.core.versioning.ApiVersion.*;
 
@@ -25,6 +24,7 @@ public class TransferController {
     private final TransferService transferService;
     private final TransferMapper transferMapper;
 
+    //<editor-fold desc="GET /bills/{billId}/transfers">
     @GetMapping("bills/{billId}/transfers")
     @ApiVersionRange(min = VERSION_2, max = VERSION_2)
     @Operation(summary = "Посмотреть историю переводов по счету")
@@ -41,11 +41,11 @@ public class TransferController {
     @Operation(summary = "Посмотреть историю переводов по счету")
     public List<TransferDto> getTransfersV3(
             @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
-            @RequestHeader(IDENTITY_KEY_HEADER) UUID identityKey,
             @PathVariable("billId") UUID billId
     ) {
         return transferService.getTransfers(billId).stream()
                 .map(transferMapper::mapEntityToDto)
                 .toList();
     }
+    //</editor-fold>
 }

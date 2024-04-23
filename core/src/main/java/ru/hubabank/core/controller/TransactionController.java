@@ -27,6 +27,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
+    //<editor-fold desc="GET /users/{userId}/bills/{billId}/transactions">
     @GetMapping("users/{userId}/bills/{billId}/transactions")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_READ') and #userId == authentication.principal.id) " +
@@ -62,7 +63,9 @@ public class TransactionController {
     ) {
         return transactionService.getTransactions(userId, billId);
     }
+    //</editor-fold>
 
+    //<editor-fold desc="GET /bills/{billId}/transactions">
     /**
      * @deprecated используйте {@link TransferController}
      */
@@ -75,7 +78,9 @@ public class TransactionController {
     ) {
         return transactionService.getTransactions(billId);
     }
+    //</editor-fold>
 
+    //<editor-fold desc="POST /users/{userId}/bills/{billId}/transactions">
     @PostMapping("users/{userId}/bills/{billId}/transactions")
     @ApiVersionRange(min = MIN, max = VERSION_1)
     @PreAuthorize("(hasAuthority('PRIVILEGE_TRANSACTION_WRITE') and #userId == authentication.principal.id) " +
@@ -100,4 +105,5 @@ public class TransactionController {
                 TransactionReason.TERMINAL
         );
     }
+    //</editor-fold>
 }
