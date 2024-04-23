@@ -1,10 +1,12 @@
 package ru.hubabank.core.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hubabank.core.dto.TransferDto;
 import ru.hubabank.core.mapper.TransferMapper;
@@ -39,8 +41,12 @@ public class TransferController {
     @GetMapping("bills/{billId}/transfers")
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Посмотреть историю переводов по счету")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
     public List<TransferDto> getTransfersV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("billId") UUID billId
     ) {
         return transferService.getTransfers(billId).stream()

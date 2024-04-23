@@ -67,9 +67,12 @@ public class BillController {
     @GetMapping(value = "bills")
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Посмотреть все счета")
-    public List<BillDtoV2> getBillsV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId
-    ) {
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
+    public List<BillDtoV2> getBillsV3() {
         return billService.getBills()
                 .stream()
                 .map(billMapper::mapEntityToDtoV2)
@@ -115,8 +118,12 @@ public class BillController {
     @GetMapping("users/{userId}/bills")
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Посмотреть все счета пользователя")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
     public List<ClientBillDtoV2> getUserBillsV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("userId") UUID userId
     ) {
         return billService.getClientBills(userId).stream()
@@ -174,8 +181,12 @@ public class BillController {
     @GetMapping("bills/{billId}")
     @ApiVersionRange(min = VERSION_3, max = MAX)
     @Operation(summary = "Посмотреть информацию о счете")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
     public BillDtoV2 getBillV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("billId") UUID billId
     ) {
         return billMapper.mapEntityToDtoV2(billService.getBill(SimpleBillSearchStrategy.of(billId)));
@@ -230,9 +241,12 @@ public class BillController {
             name = HeaderConstants.IDEMPOTENT_KEY_HEADER, description = "Ключ идемпотентности",
             required = true, schema = @Schema(type = "string")
     )
-    @ApiResponse(responseCode = "409", content = @Content(), description = "Запрос уже был выполнен с данным ключом идемпотентности")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
     public ClientBillDtoV2 createBillV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("userId") UUID userId,
             @RequestBody BillCreationDto billCreationDto
     ) {
@@ -297,9 +311,12 @@ public class BillController {
             name = HeaderConstants.IDEMPOTENT_KEY_HEADER, description = "Ключ идемпотентности",
             required = true, schema = @Schema(type = "string")
     )
-    @ApiResponse(responseCode = "409", content = @Content(), description = "Запрос уже был выполнен с данным ключом идемпотентности")
+    @Parameter(
+            in = ParameterIn.HEADER,
+            name = REQUEST_ID_HEADER, description = "Идентификатор запроса для трассировки",
+            required = true, schema = @Schema(type = "string")
+    )
     public void closeBillV3(
-            @RequestHeader(REQUEST_ID_HEADER) UUID requestId,
             @PathVariable("billId") UUID billId
     ) {
         billService.closeBill(billId);

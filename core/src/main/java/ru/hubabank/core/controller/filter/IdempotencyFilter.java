@@ -52,7 +52,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
                 .request(request.getRequestURI())
                 .idempotentKey(idempotentKey)
                 .build())) {
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
+            response.setStatus(HttpServletResponse.SC_OK);
             log.warn("Запрос {} {} уже был выполнен с ключом идемпотентности {}",
                     request.getMethod(), request.getRequestURI(), idempotentKey);
             return;
