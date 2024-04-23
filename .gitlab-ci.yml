@@ -155,6 +155,31 @@ credit:image:
     PROJECT_DIR: credit
     DOCKER_ARGS: '--build-arg DLL=Credit.Api.dll'
 
+logger:build:
+  extends: .build_java_gradle
+  needs: []
+  variables:
+    PROJECT_DIR: java/logger
+
+logger:test:
+  extends: .test_java_gradle
+  needs:
+    - logger:build
+  variables:
+    PROJECT_DIR: java/logger
+
+logger:image:
+  extends: .build_docker_image
+  needs:
+    - job: logger:build
+      optional: true
+    - job: logger:test
+      optional: true
+  variables:
+    DOCKERFILE: .infra/dockerfiles/java/Dockerfile
+    IMAGE: logger
+    PROJECT_DIR: java/logger
+
 deploy:staging:
   extends: .deploy
   tags:
@@ -170,5 +195,6 @@ deploy:staging:
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/gateway-employer:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/core:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/users:latest
+    - sudo docker pull $CI_REGISTRY/hits-tsu/huba/logger:latest
     - sudo docker pull $CI_REGISTRY/hits-tsu/huba/credit:latest
     - sudo docker compose up -d

@@ -91,6 +91,21 @@ services:
       - 'hits-huba-network'
     restart: always
 
+  logger:
+    image: registry.gitlab.com/hits-tsu/huba/logger:latest
+    container_name: hits-huba-logger
+    ports:
+      - "9006:8080"
+    environment:
+      POSTGRES_HOST: hits-huba-database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_SCHEMA: logger_service
+    networks:
+      - 'hits-huba-network'
+    restart: always
+
   database:
     image: postgres:16.1-alpine3.19
     container_name: hits-huba-database
