@@ -1,0 +1,11 @@
+drop table if exists log_entity;
+drop table if exists request_headers;
+drop table if exists response_headers;
+drop table if exists stack_trace_entity;
+create table log_entity (request_id uuid not null, primary key (request_id));
+create table request_headers (stack_trace_entity_id uuid not null, headers varchar(5000), headers_key varchar(5000) not null, primary key (stack_trace_entity_id, headers_key));
+create table response_headers (stack_trace_entity_id uuid not null, headers varchar(5000), headers_key varchar(5000) not null, primary key (stack_trace_entity_id, headers_key));
+create table stack_trace_entity (id uuid not null, date timestamp(6), other_info varchar(5000), publish_service varchar(5000), request_body varchar(5000), method varchar(5000), url varchar(5000), response_body varchar(5000), status integer, request_id uuid not null, primary key (id));
+alter table if exists request_headers add constraint FKdqbvcpon6y7b8mj11ahsrgby8 foreign key (stack_trace_entity_id) references stack_trace_entity;
+alter table if exists response_headers add constraint FK7wudmab9lgnovbpf7vuc9d9e5 foreign key (stack_trace_entity_id) references stack_trace_entity;
+alter table if exists stack_trace_entity add constraint FK8kxd8h6quapdp2t71x4380g6m foreign key (request_id) references log_entity;
