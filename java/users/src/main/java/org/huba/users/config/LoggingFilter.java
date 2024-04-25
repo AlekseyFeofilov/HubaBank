@@ -75,12 +75,17 @@ public class LoggingFilter extends OncePerRequestFilter {
         publishLogDto.setOtherInfo("{}");
         publishLogDto.setRequestId(UUID.randomUUID());
 
-        RestClient restClient = RestClient.create();
-        restClient.post().uri("http://194.147.90.192:9006/log/api/v1")
-                .contentType(APPLICATION_JSON)
-                .body(publishLogDto)
-                .retrieve()
-                .toBodilessEntity();
+        try{
+            RestClient restClient = RestClient.create();
+            restClient.post().uri("http://194.147.90.192:9006/log/api/v1")
+                    .contentType(APPLICATION_JSON)
+                    .body(publishLogDto)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RuntimeException e) {
+
+        }
+
         responseWrapper.copyBodyToResponse();
     }
 
