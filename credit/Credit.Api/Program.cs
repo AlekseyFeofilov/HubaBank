@@ -47,6 +47,7 @@ builder.Services.AddScoped<IJobClient, JobClient>();
 
 var app = builder.Build();
 
+app.UseMiddleware<RandomFaultMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHangfireDashboard();
 
