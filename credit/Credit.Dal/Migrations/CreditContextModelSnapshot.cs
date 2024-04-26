@@ -96,6 +96,30 @@ namespace Credit.Dal.Migrations
                     b.ToTable("CreditTerms", "credit");
                 });
 
+            modelBuilder.Entity("Credit.Dal.Models.IdempotentRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Completed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ConfirmationKeyHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("HttpStatusCode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Response")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IdempotentRequests", "credit");
+                });
+
             modelBuilder.Entity("Credit.Dal.Models.Payment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -128,6 +152,25 @@ namespace Credit.Dal.Migrations
                     b.HasIndex("CreditId");
 
                     b.ToTable("Payments", "credit");
+                });
+
+            modelBuilder.Entity("Credit.Dal.Models.Setting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SettingName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Settings", "credit");
                 });
 
             modelBuilder.Entity("Credit.Dal.Models.Credit", b =>

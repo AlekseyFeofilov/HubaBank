@@ -21,10 +21,12 @@ public class RandomFaultMiddleware
 
         ThrowIfUnstable(0.29f, 0.68f);
         await _next(context);
-        ThrowIfUnstable(0.29f, 0.68f);
+        ThrowIfUnstable(0.29f, 0.68f, true);
     }
 
-    private void ThrowIfUnstable(float minFaultProbability, float maxFaultProbability)
+    private void ThrowIfUnstable(float minFaultProbability, 
+        float maxFaultProbability, 
+        bool afterRequestExecution = false)
     {
         var faultProbability = minFaultProbability;
         
@@ -36,7 +38,8 @@ public class RandomFaultMiddleware
         var randomValue = 1.0 * new Random().Next(0, 100) / 100;
         if (!(randomValue < faultProbability)) return;
         
-        _logger.LogWarning("Fake exception was thrown out. Probability was {probability}", faultProbability);
+        _logger.LogWarning("Fake exception was thrown out {time}. Probability was {probability}", 
+            afterRequestExecution ? "after request execution" : "", faultProbability);
         throw new Exception();
     }
 }

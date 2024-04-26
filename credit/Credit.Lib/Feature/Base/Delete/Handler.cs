@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Credit.Lib.Feature.Base.Delete;
 
-public sealed class Handler<TDal> : IRequestHandler<Request<TDal>>
+public sealed class Handler<TDal, TData> : IRequestHandler<Request<TDal, TData>, TData?>
     where TDal : class
 {
     private readonly CreditContext _context;
@@ -13,12 +13,15 @@ public sealed class Handler<TDal> : IRequestHandler<Request<TDal>>
         _context = context;
     }
 
-    public Task Handle(Request<TDal> request, CancellationToken cancellationToken)
+    public async Task<TData?> Handle(Request<TDal, TData> request, CancellationToken cancellationToken)
     {
         var entities = _context.Set<TDal>()
             .Where(request.Specification);
 
+        var debug = entities.ToList();
+
         _context.Set<TDal>().RemoveRange(entities);
-        return _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return default;
     }
 }

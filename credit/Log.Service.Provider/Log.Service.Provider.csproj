@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Utils.ClientGenerator\Utils.ClientGenerator.csproj" />
+      <PackageReference Include="NSwag.MSBuild" Version="14.0.7">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+<!--    <Target Name="GenerateClient" BeforeTargets="BeforeCompile">-->
+<!--        <Exec Command="$(NSwagExe_Net60) run nswag.json /variables:ProjectPath=$(MSBuildProjectDirectory),TargetFramework=$(TargetFramework),Configuration=$(Configuration),Runtime=Net60,Service=LogService" />-->
+<!--    </Target>-->
+</Project>

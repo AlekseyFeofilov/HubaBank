@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Credit.Lib.Feature.Base.Delete;
 
-public class Request<TDal> : IRequest
+public class Request<TDal, TData> : IRequest<TData?>
     where TDal : class 
 {
     public Specification<TDal> Specification { get; }

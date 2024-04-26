@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace Core.Provider.Configuration
+namespace Utils.ClientGenerator.Configuration
 {
     public interface IClientConfiguration
     {

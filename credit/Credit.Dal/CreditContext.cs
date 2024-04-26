@@ -8,6 +8,8 @@ public class CreditContext : DbContext
     public DbSet<Models.Credit> Credits { get; set; }
     public DbSet<CreditTerms> CreditTerms { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<IdempotentRequest> IdempotentRequests { get; set; }
+    public DbSet<Setting> Settings { get; set; }
 
 #pragma warning disable CS8618
     public CreditContext(DbContextOptions<CreditContext> options) : base(options)
@@ -36,6 +38,16 @@ public class CreditContext : DbContext
         {
             typeBuilder.HasKey(x => x.Id);
         });
+
+        modelBuilder.Entity<IdempotentRequest>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+        });
+
+        modelBuilder.Entity<Setting>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+        });
         
         modelBuilder.Entity<Payment>(typeBuilder =>
         {
@@ -47,5 +59,18 @@ public class CreditContext : DbContext
                 .HasForeignKey(x => x.CreditId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        try
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception _)
+        {
+            ChangeTracker.Clear();
+            throw;
+        }
     }
 }

@@ -1,4 +1,4 @@
-namespace Core.Provider.Exceptions
+namespace Utils.ClientGenerator.Exceptions
 {
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.11.3.0 (NJsonSchema v10.4.4.0 (Newtonsoft.Json v12.0.0.0))")]
     public partial class ApiException : Exception

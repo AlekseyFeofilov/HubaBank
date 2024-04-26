@@ -32,6 +32,8 @@ public static class Bootstrapper
                     new CreditMappingProfile(),
                     new CreditTermsMappingProfile(),
                     new PaymentMappingProfile(),
+                    new IdempotentRequestMappingFilter(),
+                    new SettingMappingProfile(),
                 }));
 
         services.AddScoped<MasterBillSettings>(_ =>
@@ -119,6 +121,10 @@ public static class Bootstrapper
         else if (baseType.IsGenericAssignableFrom(typeof(Feature.Base.Update.Request<,>)))
         {
             implementation = typeof(Feature.Base.Update.Handler<,>).MakeGenericType(tDal, tData);
+        }
+        else if (baseType.IsGenericAssignableFrom(typeof(Feature.Base.Delete.Request<,>)))
+        {
+            implementation = typeof(Feature.Base.Delete.Handler<,>).MakeGenericType(tDal, tData);
         }
         else
         {

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using Credit.Api.Attributes;
 using Credit.Data;
 using Credit.Data.Responses;
 using Credit.Lib.Feature.Credit.Fetch.ById;
@@ -33,7 +35,11 @@ public class CreditController : ControllerBase
     //todo проверить с несуществующим bill id
     /// <response code="400">BadRequest</response>
     [HttpPost]
-    public async Task<Guid> CreateCredit(Data.Requests.Credit.CreateRequest data)
+    [BodyBasedIdempotentHandlingMiddlewareAllow]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public async Task<Guid> CreateCredit(Data.Requests.Credit.CreateRequest data, 
+        [FromQuery] Guid? requestId = null, 
+        [FromQuery] Guid? idempotentKey = null)
     {
         var credit = await _mediator.Send(new Lib.Feature.Credit.Create.Request(data), HttpContext.RequestAborted);
         return credit.First().Id;
@@ -41,7 +47,11 @@ public class CreditController : ControllerBase
     
     /// <response code="404">Not Found</response>
     [HttpDelete("{id:guid}")]
-    public async Task DeleteCredit(Guid id)
+    [IdBasedIdempotentHandlingMiddlewareAllow]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public async Task DeleteCredit(Guid id, 
+        [FromQuery] Guid? requestId = null, 
+        [FromQuery] Guid? idempotentKey = null)
     {
         await _mediator.Send(new Lib.Feature.Credit.Delete.Request(id), HttpContext.RequestAborted);
     }

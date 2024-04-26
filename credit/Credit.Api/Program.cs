@@ -5,6 +5,7 @@ using Credit.Data;
 using Credit.Lib;
 using Credit.Lib.Jobs;
 using Hangfire;
+using Log.Service.Provider;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using DateOnlyJsonConverter = Credit.Api.Converters.DateOnlyJsonConverter;
@@ -33,6 +34,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddCredit(builder.Configuration);
+builder.Services.AddLogServiceProvider();
 builder.Services.AddAsyncInitializer<JobsInitializer>();
 
 builder.Services.AddControllers()
@@ -44,11 +46,18 @@ builder.Services.AddControllers()
 builder.Services.AddAsyncInitializer<JobsInitializer>();
 builder.Services.AddScoped<IJobAgent, JobAgent>();
 builder.Services.AddScoped<IJobClient, JobClient>();
+builder.Services.AddScoped<BodyBasedIdempotentHandlingMiddleware>();
+builder.Services.AddScoped<IdBasedIdempotentHandlingMiddleware>();
 
 var app = builder.Build();
 
-app.UseMiddleware<RandomFaultMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<RequestEnrichMiddleware>();
+app.UseMiddleware<LoggerMiddleware>();
+app.UseMiddleware<RandomFaultMiddleware>();
+app.UseMiddleware<BodyBasedIdempotentHandlingMiddleware>();
+app.UseMiddleware<IdBasedIdempotentHandlingMiddleware>();
+
 app.UseHangfireDashboard();
 
 // Configure the HTTP request pipeline.
