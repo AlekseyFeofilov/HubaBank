@@ -40,6 +40,9 @@ public class JwtProvider {
 
     public UUID getId() {
         JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null) {
+            return null;
+        }
         return UUID.fromString(authentication.getFirstName());
     }
 
