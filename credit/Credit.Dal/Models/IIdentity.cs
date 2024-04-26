@@ -1,6 +1,6 @@
 namespace Credit.Dal.Models;
 
-public interface IIdentity<out TKey>
+public interface IIdentity<TKey>
 {
-    TKey Id { get; }
+    TKey Id { get; set; }
 }

@@ -1,7 +1,7 @@
-using Core.Provider.Configuration;
 using Core.Provider.v1;
 using Core.Provider.v2;
 using Microsoft.Extensions.DependencyInjection;
+using Utils.ClientGenerator.Configuration;
 
 namespace Core.Provider;
 

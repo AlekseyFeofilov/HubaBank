@@ -1,8 +1,8 @@
 using System.Text;
-using Core.Provider.Configuration;
 using Microsoft.Extensions.Logging;
+using Utils.ClientGenerator.Configuration;
 
-namespace Core.Provider.Base
+namespace Utils.ClientGenerator.Base
 {
     public class ClientBase : IClientBase
     {

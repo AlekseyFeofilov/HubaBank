@@ -1,0 +1,123 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Log Service",
+    "description": "Log Service for Government Bank of Huba Buba States",
+    "contact": {
+      "name": "UserManager",
+      "url": "huba.gov",
+      "email": "bear@huba.gov"
+    },
+    "license": {
+      "name": "HUBA MIT LICENSE",
+      "url": "hmit.gov"
+    },
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://194.147.90.192:9006",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "Bearer Authentication": []
+    }
+  ],
+  "paths": {
+    "/log/api/v1": {
+      "post": {
+        "tags": [
+          "log-controller"
+        ],
+        "operationId": "publishLog",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishLogDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PublishLogDto": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "publishService": {
+            "type": "string"
+          },
+          "request": {
+            "$ref": "#/components/schemas/RequestDto"
+          },
+          "response": {
+            "$ref": "#/components/schemas/ResponseDto"
+          },
+          "otherInfo": {
+            "type": "string"
+          }
+        }
+      },
+      "RequestDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      },
+      "ResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "Bearer Authentication": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

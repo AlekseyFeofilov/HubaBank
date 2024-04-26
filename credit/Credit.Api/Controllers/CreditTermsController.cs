@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using Credit.Api.Attributes;
 using Credit.Data.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +32,11 @@ public class CreditTermsController : ControllerBase
     
     /// <response code="400">BadRequest</response>
     [HttpPost]
-    public async Task<Guid> CreateCreditTerms(Data.Requests.CreditTerms.CreateRequest data)
+    [BodyBasedIdempotentHandlingMiddlewareAllow]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public async Task<Guid> CreateCreditTerms(Data.Requests.CreditTerms.CreateRequest data, 
+        [FromQuery] Guid? requestId = null, 
+        [FromQuery] Guid? idempotentKey = null)
     {
         var credit = await _mediator.Send(new Lib.Feature.CreditTerms.Create.Request(data), HttpContext.RequestAborted);
         return credit.First().Id;
@@ -38,7 +44,11 @@ public class CreditTermsController : ControllerBase
     
     /// <response code="404">Not Found</response>
     [HttpDelete("{id:guid}")]
-    public async Task DeleteCreditTerms(Guid id)
+    [IdBasedIdempotentHandlingMiddlewareAllow]
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public async Task DeleteCreditTerms(Guid id, 
+        [FromQuery] Guid? requestId = null, 
+        [FromQuery] Guid? idempotentKey = null)
     {
         await _mediator.Send(new Lib.Feature.CreditTerms.Delete.Request(id), HttpContext.RequestAborted);
     }

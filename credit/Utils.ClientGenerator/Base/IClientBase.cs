@@ -1,4 +1,4 @@
-namespace Core.Provider.Base
+namespace Utils.ClientGenerator.Base
 {
     public interface IClientBase { }
 }

@@ -1,6 +1,7 @@
+using Utils.ClientGenerator;
+
 namespace Core.Provider;
 
-internal class CoreHttpSettings
+internal class CoreHttpSettings : HttpSettings
 {
-    public Uri Url { get; set; }
 }
