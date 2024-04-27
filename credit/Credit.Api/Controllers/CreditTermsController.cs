@@ -8,6 +8,7 @@ namespace Credit.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[SuppressMessage("ReSharper", "UnusedParameter.Global")]
 public class CreditTermsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -19,13 +20,13 @@ public class CreditTermsController : ControllerBase
 
     /// <response code="404">Not Found</response>
     [HttpGet("{id:guid}")] 
-    public Task<CreditTermsResponse> FetchCreditTerms(Guid id)
+    public Task<CreditTermsResponse> FetchCreditTerms(Guid id, [FromHeader] Guid? requestId = null)
     {
         return _mediator.Send(new Lib.Feature.CreditTerms.FetchById.Request(id), HttpContext.RequestAborted);
     }
     
     [HttpGet]
-    public Task<IReadOnlyCollection<CreditTermsResponse>> FetchAllCreditTerms()
+    public Task<IReadOnlyCollection<CreditTermsResponse>> FetchAllCreditTerms([FromHeader] Guid? requestId = null)
     {
         return _mediator.Send(new Lib.Feature.CreditTerms.FetchAll.Request(), HttpContext.RequestAborted);
     }
@@ -33,10 +34,9 @@ public class CreditTermsController : ControllerBase
     /// <response code="400">BadRequest</response>
     [HttpPost]
     [BodyBasedIdempotentHandlingMiddlewareAllow]
-    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public async Task<Guid> CreateCreditTerms(Data.Requests.CreditTerms.CreateRequest data, 
-        [FromQuery] Guid? requestId = null, 
-        [FromQuery] Guid? idempotentKey = null)
+        [FromHeader] Guid? requestId = null, 
+        [FromHeader] Guid? idempotentKey = null)
     {
         var credit = await _mediator.Send(new Lib.Feature.CreditTerms.Create.Request(data), HttpContext.RequestAborted);
         return credit.First().Id;
@@ -45,10 +45,9 @@ public class CreditTermsController : ControllerBase
     /// <response code="404">Not Found</response>
     [HttpDelete("{id:guid}")]
     [IdBasedIdempotentHandlingMiddlewareAllow]
-    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public async Task DeleteCreditTerms(Guid id, 
-        [FromQuery] Guid? requestId = null, 
-        [FromQuery] Guid? idempotentKey = null)
+        [FromHeader] Guid? requestId = null, 
+        [FromHeader] Guid? idempotentKey = null)
     {
         await _mediator.Send(new Lib.Feature.CreditTerms.Delete.Request(id), HttpContext.RequestAborted);
     }
