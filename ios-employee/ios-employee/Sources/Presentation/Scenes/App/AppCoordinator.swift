@@ -18,18 +18,19 @@ final class AppCoordinator: Coordinator {
 	let appDependency: AppDependency
 
 	func start(animated: Bool) {
-		showMainScreen(animated: animated)
-		//    if appDependency.authService.isAuthorized {
-		//      showMainScreen(animated: animated)
-		//    } else {
-		//      showAuthScreen(animated: animated)
-		//    }
+		showAuthScreen(animated: animated)
+//		if appDependency.authService.isAuthorized {
+//			showMainScreen(animated: animated)
+//		} else {
+//			showAuthScreen(animated: animated)
+//		}
 	}
 
 	// MARK: - Private
 
 	private func showAuthScreen(animated: Bool) {
 		let coordinator = show(AuthCoordinator.self, animated: animated)
+		coordinator.delegate = self
 	}
 
 	private func showMainScreen(animated: Bool) {
@@ -62,5 +63,11 @@ final class AppCoordinator: Coordinator {
 		}
 		UIView.transition(with: window, duration: animationDuration, options: .transitionFlipFromLeft,
 		                  animations: animations, completion: nil)
+	}
+}
+
+extension AppCoordinator: AuthCoordinatorDelegate {
+	func showMain() {
+		showMainScreen(animated: true)
 	}
 }

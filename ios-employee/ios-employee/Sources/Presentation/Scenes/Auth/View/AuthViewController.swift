@@ -29,7 +29,7 @@ final class AuthViewController: BaseViewController, NavigationBarHiding {
 
 	@objc
 	private func tappedAuthBitton() {
-		// TODO: do it
+		viewModel.tappedAuthButton()
 	}
 
 	// MARK: - Private

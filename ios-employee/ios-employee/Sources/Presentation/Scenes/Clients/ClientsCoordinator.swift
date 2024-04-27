@@ -25,7 +25,7 @@ final class ClientsCoordinator: Coordinator {
 	// MARK: - Private
 
 	private func showClientsScreen(animated: Bool) {
-		let viewModel = ClientsViewModel()
+		let viewModel = ClientsViewModel(dependencies: appDependency)
 		viewModel.delegate = self
 		let viewController = ClientsViewController(viewModel: viewModel)
 

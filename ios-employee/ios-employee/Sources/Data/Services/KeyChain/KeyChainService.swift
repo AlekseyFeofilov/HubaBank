@@ -3,13 +3,13 @@ import Foundation
 // MARK: - KeyChainAccountAttributeKey
 
 enum KeyChainAccountAttributeKey: String {
-	case iSpace = "i-space"
+	case buba
 }
 
 // MARK: - KeyChainServiceAttributeKey
 
 enum KeyChainServiceAttributeKey: String {
-	case token
+	case tokens
 }
 
 protocol KeyChainServiceProtocol: AnyObject {

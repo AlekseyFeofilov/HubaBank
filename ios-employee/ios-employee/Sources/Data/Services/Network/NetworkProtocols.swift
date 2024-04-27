@@ -6,8 +6,6 @@ protocol AuthNetworkProtocol {
 	func updateSessionCredentials(with tokens: AuthTokenPair?)
 }
 
-protocol ProfileNetworkProtocol {
-	func getProfile() async throws -> ProfileResponse
-	@discardableResult
-	func updateProfile(profileRequest: ProfileRequest) async throws -> EmptyResponse
+protocol ClientsNetworkProtocol {
+	func getClients(authToken: String) async throws -> [ClientResponse]
 }

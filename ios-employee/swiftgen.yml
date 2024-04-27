@@ -1,5 +1,5 @@
-input_dir: CheckSplit/Application/Resources/
-output_dir: CheckSplit/Application/SupportingFiles/SwiftGen
+input_dir: ios-employee/Application/Resources/
+output_dir: ios-employee/Supporting\ Files/SwiftGen
 
 xcassets:
   inputs:
@@ -11,24 +11,6 @@ xcassets:
       params:
         enumName: Assets
 
-strings:
-  inputs:
-    - Strings/ru.lproj/AuthScreen.strings
-    - Strings/ru.lproj/App.strings
-    - Strings/ru.lproj/MainScreen.strings
-    - Strings/ru.lproj/GroupsScreen.strings
-    - Strings/ru.lproj/ChooseMembersScreen.strings
-    - Strings/ru.lproj/SMSCodeScreen.strings
-    - Strings/ru.lproj/CreateGroupScreen.strings
-    - Strings/ru.lproj/EnterNameScreen.strings
-    - Strings/ru.lproj/Error.strings
-    - Strings/ru.lproj/ProfileScreen.strings
-  outputs:
-    - templateName: structured-swift5
-      output: Strings+Generated.swift
-      params:
-        enumName: Localizable
-
 fonts:
   inputs:
     - Fonts
@@ -37,3 +19,5 @@ fonts:
       output: Fonts+Generated.swift
       params:
         enumName: Fonts
+
+

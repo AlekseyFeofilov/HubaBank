@@ -1,3 +1,9 @@
+import UIKit
+
+protocol AuthCoordinatorDelegate: AnyObject {
+	func showMain()
+}
+
 final class AuthCoordinator: Coordinator {
 	// MARK: - Init
 
@@ -7,6 +13,8 @@ final class AuthCoordinator: Coordinator {
 	}
 
 	// MARK: - Public
+
+	weak var delegate: AuthCoordinatorDelegate?
 
 	let navigationController: NavigationController
 	let appDependency: AppDependency
@@ -23,7 +31,7 @@ final class AuthCoordinator: Coordinator {
 	// MARK: - Private
 
 	private func showAuthScreen(animated: Bool) {
-		let viewModel = AuthViewModel()
+		let viewModel = AuthViewModel(keychainService: appDependency.keyChainService)
 		viewModel.delegate = self
 		let viewController = AuthViewController(viewModel: viewModel)
 
@@ -41,11 +49,15 @@ final class AuthCoordinator: Coordinator {
 	}
 }
 
-// MARK: -
+// MARK: - AuthViewModelDelegate
 
 extension AuthCoordinator: AuthViewModelDelegate {
 	func showRegisterScreen() {
 		showRegisterScreen(animated: true)
+	}
+
+	func showMainScreen() {
+		delegate?.showMain()
 	}
 }
 

@@ -23,7 +23,7 @@ class NetworkService {
 		                                       parameters: parameters,
 		                                       encoding: method == .get ?
 		                                       	URLEncoding(arrayEncoding: .noBrackets) : JSONEncoding.default,
-		                                       interceptor: authorized ? authenticationInterceptor : nil)
+		                                       headers: headers)
 			.responseDataAsync()
 
 		return try await handleResponse(requestResponse)

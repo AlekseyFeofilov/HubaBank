@@ -8,7 +8,7 @@ final class AuthService: AuthServiceProtocol {
 		self.keyChainService = keyChainService
 
 		if isAuthorized {
-			let tokens: AuthTokenPair? = keyChainService.read(service: .token, account: .iSpace)
+			let tokens: AuthTokenPair? = keyChainService.read(service: .tokens, account: .buba)
 			authNetworkService.updateSessionCredentials(with: tokens)
 		}
 	}
@@ -16,7 +16,7 @@ final class AuthService: AuthServiceProtocol {
 	// MARK: - Public
 
 	var isAuthorized: Bool {
-		keyChainService.hasData(service: .token, account: .iSpace)
+		keyChainService.hasData(service: .tokens, account: .buba)
 	}
 
 	func login(userIdentifier: String) async throws {
@@ -31,7 +31,7 @@ final class AuthService: AuthServiceProtocol {
 	}
 
 	func logout() {
-		keyChainService.delete(service: .token, account: .iSpace)
+		keyChainService.delete(service: .tokens, account: .buba)
 	}
 
 	// MARK: - Private
@@ -40,7 +40,7 @@ final class AuthService: AuthServiceProtocol {
 	private let keyChainService: KeyChainServiceProtocol
 
 	private func updateTokens(_ tokens: AuthTokenPair) {
-		keyChainService.save(tokens, service: .token, account: .iSpace)
+		keyChainService.save(tokens, service: .tokens, account: .buba)
 		authNetworkService.updateSessionCredentials(with: tokens)
 	}
 }
