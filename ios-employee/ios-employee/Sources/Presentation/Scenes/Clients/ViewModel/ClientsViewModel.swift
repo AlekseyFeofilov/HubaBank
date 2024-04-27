@@ -28,7 +28,8 @@ final class ClientsViewModel {
 				let clients = try await dependencies.clients.getClients(authToken: // swiftlint:disable:next line_length
 					"eyJhbGciOiJIUzUxMiJ9.eyJleHAiOjE3MTQwNDcyMjUsImlkIjoiYmM1Y2UxNTctNDNmOS00MTE2LWEzM2YtYTZmN2MyZjRiYTFiIiwiZmlyc3ROYW1lIjoiZWxlbmEiLCJzZWNvbmROYW1lIjoiZ2VyYXNpbWNodWsiLCJ0aGlyZE5hbWUiOiJldmdlbmV2bmEiLCJwcml2aWxlZ2VzIjpbIlRSQU5TQUNUSU9OX1JFQUQiLCJUUkFOU0FDVElPTl9XUklURSIsIkJJTExfV1JJVEUiLCJCSUxMX1JFQUQiXX0.rn57xvObaUaA_GbdF_WO-SX4LPRk71xRPQfjDi706tTWyQmA369xCzevKqw5MX84wYvvOtm4GWYYlt9zEXId_Q")
 				self.clients = clients.map {
-					ShortClient(id: $0.id, name: $0.fullNameDto.secondName + " " + $0.fullNameDto.firstName + " "  + $0.fullNameDto.thirdName)
+					ShortClient(id: $0.id,
+					            name: $0.fullNameDto.secondName + " " + $0.fullNameDto.firstName + " " + $0.fullNameDto.thirdName)
 				}
 				DispatchQueue.main.async {
 					self.onDidUpdateView?()
