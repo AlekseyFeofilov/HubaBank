@@ -37,7 +37,17 @@ public class LoggingFilter extends OncePerRequestFilter {
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
 
         filterChain.doFilter(requestWrapper, responseWrapper);
-
+        UUID requestId;
+        String re = request.getHeader("requestId");
+        if(re != null) {
+            try {
+                requestId = UUID.fromString(re);
+            } catch (RuntimeException e) {
+                requestId = UUID.randomUUID();
+            }
+        } else {
+            requestId = UUID.randomUUID();
+        }
 
         RequestDto requestDto = new RequestDto();
         requestDto.setUrl(request.getRequestURI());
@@ -73,7 +83,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         publishLogDto.setRequest(requestDto);
         publishLogDto.setPublishService("user");
         publishLogDto.setOtherInfo("{}");
-        publishLogDto.setRequestId(UUID.randomUUID());
+        publishLogDto.setRequestId(requestId);
 
         try{
             RestClient restClient = RestClient.create();

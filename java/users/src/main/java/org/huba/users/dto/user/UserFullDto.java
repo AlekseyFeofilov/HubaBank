@@ -1,14 +1,12 @@
 package org.huba.users.dto.user;
 
 import lombok.Data;
-import org.huba.users.dto.Dto;
-import org.huba.users.dto.user.FullNameDto;
 
 import java.util.List;
 import java.util.UUID;
 
 @Data
-public class UserFullDto extends Dto {
+public class UserFullDto {
     private UUID id;
     private FullNameDto fullNameDto;
     private String phone;
