@@ -23,10 +23,11 @@ public class ErrorFilter extends OncePerRequestFilter {
 
     private final ErrorService errorService;
 
-    private Set<String> strings = Set.of("/users/api/v1/errors", "/users/api/v1/auth_page");
+    private Set<String> strings = Set.of("/users/api/v1/errors", "/users/api/v1/auth_page", "/v3/api-docs/swagger-config");
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(!strings.contains(request.getRequestURI())) {
+        if(!strings.contains(request.getRequestURI()) && !request.getRequestURI().startsWith("/swagger-ui/")) {
             try {
                 errorService.generateError();
             } catch (RuntimeException e) {
