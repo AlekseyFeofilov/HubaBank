@@ -1,0 +1,124 @@
+using System.Text;
+using System.Text.Json;
+using EmployeeGateway.Common.DTO;
+using EmployeeGateway.Common.DTO.Transaction;
+using EmployeeGateway.Common.ServicesInterface;
+using EmployeeGateway.Common.System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+
+namespace EmployeeGateway.BL.Services;
+
+public class TransactionsListener : BackgroundService
+    {
+        private readonly IWebSocketUserDb _userDb;
+        private readonly ILogger<TransactionsListener> _logger;
+        private readonly IFirebaseNotificationService _firebaseNotificationService;
+        private IConnection _connection;
+        private IModel _channel;
+
+        public TransactionsListener(IConfiguration configuration, IWebSocketUserDb hubUserDb, ILogger<TransactionsListener> logger, IFirebaseNotificationService firebaseNotificationService)
+        {
+            _userDb = hubUserDb;
+            _logger = logger;
+            _firebaseNotificationService = firebaseNotificationService;
+
+            _connection = CommonUtils.CreateConnection(configuration);
+            _channel = _connection.CreateModel();
+            _channel.QueueDeclare("employer_transfer_response_queue", true, false, false, new Dictionary<string, object>() { { "x-queue-type", "quorum" } });
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            stoppingToken.ThrowIfCancellationRequested();
+
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.Received += async (model, eventArgs) =>
+            {
+                var body = eventArgs.Body.ToArray();
+                var message = Encoding.UTF8.GetString(body);
+                var transactionInfo = JsonSerializer.Deserialize<TransactionInfoDto>(message, UtilsService.jsonOptions);
+
+                SocketUserDto? MinusSocketUser; 
+                if (transactionInfo.Source.userId == null || transactionInfo.Source.billId == null)
+                {
+                    MinusSocketUser = null;
+                }
+                else
+                {
+                    MinusSocketUser = _userDb.IsExists((Guid)transactionInfo.Source.userId, (Guid)transactionInfo.Source.billId);
+                }
+                
+                if (MinusSocketUser != null)
+                {
+                    var transactionDto = new TransactionDto
+                    {
+                        Id = transactionInfo.Id,
+                        BillId = transactionInfo.Source.billId.ToString(),
+                        BalanceChange = -transactionInfo.Target.Amount,
+                        Reason = transactionInfo.Target.type,
+                        Instant = transactionInfo.Instant
+                    };
+                    var transactionJson = JsonSerializer.Serialize(transactionDto, UtilsService.jsonOptions);
+                    var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
+                    await MinusSocketUser.WebSocket.SendAsync(transactionBody, System.Net.WebSockets.WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                else if (transactionInfo.Source.userId == null || transactionInfo.Source.billId == null)
+                {
+                    // TODO: добавить отправку уведомления в firebase
+                    //var deviceToken = _firebaseNotificationService.SendNotificationAsync()
+                }
+
+                SocketUserDto? PlusSocketUser;
+                if (transactionInfo.Target.userId == null || transactionInfo.Target.billId == null)
+                {
+                    PlusSocketUser = null;
+                }
+                else
+                {
+                    PlusSocketUser = _userDb.IsExists((Guid)transactionInfo.Target.userId, (Guid)transactionInfo.Target.billId);
+                }
+                
+                if (PlusSocketUser != null)
+                {
+                    var transactionDto = new TransactionDto
+                    {
+                        Id = transactionInfo.Id,
+                        BillId = transactionInfo.Target.billId.ToString(),
+                        BalanceChange = transactionInfo.Target.Amount,
+                        Reason = transactionInfo.Source.type,
+                        Instant = transactionInfo.Instant
+                    };
+                    var transactionJson = JsonSerializer.Serialize(transactionDto, UtilsService.jsonOptions);
+                    var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
+                    await PlusSocketUser.WebSocket.SendAsync(transactionBody, System.Net.WebSockets.WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+
+                _logger.LogInformation(message);
+
+                _channel.BasicAck(eventArgs.DeliveryTag, false);
+                await Task.Yield();
+            };
+
+            _channel.BasicConsume("employer_transfer_response_queue", false, consumer);
+
+            return Task.CompletedTask;
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("MessageListener is stopping.");
+
+            return Task.CompletedTask;
+        }
+
+        public override void Dispose()
+        {
+            _channel.Close();
+            _connection.Close();
+            base.Dispose();
+        }
+    }

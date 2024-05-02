@@ -10,3 +10,8 @@
 /Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/obj/Debug/net7.0/refint/EmployeeGateway.BL.dll
 /Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/obj/Debug/net7.0/EmployeeGateway.BL.pdb
 /Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/obj/Debug/net7.0/ref/EmployeeGateway.BL.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/bin/Debug/net7.0/EmployeeGateway.Common.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/bin/Debug/net7.0/EmployeeGateway.DAL.dll
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/bin/Debug/net7.0/EmployeeGateway.DAL.pdb
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/bin/Debug/net7.0/EmployeeGateway.Common.pdb
+/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.BL/obj/Debug/net7.0/EmployeeGateway.BL.csproj.CopyComplete

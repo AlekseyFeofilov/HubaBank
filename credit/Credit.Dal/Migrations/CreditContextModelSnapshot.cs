@@ -173,6 +173,34 @@ namespace Credit.Dal.Migrations
                     b.ToTable("Settings", "credit");
                 });
 
+            modelBuilder.Entity("Credit.Dal.Models.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Arrears")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("CreditId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("PaymentAmount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateOnly>("PaymentDay")
+                        .HasColumnType("date");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreditId");
+
+                    b.ToTable("Payments", "credit_db");
+                });
+
             modelBuilder.Entity("Credit.Dal.Models.Credit", b =>
                 {
                     b.HasOne("Credit.Dal.Models.CreditTerms", "CreditTerms")

@@ -25,6 +25,81 @@
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
+            "projectReferences": {
+              "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/EmployeeGateway.DAL.csproj": {
+                "projectPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/EmployeeGateway.DAL.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.8.1, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[7.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj",
+        "projectName": "EmployeeGateway.Common",
+        "projectPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj",
+        "packagesPath": "/Users/elena/.nuget/packages/",
+        "outputPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/elena/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
             "projectReferences": {}
           }
         },
@@ -38,9 +113,102 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
-            "Swashbuckle.AspNetCore": {
+            "Microsoft.AspNetCore.Http": {
               "target": "Package",
-              "version": "[6.5.0, )"
+              "version": "[2.2.2, )"
+            },
+            "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[7.0.16, )"
+            },
+            "Microsoft.Extensions.Logging": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[7.5.0, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.8.1, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[7.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/EmployeeGateway.DAL.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/EmployeeGateway.DAL.csproj",
+        "projectName": "EmployeeGateway.DAL",
+        "projectPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/EmployeeGateway.DAL.csproj",
+        "packagesPath": "/Users/elena/.nuget/packages/",
+        "outputPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.DAL/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/elena/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj": {
+                "projectPath": "/Users/elena/Documents/Hits/Patterns/huba/employee-gateway/EmployeeGateway/EmployeeGateway.Common/EmployeeGateway.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.16, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.16, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.11, )"
             }
           },
           "imports": [
