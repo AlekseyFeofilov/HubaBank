@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeGateway.BL", "Emplo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeGateway.Common", "EmployeeGateway.Common\EmployeeGateway.Common.csproj", "{E30CAE58-53E7-480A-9506-CAF15ED70CEF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmployeeGateway.DAL", "EmployeeGateway.DAL\EmployeeGateway.DAL.csproj", "{D30736B6-14F7-4702-88A3-EA4E3837994E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{E30CAE58-53E7-480A-9506-CAF15ED70CEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E30CAE58-53E7-480A-9506-CAF15ED70CEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E30CAE58-53E7-480A-9506-CAF15ED70CEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D30736B6-14F7-4702-88A3-EA4E3837994E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D30736B6-14F7-4702-88A3-EA4E3837994E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D30736B6-14F7-4702-88A3-EA4E3837994E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D30736B6-14F7-4702-88A3-EA4E3837994E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

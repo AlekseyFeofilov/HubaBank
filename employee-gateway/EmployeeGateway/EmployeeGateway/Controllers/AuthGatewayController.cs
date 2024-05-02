@@ -1,9 +1,11 @@
-using System.Net;
 using System.Text;
 using EmployeeGateway.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using EmployeeGateway.BL;
+using EmployeeGateway.BL.Services;
+using EmployeeGateway.Common.DTO;
+using EmployeeGateway.Common.System;
 using Microsoft.Extensions.Options;
 
 namespace EmployeeGateway.Controllers;
@@ -13,103 +15,58 @@ namespace EmployeeGateway.Controllers;
 public class AuthGatewayController : ControllerBase
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<AuthGatewayController> _logger;
     private readonly UrlsMicroserviceOptions _urlsMicroservice;
 
-    public AuthGatewayController(IHttpClientFactory httpClientFactory, ILogger<AuthGatewayController> logger, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
+    public AuthGatewayController(IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _logger = logger;
         _urlsMicroservice = urlsMicroserviceOptions.Value;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterCredential requestBody)
+    public async Task<ActionResult<TokenPairs>> Register([FromBody] RegisterCredential requestBody)
     {
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        };
-        var json = JsonSerializer.Serialize(requestBody, serializeOptions);
+        string downstreamUrl = _urlsMicroservice.AuthUrl + "register";
+        var json = JsonSerializer.Serialize(requestBody, UtilsService.jsonOptions);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var url = _urlsMicroservice.AuthUrl + "/users/api/v1/register";
-        var response = await _httpClient.PostAsync(url, content);
-        
-        if (response.IsSuccessStatusCode)
+
+        var response = await _httpClient.PostAsync(downstreamUrl, content);
+
+        var tokens = await this.GetResultFromResponse<TokenPairs>(response);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            var model = JsonSerializer.Deserialize<TokenPairs>(downstreamResponse);
-            return Ok(model);
+            return tokens;
         }
-        else
+
+        var downstreamResponse = await response.Content.ReadAsStringAsync();
+        var body = JsonSerializer.Deserialize<TokenPairs>(downstreamResponse, UtilsService.jsonOptions);
+        var userId = UtilsService.GetUserIdByHeader(body.accessToken);
+
+        string downstreamUrlRole = _urlsMicroservice.AuthUrl + "user/" + userId + "/roles";
+        var clientRole = new EditUserRoleDto { names = new List<string> { "CLIENT" } };
+        var jsonRole = JsonSerializer.Serialize(clientRole, UtilsService.jsonOptions);
+        var contentRole = new StringContent(jsonRole, Encoding.UTF8, "application/json");
+
+        var responseRole = await _httpClient.PostAsync(downstreamUrlRole, contentRole);
+
+        if (responseRole.IsSuccessStatusCode)
         {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
+            return tokens;
         }
+        return StatusCode(StatusCodes.Status500InternalServerError);
     }
     
     [HttpPost("login")]
-    public async Task<IActionResult> Auth([FromBody] LoginCredentials requestBody)
+    [Produces("application/json")]
+    public async Task<ActionResult<TokenPairs>> PostLogin([FromBody] LoginCredentials credentials)
     {
-        const string downstreamUrl = "http://194.147.90.192:9003/users/api/v1/login";
+        string downstreamUrl = _urlsMicroservice.AuthUrl + "jwt";
 
-        var serializeOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        };
-        var json = JsonSerializer.Serialize(requestBody, serializeOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var url = _urlsMicroservice.AuthUrl + "/login";
-    
-        try
-        {
-            var response = await _httpClient.PostAsync(downstreamUrl, content);
-        
-            if (response.IsSuccessStatusCode)
-            {
-                var downstreamResponse = await response.Content.ReadAsStringAsync();
-                var model = JsonSerializer.Deserialize<TokenPairs>(downstreamResponse);
-                return Ok(model);
-            }
-            else
-            {
-                if (response.StatusCode == HttpStatusCode.BadRequest)
-                {
-                    var errorResponse = await response.Content.ReadAsStringAsync();
-                    return BadRequest(errorResponse);
-                }
-                else if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    _logger.LogError($"Error in Auth endpoint: {response.StatusCode}");
-                    var errorResponse = await response.Content.ReadAsStringAsync();
-                    _logger.LogError($"Error details: {errorResponse}");
-                
-                    return StatusCode((int)response.StatusCode);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Exception in Auth endpoint: {ex.Message}");
-            return StatusCode(500, "Internal Server Error");
-        }
+        var content = new StringContent(credentials.JwtSso, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PostAsync(downstreamUrl, content);
+
+        return await this.GetResultFromResponse<TokenPairs>(response);
     }
-    
 }

@@ -1,4 +1,7 @@
 using EmployeeGateway.BL;
+using EmployeeGateway.BL.Services;
+using EmployeeGateway.Common.ServicesInterface;
+using EmployeeGateway.Common.System;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +27,6 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
-    
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -41,11 +43,16 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Configure Database
+builder.ConfigureAppDb();
+
+// Configure Services
+builder.ConfigureAppServices();
+
 builder.ConfigureMicroserviceUrls();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
@@ -54,8 +61,15 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
+
+app.UseWebSockets();
+app.UseMiddleware<WebSocketMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.UseAuthorization();
+
 app.MapControllers();
+
+Configurator.ConfigureMigrate(app.Services);
 
 app.Run();

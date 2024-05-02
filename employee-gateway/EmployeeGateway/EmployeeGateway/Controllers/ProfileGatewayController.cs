@@ -1,12 +1,10 @@
-using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using EmployeeGateway.BL;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
+using EmployeeGateway.BL.Services;
+using EmployeeGateway.Common.System;
 using EmployeeGateway.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeGateway.Controllers;
 
@@ -15,268 +13,121 @@ namespace EmployeeGateway.Controllers;
 public class ProfileGatewayController: ControllerBase
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<AuthGatewayController> _logger;
     private readonly UrlsMicroserviceOptions _urlsMicroservice;
     
-    public ProfileGatewayController(IHttpClientFactory httpClientFactory, ILogger<AuthGatewayController> logger, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
+    public ProfileGatewayController(IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _logger = logger;
         _urlsMicroservice = urlsMicroserviceOptions.Value;
     }
     
     [HttpGet("employees")]
     public async Task<ActionResult<List<UserFill>>> GetEmployees()
     {
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
+        {
+            return Unauthorized();
+        }
         var url = _urlsMicroservice.AuthUrl + "/users/api/v1/employees";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            var models = JsonSerializer.Deserialize<List<UserFill>>(downstreamResponse, serializeOptions);
-            return Ok(models);
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResultFromResponse<List<UserFill>>(response);
     }
     
     [HttpGet("clients")]
     public async Task<ActionResult<List<UserFill>>> GetClients()
     {
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
+        {
+            return Unauthorized();
+        }
         var url = _urlsMicroservice.AuthUrl + "/users/api/v1/users";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            var models = JsonSerializer.Deserialize<List<UserFill>>(downstreamResponse, serializeOptions);
-            if (models != null)
-            {
-                var result = models.Where(e => e.employee == false).ToList();
-                return Ok(result);
-            }
-            else
-            {
-                return BadRequest("Не удалось выполнить преобразование");
-            }
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResultFromResponse<List<UserFill>>(response);
     }
     
     [HttpGet("my")]
     public async Task<ActionResult<UserFill>> GetProfile()
     {
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
+        {
+            return Unauthorized();
+        }
         var url = _urlsMicroservice.AuthUrl + "/users/api/v1/users/my";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var serializeOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true
-            };
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            var models = JsonSerializer.Deserialize<UserFill>(downstreamResponse, serializeOptions);
-            return Ok(models);
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResultFromResponse<UserFill>(response);
     }
     
     [HttpGet("{userId}")]
     public async Task<ActionResult<UserFill>> GetUser(Guid userId)
     {
-        var serializeOptions = new JsonSerializerOptions
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        };
-        var json = JsonSerializer.Serialize(userId, serializeOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+            return Unauthorized();
+        }
+  
         var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}";
-        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url)
-        {
-            Content = content
-        };
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            var models = JsonSerializer.Deserialize<UserFill>(downstreamResponse, serializeOptions);
-            return Ok(models);
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResultFromResponse<UserFill>(response);
     }
     
     [HttpPost("{userId}/block")]
     public async Task<IActionResult> BlockUser(Guid userId)
     {
-        var serializeOptions = new JsonSerializerOptions
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        };
-        var json = JsonSerializer.Serialize(userId, serializeOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+            return Unauthorized();
+        }
+
         var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/block";
-        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url)
-        {
-            Content = content
-        };
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            return Ok(downstreamResponse);
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResult(response);
     }
     
     [HttpPost("{userId}/unblock")]
     public async Task<IActionResult> UnblockUser(Guid userId)
     {
-        var serializeOptions = new JsonSerializerOptions
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
-        };
-        var json = JsonSerializer.Serialize(userId, serializeOptions);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+            return Unauthorized();
+        }
         var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/unblock";
-        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url)
-        {
-            Content = content
-        };
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
-            "Bearer", Request.Headers.Authorization.First().Substring(6)
+            "Bearer", authHeader[6..]
         );
         var response = await _httpClient.SendAsync(message);
         
-        if (response.IsSuccessStatusCode)
-        {
-            var downstreamResponse = await response.Content.ReadAsStringAsync();
-            return Ok(downstreamResponse);
-        }
-        else
-        {
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorResponse = await response.Content.ReadAsStringAsync();
-                return BadRequest(errorResponse);
-            }
-            else if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode);
-            }
-        }
+        return await this.GetResult(response);
     }
 }
