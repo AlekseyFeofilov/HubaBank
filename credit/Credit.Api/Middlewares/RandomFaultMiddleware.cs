@@ -9,13 +9,11 @@ public class RandomFaultMiddleware : IMiddleware
     private readonly ILogger<RandomFaultMiddleware> _logger;
     private readonly bool _randomFaultEnable;
 
-    public RandomFaultMiddleware(ILogger<RandomFaultMiddleware> logger, 
-        IMediator mediator, 
-        IOptions<AppSettings> options)
+    public RandomFaultMiddleware(ILogger<RandomFaultMiddleware> logger, IMediator mediator, AppSettings appSettings)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        var randomFaultEnableSettingId = options.Value.RandomFaultEnableSettingId;
+        var randomFaultEnableSettingId = appSettings.RandomFaultEnableSettingId;
         var randomFaultEnableSetting = mediator.Send(new Lib.Feature.Setting.Fetch.Request(randomFaultEnableSettingId)).Result;
         _randomFaultEnable = randomFaultEnableSetting.Value == "true";
     }
