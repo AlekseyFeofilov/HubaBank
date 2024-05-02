@@ -23,7 +23,7 @@ public class ErrorFilter extends OncePerRequestFilter {
 
     private final ErrorService errorService;
 
-    private Set<String> strings = Set.of("/users/api/v1/errors", "/users/api/v1/auth_page", "/v3/api-docs/swagger-config");
+    private Set<String> strings = Set.of("/users/api/v1/errors", "/users/api/v1/auth_page", "/v3/api-docs/swagger-config", "/v3/api-docs");
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
