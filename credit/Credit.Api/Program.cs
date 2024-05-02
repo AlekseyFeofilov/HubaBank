@@ -49,10 +49,11 @@ builder.Services.AddScoped<IJobAgent, JobAgent>();
 builder.Services.AddScoped<IJobClient, JobClient>();
 builder.Services.AddScoped<BodyBasedIdempotentHandlingMiddleware>();
 builder.Services.AddScoped<IdBasedIdempotentHandlingMiddleware>();
+builder.Services.AddScoped<RandomFaultMiddleware>();
 
 var app = builder.Build();
 
-app.Services.AutoMigrate();
+app.Services.AutoMigrateCreditContext();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestEnrichMiddleware>();

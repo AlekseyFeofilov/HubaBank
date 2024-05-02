@@ -13,7 +13,7 @@ public static class Bootstrapper
         return services;
     }
     
-    public static IServiceProvider AutoMigrate(this IServiceProvider serviceProvider)
+    public static IServiceProvider AutoMigrateCreditContext(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.GetService<IServiceScopeFactory>()!.CreateScope();
         using var context = scope.ServiceProvider.GetRequiredService<CreditContext>();
