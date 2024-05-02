@@ -1,6 +1,7 @@
 using System.Reflection;
 using Credit.Api;
 using Credit.Api.Middlewares;
+using Credit.Dal;
 using Credit.Data;
 using Credit.Lib;
 using Credit.Lib.Jobs;
@@ -50,6 +51,8 @@ builder.Services.AddScoped<BodyBasedIdempotentHandlingMiddleware>();
 builder.Services.AddScoped<IdBasedIdempotentHandlingMiddleware>();
 
 var app = builder.Build();
+
+app.Services.AutoMigrate();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestEnrichMiddleware>();
