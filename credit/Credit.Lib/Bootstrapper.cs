@@ -38,6 +38,8 @@ public static class Bootstrapper
 
         services.AddScoped<MasterBillSettings>(_ =>
             configuration.GetRequiredSection("MasterBillSettings").Get<MasterBillSettings>()!);
+        services.AddScoped<AppSettings>(_ =>
+            configuration.GetRequiredSection("AppSettings").Get<AppSettings>()!);
 
         return services;
     }
