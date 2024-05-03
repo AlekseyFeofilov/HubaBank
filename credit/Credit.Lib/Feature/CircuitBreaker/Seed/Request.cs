@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Credit.Lib.A;
+namespace Credit.Lib.Feature.CircuitBreaker.Seed;
 
 public class Request : IRequest
 {

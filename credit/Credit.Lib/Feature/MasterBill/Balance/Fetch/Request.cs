@@ -2,7 +2,7 @@ using MediatR;
 
 namespace Credit.Lib.Feature.MasterBill.Balance.Fetch;
 
-public class Request : IRequest
+public class Request : IRequest<long>
 {
     
 }

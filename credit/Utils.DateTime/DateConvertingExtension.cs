@@ -6,6 +6,11 @@ public static class DateConvertingExtension
     {
         return DateOnly.FromDateTime(dateTime);
     }
+    
+    public static DateOnly ToDateTime(this System.DateTime dateTime)
+    {
+        return DateOnly.FromDateTime(dateTime);
+    }
 
     public static string ToDateOnlyString(this System.DateTime dateTime)
     {

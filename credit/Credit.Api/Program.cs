@@ -60,7 +60,10 @@ app.Services.AutoMigrateCreditContext();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestEnrichMiddleware>();
-app.UseMiddleware<LoggerMiddleware>();
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/swagger"), appBuilder =>
+{
+    appBuilder.UseMiddleware<LoggerMiddleware>();
+});
 app.UseMiddleware<RandomFaultMiddleware>();
 app.UseMiddleware<BodyBasedIdempotentHandlingMiddleware>();
 app.UseMiddleware<IdBasedIdempotentHandlingMiddleware>();

@@ -16,4 +16,9 @@ public class CreditTermsResponse
     /// Название условий кредита
     /// </summary>
     public string Title { get; set; }
+    
+    /// <summary>
+    /// Удалён ли тариф
+    /// </summary>
+    public bool IsDeleted { get; set; }
 }
