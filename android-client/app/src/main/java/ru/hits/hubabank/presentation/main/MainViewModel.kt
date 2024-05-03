@@ -2,6 +2,7 @@ package ru.hits.hubabank.presentation.main
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.bill.AddNewBillUseCase
 import ru.hits.hubabank.domain.bill.FetchAllBillsUseCase
 import ru.hits.hubabank.domain.bill.ObserveAllBillsUseCase
@@ -57,6 +58,8 @@ class MainViewModel @Inject constructor(
         launch {
             addNewBillUseCase(currency).onSuccess {
                 _screenState.value = _screenState.value.copy(isCreatingDialogOpen = false)
+            }.onFailure {
+                sendAction(MainAction.ShowError(R.string.common_error_message))
             }
         }
     }
@@ -69,14 +72,20 @@ class MainViewModel @Inject constructor(
 
     fun fetchBills() {
         launch {
-            fetchAllBillsUseCase(Unit)
+            fetchAllBillsUseCase(Unit).onFailure {
+                sendAction(MainAction.ShowError(R.string.common_refresh_error_message))
+            }
+            _screenState.value = _screenState.value.copy(isLoading = false)
         }
     }
 
     fun fetchCredits() {
         launch {
-            fetchAllCreditsUseCase(Unit)
+            fetchAllCreditsUseCase(Unit).onFailure {
+                sendAction(MainAction.ShowError(R.string.common_refresh_error_message))
+            }
         }
+        _screenState.value = _screenState.value.copy(isLoading = false)
     }
 
     private fun observeBills() {
@@ -84,6 +93,8 @@ class MainViewModel @Inject constructor(
             observeAllBillsUseCase(Unit).collect { result ->
                 result.onSuccess {
                     _screenState.value = _screenState.value.copy(bills = it)
+                }.onFailure {
+                    sendAction(MainAction.ShowError(R.string.common_error_message))
                 }
             }
         }
@@ -94,6 +105,8 @@ class MainViewModel @Inject constructor(
             observeAllCreditsUseCase(Unit).collect { result ->
                 result.onSuccess {
                     _screenState.value = _screenState.value.copy(credits = it)
+                }.onFailure {
+                    sendAction(MainAction.ShowError(R.string.common_error_message))
                 }
             }
         }

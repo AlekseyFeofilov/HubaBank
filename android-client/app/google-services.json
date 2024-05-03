@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "517633399577",
+    "project_id": "hubabank-16262",
+    "storage_bucket": "hubabank-16262.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517633399577:android:eb78a36ed1ef252121c388",
+        "android_client_info": {
+          "package_name": "ru.hits.hubabank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvNUhSrZ4l_WhUSJtJeipPnsE7bemaGUI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

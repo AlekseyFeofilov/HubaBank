@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.bill.model.Bill
+import ru.hits.hubabank.presentation.common.getSymbol
 
 @Composable
 fun BillCard(
@@ -47,6 +48,7 @@ fun BillCard(
                     R.string.main_screen_balance_with_kopecks,
                     bill.balance / 100,
                     bill.balance % 100,
+                    bill.currency.getSymbol(),
                 ),
                 modifier = Modifier
                     .align(Alignment.CenterStart)

@@ -38,7 +38,6 @@ fun NavGraphBuilder.mainDestinations(navController: NavController) {
                 navController.navigate(LoginDestination.route) {
                     popUpTo(navController.graph.id)
                 }
-                navController.graph.setStartDestination(LoginDestination.route)
             }
         )
     }

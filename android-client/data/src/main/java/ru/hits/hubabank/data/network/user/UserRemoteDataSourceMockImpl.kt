@@ -13,4 +13,8 @@ internal class UserRemoteDataSourceMockImpl @Inject constructor() : UserRemoteDa
     override suspend fun saveTheme(isDark: Boolean) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun logout() {
+        TODO("Not yet implemented")
+    }
 }

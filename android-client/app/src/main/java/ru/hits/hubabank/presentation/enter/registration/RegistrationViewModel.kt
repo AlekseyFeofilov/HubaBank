@@ -1,7 +1,11 @@
 package ru.hits.hubabank.presentation.enter.registration
 
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.auth.RegistrationUseCase
 import ru.hits.hubabank.domain.auth.model.RegistrationModel
 import ru.hits.hubabank.presentation.core.BaseViewModel
@@ -47,6 +51,7 @@ class RegistrationViewModel @Inject constructor(
             return
         }
         launch {
+            val messagingToken = Firebase.messaging.token.await()
             registrationUseCase(
                 RegistrationModel(
                     firstName = currentState.firstName.trim(),
@@ -54,9 +59,12 @@ class RegistrationViewModel @Inject constructor(
                     thirdName = currentState.thirdName.trim(),
                     phone = currentState.phone.trim(),
                     password = currentState.password.trim(),
+                    messagingToken = messagingToken,
                 )
             ).onSuccess {
                 sendAction(RegistrationAction.OpenMainScreen)
+            }.onFailure {
+                sendAction(RegistrationAction.ShowError(R.string.common_error_message))
             }
         }
     }

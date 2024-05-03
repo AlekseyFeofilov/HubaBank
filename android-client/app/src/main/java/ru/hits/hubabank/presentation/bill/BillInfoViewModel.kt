@@ -3,6 +3,7 @@ package ru.hits.hubabank.presentation.bill
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.bill.ChangeBillBalanceUseCase
 import ru.hits.hubabank.domain.bill.ChangeBillHiddenUseCase
 import ru.hits.hubabank.domain.bill.CloseBillUseCase
@@ -10,9 +11,9 @@ import ru.hits.hubabank.domain.bill.EndObserveBillHistoryUseCase
 import ru.hits.hubabank.domain.bill.FetchBillUseCase
 import ru.hits.hubabank.domain.bill.ObserveBillUseCase
 import ru.hits.hubabank.domain.bill.StartObserveBillHistoryUseCase
-import ru.hits.hubabank.domain.bill.model.BillChangeReason
 import ru.hits.hubabank.domain.bill.model.ChangeBillBalanceModel
 import ru.hits.hubabank.domain.bill.model.ChangeBillHiddenModel
+import ru.hits.hubabank.domain.bill.model.NewTransactionType
 import ru.hits.hubabank.presentation.bill.model.BillInfoAction
 import ru.hits.hubabank.presentation.bill.model.BillInfoState
 import ru.hits.hubabank.presentation.core.BaseViewModel
@@ -37,7 +38,7 @@ class BillInfoViewModel @Inject constructor(
         billHistory = emptyMap(),
         today = LocalDate.now(),
         isChangeBillDialogOpen = false,
-        howChange = BillChangeReason.TERMINAL,
+        howChange = NewTransactionType.DEPOSIT,
         targetBill = "",
         changeSum = "",
     )
@@ -54,7 +55,7 @@ class BillInfoViewModel @Inject constructor(
         endObserveBillHistory()
     }
 
-    fun openDialog(howChange: BillChangeReason) {
+    fun openDialog(howChange: NewTransactionType) {
         _screenState.value = _screenState.value.copy(isChangeBillDialogOpen = true, howChange = howChange)
     }
 
@@ -80,7 +81,8 @@ class BillInfoViewModel @Inject constructor(
     fun changeBillBalance() {
         val reasonChange = currentState.howChange
         if (currentState.changeSum.isEmpty() ||
-            (reasonChange == BillChangeReason.USER && (currentState.targetBill.isEmpty() || currentState.bill?.id == currentState.targetBill))
+            (reasonChange == NewTransactionType.TO_BILL &&
+                    (currentState.targetBill.isEmpty() || currentState.bill?.id == currentState.targetBill))
         ) {
             return
         }
@@ -88,7 +90,7 @@ class BillInfoViewModel @Inject constructor(
             val balanceChange = (currentState.changeSum.toDouble() * 100).toLong()
             changeBillBalanceUseCase(
                 ChangeBillBalanceModel(
-                    changeReason = reasonChange,
+                    newTransactionType = reasonChange,
                     billId = billId,
                     balanceChange = balanceChange,
                     targetBill = currentState.targetBill.trim(),
@@ -115,13 +117,18 @@ class BillInfoViewModel @Inject constructor(
         launch {
             closeBillUseCase(billId).onSuccess {
                 endObserveBillHistory()
+            }.onFailure {
+                sendAction(BillInfoAction.ShowError(R.string.common_error_message))
             }
         }
     }
 
     fun fetchBill() {
         launch {
-            fetchBillUseCase(billId)
+            fetchBillUseCase(billId).onFailure {
+                sendAction(BillInfoAction.ShowError(R.string.common_refresh_error_message))
+            }
+            _screenState.value = _screenState.value.copy(isLoading = false)
         }
     }
 
@@ -137,23 +144,27 @@ class BillInfoViewModel @Inject constructor(
 
     private fun observeBillHistory() {
         launch {
-            startObserveBillHistoryUseCase(billId).collect { historyItem ->
-                val billHistory = currentState.billHistory.toMutableMap()
-                val sameDateItems = billHistory[historyItem.dateTime.toLocalDate()]
-                val newList = if (sameDateItems == null) {
-                    listOf(historyItem)
-                } else {
-                    listOf(historyItem).plus(sameDateItems)
-                }
-                billHistory[historyItem.dateTime.toLocalDate()] = newList
-                _screenState.value = _screenState.value.copy(
-                    billHistory = billHistory.toSortedMap(compareByDescending { it.toString() }),
-                    today = LocalDate.now(),
-                )
+            startObserveBillHistoryUseCase(billId).onSuccess { socket ->
+                socket.collect { historyItem ->
+                    val billHistory = currentState.billHistory.toMutableMap()
+                    val sameDateItems = billHistory[historyItem.dateTime.toLocalDate()]
+                    val newList = if (sameDateItems == null) {
+                        listOf(historyItem)
+                    } else {
+                        listOf(historyItem).plus(sameDateItems)
+                    }
+                    billHistory[historyItem.dateTime.toLocalDate()] = newList
+                    _screenState.value = _screenState.value.copy(
+                        billHistory = billHistory.toSortedMap(compareByDescending { it.toString() }),
+                        today = LocalDate.now(),
+                    )
 
-                if (LocalDateTime.now().minusMinutes(1) < historyItem.dateTime) {
-                    fetchBill()
+                    if (LocalDateTime.now().minusMinutes(1).minusSeconds(30) < historyItem.dateTime) {
+                        fetchBill()
+                    }
                 }
+            }.onFailure {
+                sendAction(BillInfoAction.ShowError(R.string.bill_screen_history_error))
             }
         }
     }

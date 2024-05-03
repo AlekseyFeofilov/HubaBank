@@ -16,4 +16,8 @@ internal class UserRemoteDataSourceImpl @Inject constructor(
     override suspend fun saveTheme(isDark: Boolean) {
         userApi.saveTheme(isDark)
     }
+
+    override suspend fun logout() {
+        userApi.logout()
+    }
 }

@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.auth.LoginUseCase
 import ru.hits.hubabank.domain.auth.model.LoginModel
 import ru.hits.hubabank.domain.user.FetchProfileUseCase
@@ -19,7 +23,7 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val fetchProfileUseCase: FetchProfileUseCase,
     savedStateHandle: SavedStateHandle,
-) : BaseViewModel<LoginState, LoginAction>(LoginState(true, "", "")) {
+) : BaseViewModel<LoginState, LoginAction>(LoginState(true)) {
 
     private val tokenSSO: String? = savedStateHandle[LoginDestination.tokenSSO]
 
@@ -29,14 +33,6 @@ class LoginViewModel @Inject constructor(
         } else {
             isAlreadyInSystem()
         }
-    }
-
-    fun phoneChange(value: String) {
-        _screenState.value = currentState.copy(phone = value)
-    }
-
-    fun passwordChange(value: String) {
-        _screenState.value = currentState.copy(password = value)
     }
 
     fun openRegistrationScreen() {
@@ -50,13 +46,17 @@ class LoginViewModel @Inject constructor(
 
     private fun login(token: String) {
         launch {
+            val messagingToken = Firebase.messaging.token.await()
             loginUseCase(
                 LoginModel(
                     tokenSSO = token,
+                    messagingToken = messagingToken,
                 )
             ).onSuccess {
                 fetchProfileUseCase(Unit)
                 sendAction(LoginAction.OpenMainScreen)
+            }.onFailure {
+                sendAction(LoginAction.ShowError(R.string.common_error_message))
             }
         }
     }

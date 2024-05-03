@@ -9,14 +9,20 @@ import javax.inject.Inject
 class ExitUseCase @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
     private val userLocalDataSource: UserLocalDataSource,
+    private val userRemoteDataSource: UserRemoteDataSource,
     private val billLocalDataSource: BillLocalDataSource,
     private val creditLocalDataSource: CreditLocalDataSource,
 ) : SimpleUseCase<Unit, Unit> {
 
     override suspend fun execute(param: Unit) {
-        authLocalDataSource.clearTokens()
         userLocalDataSource.deleteProfile()
         billLocalDataSource.deleteAllData()
         creditLocalDataSource.deleteAllCredits()
+        try {
+            userRemoteDataSource.logout()
+        } catch (e: Exception) {
+            println("logout server error" + e.message)
+        }
+        authLocalDataSource.clearTokens()
     }
 }

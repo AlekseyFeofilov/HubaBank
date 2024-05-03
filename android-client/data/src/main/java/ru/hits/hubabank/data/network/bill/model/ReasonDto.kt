@@ -7,5 +7,4 @@ enum class ReasonDto {
     TERMINAL,
     LOAN,
     USER,
-    TRANSFER,
 }

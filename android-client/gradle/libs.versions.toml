@@ -32,6 +32,9 @@ retrofit = "2.9.0"
 kotlin-serialization = "1.6.3"
 retrofit-converter-kotlinxSerialization = "1.0.0"
 
+google-services = "4.4.1"
+firebase-bom = "32.8.1"
+
 datastore = "1.0.0"
 
 detekt = "1.23.1"
@@ -81,6 +84,9 @@ retrofit-converter-kotlinxSerialization = { group = "com.jakewharton.retrofit", 
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 kotlinx-coroutinesCore = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+
 datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
@@ -103,6 +109,8 @@ hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 jetbrains-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "jetbrains-kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
+
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 

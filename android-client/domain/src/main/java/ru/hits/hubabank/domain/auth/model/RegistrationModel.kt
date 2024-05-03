@@ -6,4 +6,5 @@ data class RegistrationModel(
     val thirdName: String,
     val phone: String,
     val password: String,
+    val messagingToken: String,
 )

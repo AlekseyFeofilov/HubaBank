@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ru.hits.hubabank.R
 import ru.hits.hubabank.domain.bill.model.BillHistoryItem
+import ru.hits.hubabank.presentation.common.getSymbol
 import ru.hits.hubabank.presentation.common.getTitleRes
 import kotlin.math.absoluteValue
 
@@ -50,6 +51,7 @@ fun BillHistoryItemCard(
                     R.string.main_screen_balance_with_kopecks,
                     item.changeSum.absoluteValue / 100,
                     item.changeSum.absoluteValue % 100,
+                    item.currency.getSymbol(),
                 ),
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.primary,

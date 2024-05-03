@@ -17,6 +17,8 @@ interface BillRemoteDataSource {
 
     suspend fun giveMoneyForBill(billId: String, balanceChange: Long)
 
+    suspend fun withdrawMoneyFromBill(billId: String, balanceChange: Long)
+
     suspend fun transferMoneyToBill(sourceBillId: String, balanceChange: Long, targetBillId: String)
 
     suspend fun closeBill(billId: String)

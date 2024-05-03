@@ -29,6 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.hits.hubabank.R
+import ru.hits.hubabank.domain.bill.model.Currency
+import ru.hits.hubabank.presentation.common.getSymbol
 import ru.hits.hubabank.presentation.core.CollectAction
 import ru.hits.hubabank.presentation.credit.info.model.CreditInfoAction
 
@@ -85,6 +87,7 @@ fun CreditInfoScreen(
                         R.string.main_screen_balance_with_kopecks,
                         credit.sum / 100,
                         credit.sum % 100,
+                        Currency.RUB.getSymbol(),
                     ),
                     modifier = Modifier.padding(start = 16.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -108,6 +111,7 @@ fun CreditInfoScreen(
                         R.string.main_screen_balance_with_kopecks,
                         credit.paidOut / 100,
                         credit.paidOut % 100,
+                        Currency.RUB.getSymbol(),
                     ),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,
@@ -130,6 +134,7 @@ fun CreditInfoScreen(
                         R.string.main_screen_balance_with_kopecks,
                         (credit.sum - credit.paidOut) / 100,
                         (credit.sum - credit.paidOut) % 100,
+                        Currency.RUB.getSymbol(),
                     ),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,

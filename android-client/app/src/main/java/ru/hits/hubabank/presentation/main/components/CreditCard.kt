@@ -18,7 +18,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ru.hits.hubabank.R
+import ru.hits.hubabank.domain.bill.model.Currency
 import ru.hits.hubabank.domain.credit.model.Credit
+import ru.hits.hubabank.presentation.common.getSymbol
 
 @Composable
 fun CreditCard(
@@ -52,6 +54,7 @@ fun CreditCard(
                         R.string.main_screen_balance_with_kopecks,
                         credit.sum / 100,
                         credit.sum % 100,
+                        Currency.RUB.getSymbol(),
                     ),
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyMedium,

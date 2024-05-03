@@ -4,5 +4,4 @@ enum class BillChangeReason {
     TERMINAL,
     LOAN,
     USER,
-    TRANSFER,
 }

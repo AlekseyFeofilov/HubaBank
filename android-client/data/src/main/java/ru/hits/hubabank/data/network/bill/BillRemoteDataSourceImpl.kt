@@ -9,6 +9,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import ru.hits.hubabank.data.network.bill.model.CreatingBillDto
 import ru.hits.hubabank.data.network.bill.model.TransactionDepositCreationDto
 import ru.hits.hubabank.data.network.bill.model.TransactionToBillCreationDto
+import ru.hits.hubabank.data.network.bill.model.TransactionWithdrawalCreationDto
 import ru.hits.hubabank.data.network.bill.model.toDomain
 import ru.hits.hubabank.data.network.core.AuthInterceptor
 import ru.hits.hubabank.data.network.core.TokenAuthenticator
@@ -47,6 +48,12 @@ internal class BillRemoteDataSourceImpl @Inject constructor(
     override suspend fun giveMoneyForBill(billId: String, balanceChange: Long) {
         billApi.giveMoneyForBill(
             TransactionDepositCreationDto(billId = billId, amount = balanceChange)
+        )
+    }
+
+    override suspend fun withdrawMoneyFromBill(billId: String, balanceChange: Long) {
+        billApi.withdrawMoneyFromBill(
+            TransactionWithdrawalCreationDto(billId = billId, amount = balanceChange)
         )
     }
 
