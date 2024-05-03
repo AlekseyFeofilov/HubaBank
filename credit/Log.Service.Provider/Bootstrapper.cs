@@ -1,3 +1,4 @@
+using Core.Provider;
 using LogService.Provider;
 using Microsoft.Extensions.DependencyInjection;
 using Utils.ClientGenerator.Configuration;
@@ -13,7 +14,7 @@ public static class Bootstrapper
             {
                 client.BaseAddress = new Uri("http://194.147.90.192:9006");;
             })
-            .AddTypedClient<ILogServiceProviderV1, ILogServiceProviderV1>();
+            .AddTypedClient<ILogServiceProviderV1, LogServiceProviderV1>();
 
         return services;
     }

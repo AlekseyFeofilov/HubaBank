@@ -1,16 +1,42 @@
+using MediatR;
+
 namespace Credit.Api.Middlewares;
 
-public class LoggerMiddleware
+public class LoggerMiddleware : IMiddleware
 {
-    private readonly RequestDelegate _next;
+    private readonly IMediator _mediator;
 
-    public LoggerMiddleware(RequestDelegate next)
+    public LoggerMiddleware(IMediator mediator)
     {
-        _next = next;
+        _mediator = mediator;
     }
-
-    public async Task Invoke(HttpContext context)
+    
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        await _next(context);
+        string responseBodyContent;
+        var originalBody = context.Response.Body;
+        
+        try
+        {
+            using var memStream = new MemoryStream();
+            context.Response.Body = memStream;
+
+            await next(context);
+
+            memStream.Position = 0;
+            responseBodyContent = await new StreamReader(memStream).ReadToEndAsync();
+
+            memStream.Position = 0;
+            await memStream.CopyToAsync(originalBody);
+        }
+        finally
+        {
+            context.Response.Body = originalBody;
+        }
+
+        await _mediator.Send(new Lib.Feature.LogService.Log.Request
+        { HttpContext = context,
+            ResponseBody = responseBodyContent
+        });
     }
 }

@@ -25,7 +25,7 @@ namespace Core.Provider
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class LogServiceProviderV1V1 : Utils.ClientGenerator.Base.ClientBase, ILogServiceProviderV1
+    public partial class LogServiceProviderV1 : Utils.ClientGenerator.Base.ClientBase, ILogServiceProviderV1
     {
         #pragma warning disable 8618
         private string _baseUrl;
@@ -35,7 +35,7 @@ namespace Core.Provider
         private static System.Lazy<Newtonsoft.Json.JsonSerializerSettings> _settings = new System.Lazy<Newtonsoft.Json.JsonSerializerSettings>(CreateSerializerSettings, true);
 
     #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public LogServiceProviderV1V1(Utils.ClientGenerator.Configuration.ClientConfiguration configuration, System.Net.Http.HttpClient httpClient) : base(configuration)
+        public LogServiceProviderV1(Utils.ClientGenerator.Configuration.ClientConfiguration configuration, System.Net.Http.HttpClient httpClient) : base(configuration)
     #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
             BaseUrl = "http://194.147.90.192:9006";

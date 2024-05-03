@@ -1,8 +1,9 @@
 using Credit.Api.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http.Features;
+using Utils.Http;
 
-namespace Credit.Api.Middlewares;
+namespace Credit.Api.Middlewares.IdempotentHandlingMiddlewares;
 
 public class BodyBasedIdempotentHandlingMiddleware : IdempotentHandlingMiddleware
 {
@@ -17,12 +18,8 @@ public class BodyBasedIdempotentHandlingMiddleware : IdempotentHandlingMiddlewar
         return Task.FromResult(attribute != null);
     }
 
-    protected override async Task<string> GetConfirmationKey(HttpContext context)
+    protected override Task<string> GetConfirmationKey(HttpContext context)
     {
-        context.Request.EnableBuffering();
-        var requestBodyContent = await new StreamReader(context.Request.Body).ReadToEndAsync();
-        context.Request.Body.Position = 0;
-
-        return requestBodyContent;
+        return context.ReadRequest();
     }
 }

@@ -2,7 +2,7 @@ using System.Net;
 using MediatR;
 using Utils.Hash;
 
-namespace Credit.Api.Middlewares;
+namespace Credit.Api.Middlewares.IdempotentHandlingMiddlewares;
 
 public abstract class IdempotentHandlingMiddleware : IMiddleware
 {
