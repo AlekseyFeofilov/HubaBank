@@ -32,5 +32,6 @@ public class JobsInitializer : IAsyncInitializer
     private async Task SeedData()
     {
         await _mediator.Send(new Lib.Feature.Setting.Seed.Request());
+        await _mediator.Send(new Lib.Feature.CircuitBreaker.Seed.Request());
     }
 }

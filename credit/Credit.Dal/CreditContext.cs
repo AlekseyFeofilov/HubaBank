@@ -10,6 +10,7 @@ public class CreditContext : DbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<IdempotentRequest> IdempotentRequests { get; set; }
     public DbSet<Setting> Settings { get; set; }
+    public DbSet<CircuitBreaker> CircuitBreakers { get; set; }
 
 #pragma warning disable CS8618
     public CreditContext(DbContextOptions<CreditContext> options) : base(options)
@@ -58,6 +59,11 @@ public class CreditContext : DbContext
                 .WithMany()
                 .HasForeignKey(x => x.CreditId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+        
+        modelBuilder.Entity<CircuitBreaker>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
         });
     }
 

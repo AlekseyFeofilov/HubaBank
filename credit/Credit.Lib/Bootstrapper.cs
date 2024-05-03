@@ -34,6 +34,7 @@ public static class Bootstrapper
                     new PaymentMappingProfile(),
                     new IdempotentRequestMappingFilter(),
                     new SettingMappingProfile(),
+                    new CircuitBreakerMappingProfile(),
                 }));
 
         services.AddScoped<MasterBillSettings>(_ =>

@@ -12,7 +12,7 @@ public static class Bootstrapper
         services.AddTransient<ClientConfiguration>()
             .AddHttpClient("LogService", client =>
             {
-                client.BaseAddress = new Uri("http://194.147.90.192:9006");;
+                client.BaseAddress = new Uri("http://194.147.90.192:9006");
             })
             .AddTypedClient<ILogServiceProviderV1, LogServiceProviderV1>();
 
