@@ -1,6 +1,6 @@
 ﻿namespace BFF_client.Api.Models.bill
 {
-    public class TransactionGiveManyDto
+    public class TransactionGiveMoneyDto
     {
         public Guid BillId { get; set; }
 

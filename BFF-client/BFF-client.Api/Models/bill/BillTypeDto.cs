@@ -8,6 +8,5 @@ namespace BFF_client.Api.model.bill
         USER,
         TERMINAL,
         LOAN,
-        TRANSFER // FOR OLD TRANSACTION
     }
 }

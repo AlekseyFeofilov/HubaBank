@@ -2,6 +2,7 @@ using BFF_client.Api.Controllers;
 using BFF_client.Api.model;
 using BFF_client.Api.model.bill;
 using BFF_client.Api.Models;
+using BFF_client.Api.Models.bill;
 using BFF_client.Api.Services.Bill;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -140,17 +141,51 @@ namespace BFF_client.Api.HubaWebSocket
 
         private async Task GetOldTransactions(string billId, WebSocket webSocket)
         {
-            var oldHistoryUrl = _configUrls.core + "bills/" + billId + "/transactions";
+            var oldHistoryUrl = _configUrls.core + "bills/" + billId + "/transfers";
             var message = new HttpRequestMessage(HttpMethod.Get, oldHistoryUrl);
             var response = await _httpClientFactory.CreateClient().SendAsync(message);
 
             if (response.IsSuccessStatusCode)
             {
                 var downstreamResponse = await response.Content.ReadAsStringAsync();
-                var jsonList = JsonSerializer.Deserialize<List<TransactionDto>>(downstreamResponse, ControllersUtils.jsonOptions);
-                foreach (var transaction in jsonList)
+                var jsonList = JsonSerializer.Deserialize<List<TransactionInfoDto>>(downstreamResponse, ControllersUtils.jsonOptions);
+                foreach (var transactionInfo in jsonList)
                 {
-                    var transactionJson = JsonSerializer.Serialize(transaction, ControllersUtils.jsonOptions);
+                    BillTypeDto reason;
+                    if (transactionInfo.Source.Type == BillTypeDto.USER && transactionInfo.Target.Type == BillTypeDto.USER)
+                    {
+                        reason = BillTypeDto.USER;
+                    }
+                    else if (transactionInfo.Source.Type == BillTypeDto.TERMINAL || transactionInfo.Target.Type == BillTypeDto.TERMINAL)
+                    {
+                        reason = BillTypeDto.TERMINAL;
+                    }
+                    else
+                    {
+                        reason = BillTypeDto.LOAN;
+                    }
+                    long balanceChange;
+                    string currency;
+                    if (transactionInfo.Source.BillId.ToString() == billId)
+                    {
+                        balanceChange = transactionInfo.Source.Amount;
+                        currency = transactionInfo.Source.Currency;
+                    }
+                    else
+                    {
+                        balanceChange = transactionInfo.Target.Amount;
+                        currency = transactionInfo.Target.Currency;
+                    }
+                    var transactionDto = new TransactionDto
+                    {
+                        Id = transactionInfo.Id,
+                        BillId = billId,
+                        BalanceChange = balanceChange,
+                        Currency = currency,
+                        Reason = reason,
+                        Instant = transactionInfo.Instant
+                    };
+                    var transactionJson = JsonSerializer.Serialize(transactionDto, ControllersUtils.jsonOptions);
                     var transactionBody = Encoding.UTF8.GetBytes(transactionJson);
                     await webSocket.SendAsync(transactionBody, WebSocketMessageType.Text, true, CancellationToken.None);
                 }

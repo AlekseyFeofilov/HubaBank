@@ -1,6 +1,8 @@
 ﻿using BFF_client.Api.Database;
 using BFF_client.Api.Services.Bill;
 using BFF_client.Api.Services.User;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
 
 namespace BFF_client.Api
@@ -17,6 +19,14 @@ namespace BFF_client.Api
         {
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IBillService, BillService>();
+        }
+
+        public static void InitializeFirebaseMessaging()
+        {
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.FromFile("hubabank-firebase.json")
+            });
         }
 
         public static void Migrate(IServiceProvider serviceProvider)

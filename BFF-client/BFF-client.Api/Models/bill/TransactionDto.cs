@@ -8,6 +8,8 @@
 
         public long BalanceChange { get; set; }
 
+        public string Currency { get; set; }
+
         public BillTypeDto Reason { get; set; }
 
         public string Instant { get; set; }

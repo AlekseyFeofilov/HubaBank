@@ -106,7 +106,7 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("deposit")]
         [Produces("application/json")]
-        public async Task<IActionResult> GiveManyToBillTransaction(TransactionGiveManyDto transactionCreation)
+        public async Task<IActionResult> GiveMoneyToBillTransaction(TransactionGiveMoneyDto transactionCreation)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -141,6 +141,47 @@ namespace BFF_client.Api.Controllers
             var body = Encoding.UTF8.GetBytes(json);
 
             channel.BasicPublish("transfer_request_exchange", "deposit", null, body);
+
+            return Ok();
+        }
+
+        [HttpPost("withdrawal")]
+        [Produces("application/json")]
+        public async Task<IActionResult> WithdrawMoneyFromBillTransaction(TransactionWithdrawMoneyDto transactionCreation)
+        {
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            if (profileWithPrivileges == null)
+            {
+                return Unauthorized();
+            }
+            if (profileWithPrivileges.Privileges.Contains(Privileges.TRANSACTION_WRITE) == false)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.BillId, _configUrls, _httpClientFactory.CreateClient());
+            if (IsBillBelongToUser == false)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden);
+            }
+
+            using var connection = CommonUtils.CreateConnection(_configuration);
+            using var channel = connection.CreateModel();
+            channel.QueueDeclare("withdrawal_request_queue", true, false, false, new Dictionary<string, object>() { { "x-queue-type", "quorum" } });
+
+            var json = JsonSerializer.Serialize(transactionCreation, ControllersUtils.jsonOptions);
+            var body = Encoding.UTF8.GetBytes(json);
+
+            channel.BasicPublish("transfer_request_exchange", "withdrawal", null, body);
 
             return Ok();
         }

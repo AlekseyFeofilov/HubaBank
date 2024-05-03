@@ -13,6 +13,8 @@ using System.Net.Http.Headers;
 using BFF_client.Api.model.user;
 using Microsoft.AspNetCore.Http.Json;
 using BFF_client.Api.Services.User;
+using static BFF_client.Api.Controllers.ControllersUtils;
+using Google.Apis.Auth.OAuth2;
 
 namespace BFF_client.Api.Controllers
 {
@@ -42,6 +44,14 @@ namespace BFF_client.Api.Controllers
             var content = new StringContent(credentials.JwtSOO, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(downstreamUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var downstreamResponse = await response.Content.ReadAsStringAsync();
+                var body = JsonSerializer.Deserialize<TokensDto>(downstreamResponse, jsonOptions);
+                var userId = ControllersUtils.GetUserIdByHeader(body.accessToken);
+                await _userService.SetMessagingToken(Guid.Parse(userId), credentials.MessagingToken);
+            }
 
             return await this.GetResultFromResponse<TokensDto>(response);
         }
@@ -76,6 +86,7 @@ namespace BFF_client.Api.Controllers
 
             if (responseRole.IsSuccessStatusCode)
             {
+                await _userService.SetMessagingToken(Guid.Parse(userId), register.MessagingToken);
                 return tokens;
             }
             return StatusCode(StatusCodes.Status500InternalServerError);
@@ -143,6 +154,26 @@ namespace BFF_client.Api.Controllers
             }
 
             await _userService.SetIsDarkTheme(Guid.Parse(userId), isDarkTheme);
+
+            return Ok();
+        }
+
+        [HttpPost("logout")]
+        [Produces("application/json")]
+        public async Task<IActionResult> logout()
+        {
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            await _userService.SetMessagingToken(Guid.Parse(userId), null);
 
             return Ok();
         }
