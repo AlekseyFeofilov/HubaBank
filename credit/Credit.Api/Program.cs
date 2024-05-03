@@ -60,7 +60,9 @@ app.Services.AutoMigrateCreditContext();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestEnrichMiddleware>();
-app.UseWhen(context => !context.Request.Path.StartsWithSegments("/swagger"), appBuilder =>
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/swagger") 
+                       && !context.Request.Path.StartsWithSegments("/hangfire"),
+    appBuilder =>
 {
     appBuilder.UseMiddleware<LoggerMiddleware>();
 });
