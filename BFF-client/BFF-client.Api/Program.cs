@@ -82,4 +82,6 @@ app.MapControllers();
 
 Configurator.Migrate(app.Services);
 
+Configurator.InitializeFirebaseMessaging();
+
 app.Run();

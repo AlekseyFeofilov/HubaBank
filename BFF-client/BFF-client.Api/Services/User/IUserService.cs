@@ -5,5 +5,9 @@
         Task<bool> GetIsDarkTheme(Guid userId);
 
         Task SetIsDarkTheme(Guid userId, bool isDarkTheme);
+
+        Task SetMessagingToken(Guid userId, string? token);
+
+        Task<string?> GetMessagingToken(Guid userId);
     }
 }

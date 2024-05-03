@@ -10,8 +10,6 @@ namespace BFF_client.Api.Models.bill
 
         public TransactionBill Target { get; set; }
 
-        public long Amount { get; set; }
-
         public string Instant { get; set; }
     }
 }

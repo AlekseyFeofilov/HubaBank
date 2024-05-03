@@ -4,12 +4,14 @@ namespace BFF_client.Api.Models.bill
 {
     public class TransactionBill
     {
-        public Guid? userId { get; set; }
+        public Guid? UserId { get; set; }
 
-        public Guid? billId { get; set; }
+        public Guid? BillId { get; set; }
 
-        public BillTypeDto type { get; set; }
+        public BillTypeDto Type { get; set; }
 
-        public string currency { get; set; }
+        public string Currency { get; set; }
+
+        public long Amount { get; set; }
     }
 }

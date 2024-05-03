@@ -5,5 +5,7 @@
         public Guid Id { get; set; }
 
         public bool IsDarkTheme { get; set; }
+
+        public string? MessagingToken { get; set; } = null;
     }
 }
