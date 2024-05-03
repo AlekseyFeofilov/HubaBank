@@ -1,25 +1,26 @@
 ﻿using System.Net;
 using Credit.Lib.Exceptions;
+using MediatR;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Credit.Api.Middlewares
 {
-    public class ErrorHandlingMiddleware
+    public class ErrorHandlingMiddleware : IMiddleware
     {
-        private readonly RequestDelegate _next;
         private readonly ILogger<ErrorHandlingMiddleware> _logger;
+        private readonly IMediator _mediator;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+        public ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger, IMediator mediator)
         {
-            _next = next;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mediator = mediator;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (Exception ex)
             {
@@ -27,7 +28,7 @@ namespace Credit.Api.Middlewares
             }
         }
 
-        private Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var code = HttpStatusCode.InternalServerError;
             var result = JsonSerializer.Serialize(new {error = exception.ToString()});
@@ -46,7 +47,21 @@ namespace Credit.Api.Middlewares
             
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int) code;
-            return context.Response.WriteAsync(result);
+            
+            await context.Response.WriteAsync(result);
+
+            try
+            {
+                await _mediator.Send(new Lib.Feature.LogService.Log.Request
+                { HttpContext = context,
+                    ResponseBody = result
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, 
+                    "Произошла ошибка при попытке отправить логи в Log.Service. Ошибка: {exception}", e.Message);
+            }
         }
 
         private void LogCustomException(Exception ex, object entity)

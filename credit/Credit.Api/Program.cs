@@ -1,6 +1,7 @@
 using System.Reflection;
 using Credit.Api;
 using Credit.Api.Middlewares;
+using Credit.Api.Middlewares.IdempotentHandlingMiddlewares;
 using Credit.Dal;
 using Credit.Data;
 using Credit.Lib;
@@ -50,6 +51,8 @@ builder.Services.AddScoped<IJobClient, JobClient>();
 builder.Services.AddScoped<BodyBasedIdempotentHandlingMiddleware>();
 builder.Services.AddScoped<IdBasedIdempotentHandlingMiddleware>();
 builder.Services.AddScoped<RandomFaultMiddleware>();
+builder.Services.AddScoped<LoggerMiddleware>();
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
 
 var app = builder.Build();
 

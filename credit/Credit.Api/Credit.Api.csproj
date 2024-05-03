@@ -26,5 +26,6 @@
       <ProjectReference Include="..\Credit.Lib\Credit.Lib.csproj" />
       <ProjectReference Include="..\Log.Service.Provider\Log.Service.Provider.csproj" />
       <ProjectReference Include="..\Utils.Hash\Utils.Hash.csproj" />
+      <ProjectReference Include="..\Utils.Http\Utils.Http.csproj" />
     </ItemGroup>
 </Project>

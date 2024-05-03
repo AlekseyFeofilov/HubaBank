@@ -2,7 +2,7 @@ using Credit.Api.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Credit.Api.Middlewares;
+namespace Credit.Api.Middlewares.IdempotentHandlingMiddlewares;
 
 public class IdBasedIdempotentHandlingMiddleware : IdempotentHandlingMiddleware
 {

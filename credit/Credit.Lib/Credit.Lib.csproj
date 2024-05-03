@@ -24,7 +24,9 @@
         <ProjectReference Include="..\Core.Provider\Core.Provider.csproj" />
         <ProjectReference Include="..\Credit.Dal\Credit.Dal.csproj" />
         <ProjectReference Include="..\Credit.Data\Credit.Data.csproj" />
+        <ProjectReference Include="..\Log.Service.Provider\Log.Service.Provider.csproj" />
         <ProjectReference Include="..\Utils.DateTime\Utils.DateTime.csproj" />
+        <ProjectReference Include="..\Utils.Http\Utils.Http.csproj" />
     </ItemGroup>
 
     <ItemGroup>
