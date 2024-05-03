@@ -7,4 +7,6 @@ interface UserRemoteDataSource {
     suspend fun getProfile(): Profile
 
     suspend fun saveTheme(isDark: Boolean)
+
+    suspend fun logout()
 }

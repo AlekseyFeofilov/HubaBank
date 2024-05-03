@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">Huba bank</string>
 
+    <!-- Common -->
+    <string name="common_error_message">Что-то пошло не так</string>
+    <string name="common_refresh_error_message">Не удалось обновить данные</string>
+    <string name="common_save_error_message">Ошибка при сохранении данных</string>
+    <string name="common_empty_fields_error_message">Заполнены не все поля</string>
+
     <!-- Login Screen -->
     <string name="login_screen_title">Вход</string>
     <string name="login_screen_phone">Введите номер телефона</string>
@@ -18,7 +24,7 @@
 
     <!-- Main Screen -->
     <string name="main_screen_your_bills">Ваши счета</string>
-    <string name="main_screen_balance_with_kopecks">%1$d.%2$02d ₽</string>
+    <string name="main_screen_balance_with_kopecks">%1$d.%2$02d %3$s</string>
     <string name="main_screen_bill_number">Счет %1$s</string>
     <string name="main_screen_about">Подробнее</string>
     <string name="main_screen_open_bill">Открыть счет</string>
@@ -37,17 +43,20 @@
 
     <!-- Bill Screen -->
     <string name="bill_screen_do_refill">Пополнить</string>
+    <string name="bill_screen_do_withdrawal">Снять</string>
     <string name="bill_screen_do_transfer">Перевести</string>
     <string name="bill_screen_refill">Пополнение</string>
     <string name="bill_screen_withdrawal">Снятие</string>
     <string name="bill_screen_transfer">Перевод</string>
-    <string name="bill_screen_credit">Списание за кредит</string>
+    <string name="bill_screen_credit_payment">Списание за кредит</string>
+    <string name="bill_screen_bring_credit">Списание за кредит</string>
     <string name="bill_screen_history">История операций</string>
     <string name="bill_screen_hidden_bill">Скрытый счёт</string>
     <string name="bill_screen_today">Сегодня</string>
     <string name="bill_screen_input_sum">Введите сумму</string>
     <string name="bill_screen_input_target_bill">Введите куда перевести</string>
     <string name="bill_screen_close_bill">Закрыть этот счет</string>
+    <string name="bill_screen_history_error">Неудалось получить историю счёта</string>
 
     <!-- Credit Screen -->
     <string name="credit_screen_sum">Cумма кредита</string>

@@ -12,4 +12,7 @@ internal interface UserApi {
 
     @POST("users/theme")
     suspend fun saveTheme(@Body isDarkTheme: Boolean)
+
+    @POST("users/logout")
+    suspend fun logout()
 }

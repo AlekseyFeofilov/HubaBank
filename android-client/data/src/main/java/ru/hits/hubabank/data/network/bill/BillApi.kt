@@ -9,6 +9,7 @@ import ru.hits.hubabank.data.network.bill.model.ClientBillDto
 import ru.hits.hubabank.data.network.bill.model.CreatingBillDto
 import ru.hits.hubabank.data.network.bill.model.TransactionDepositCreationDto
 import ru.hits.hubabank.data.network.bill.model.TransactionToBillCreationDto
+import ru.hits.hubabank.data.network.bill.model.TransactionWithdrawalCreationDto
 
 internal interface BillApi {
 
@@ -37,5 +38,10 @@ internal interface BillApi {
     @POST("transactions/deposit")
     suspend fun giveMoneyForBill(
         @Body transactionDepositCreationDto: TransactionDepositCreationDto,
+    )
+
+    @POST("transactions/withdrawal")
+    suspend fun withdrawMoneyFromBill(
+        @Body transactionWithdrawalCreationDto: TransactionWithdrawalCreationDto,
     )
 }

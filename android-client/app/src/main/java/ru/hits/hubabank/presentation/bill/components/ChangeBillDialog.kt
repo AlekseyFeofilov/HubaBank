@@ -18,7 +18,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import ru.hits.hubabank.R
-import ru.hits.hubabank.domain.bill.model.BillChangeReason
+import ru.hits.hubabank.domain.bill.model.NewTransactionType
 import ru.hits.hubabank.presentation.common.getActionRes
 import ru.hits.hubabank.presentation.common.getTitleRes
 import ru.hits.hubabank.presentation.ui.components.AppButton
@@ -26,7 +26,7 @@ import ru.hits.hubabank.presentation.ui.components.AppTextField
 
 @Composable
 fun ChangeBillDialog(
-    billChangeReason: BillChangeReason,
+    newTransactionType: NewTransactionType,
     targetBill: String,
     currentSum: String,
     onTargetBillChange: (String) -> Unit,
@@ -46,11 +46,11 @@ fun ChangeBillDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = stringResource(billChangeReason.getTitleRes(10)),
+                text = stringResource(newTransactionType.getTitleRes()),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyLarge,
             )
-            if (billChangeReason == BillChangeReason.USER) {
+            if (newTransactionType == NewTransactionType.TO_BILL) {
                 Spacer(modifier = Modifier.height(16.dp))
                 AppTextField(
                     value = targetBill,
@@ -71,7 +71,7 @@ fun ChangeBillDialog(
             )
             Spacer(modifier = Modifier.height(16.dp))
             AppButton(
-                text = stringResource(billChangeReason.getActionRes()),
+                text = stringResource(newTransactionType.getActionRes()),
                 onClick = onChangeClick,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp),
             )

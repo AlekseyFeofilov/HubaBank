@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.hits.hubabank.R
 import ru.hits.hubabank.presentation.core.CollectAction
+import ru.hits.hubabank.presentation.core.LocalSnackbarController
 import ru.hits.hubabank.presentation.enter.registration.model.RegistrationAction
 import ru.hits.hubabank.presentation.ui.components.AppButton
 import ru.hits.hubabank.presentation.ui.components.AppTextField
@@ -35,10 +36,12 @@ fun RegistrationScreen(
 ) {
     val state by viewModel.screenState.collectAsState()
 
+    val snackbarController = LocalSnackbarController.current
     viewModel.action.CollectAction { action ->
         when (action) {
             RegistrationAction.OpenLoginScreen -> onOpenLoginScreen()
             RegistrationAction.OpenMainScreen -> onOpenMainScreen()
+            is RegistrationAction.ShowError -> snackbarController.show(action.errorRes)
         }
     }
 

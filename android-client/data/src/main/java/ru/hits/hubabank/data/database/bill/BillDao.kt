@@ -1,19 +1,18 @@
 package ru.hits.hubabank.data.database.bill
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.hits.hubabank.data.database.bill.model.BillEntity
 
 @Dao
 internal interface BillDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertBill(billEntity: BillEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertBills(bills: List<BillEntity>)
 
     @Query("SELECT * FROM Bill")

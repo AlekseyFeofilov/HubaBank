@@ -8,6 +8,7 @@ internal data class RegisterDto(
     val fullName: FullNameDto,
     val password: String,
     val phone: String,
+    val messagingToken: String,
 )
 
 internal fun RegistrationModel.toDto(): RegisterDto {
@@ -19,5 +20,6 @@ internal fun RegistrationModel.toDto(): RegisterDto {
         ),
         password = password,
         phone = phone,
+        messagingToken = messagingToken
     )
 }

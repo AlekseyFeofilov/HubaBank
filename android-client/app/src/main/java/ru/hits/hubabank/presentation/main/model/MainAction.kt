@@ -1,5 +1,6 @@
 package ru.hits.hubabank.presentation.main.model
 
+import androidx.annotation.StringRes
 import ru.hits.hubabank.presentation.core.ScreenAction
 
 sealed class MainAction: ScreenAction {
@@ -11,4 +12,6 @@ sealed class MainAction: ScreenAction {
     data class OpenCreditInfoScreen(val creditId: String) : MainAction()
 
     data object OpenOpenCreditAddingScreen : MainAction()
+
+    data class ShowError(@StringRes val errorRes: Int) : MainAction()
 }

@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class RefreshTokenDto(
-    val refreshToken: String,
+    val refresh: String,
 )

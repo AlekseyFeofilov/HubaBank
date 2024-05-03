@@ -33,11 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.hits.hubabank.R
-import ru.hits.hubabank.domain.bill.model.BillChangeReason
+import ru.hits.hubabank.domain.bill.model.NewTransactionType
 import ru.hits.hubabank.presentation.bill.components.BillHistory
 import ru.hits.hubabank.presentation.bill.components.ChangeBillDialog
 import ru.hits.hubabank.presentation.bill.model.BillInfoAction
+import ru.hits.hubabank.presentation.common.getSymbol
 import ru.hits.hubabank.presentation.core.CollectAction
+import ru.hits.hubabank.presentation.core.LocalSnackbarController
 
 @Composable
 fun BillInfoScreen(
@@ -46,9 +48,11 @@ fun BillInfoScreen(
 ) {
     val state by viewModel.screenState.collectAsState()
 
+    val snackbarController = LocalSnackbarController.current
     viewModel.action.CollectAction { action ->
         when (action) {
             BillInfoAction.NavigateBack -> onNavigateBack()
+            is BillInfoAction.ShowError -> snackbarController.show(action.errorRes)
         }
     }
 
@@ -62,7 +66,7 @@ fun BillInfoScreen(
 
     if (state.isChangeBillDialogOpen) {
         ChangeBillDialog(
-            billChangeReason = state.howChange,
+            newTransactionType = state.howChange,
             targetBill = state.targetBill,
             currentSum = state.changeSum,
             onTargetBillChange = viewModel::changeTargetBill,
@@ -99,6 +103,7 @@ fun BillInfoScreen(
                     R.string.main_screen_balance_with_kopecks,
                     bill.balance / 100,
                     bill.balance % 100,
+                    bill.currency.getSymbol(),
                 ),
                 modifier = Modifier.padding(start = 16.dp),
                 color = MaterialTheme.colorScheme.primary,
@@ -115,7 +120,17 @@ fun BillInfoScreen(
                     text = stringResource(R.string.bill_screen_do_refill),
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .clickable { viewModel.openDialog(BillChangeReason.TERMINAL) }
+                        .clickable { viewModel.openDialog(NewTransactionType.DEPOSIT) }
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Text(
+                    text = stringResource(R.string.bill_screen_do_withdrawal),
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .clickable { viewModel.openDialog(NewTransactionType.WITHDRAWAL) }
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -125,7 +140,7 @@ fun BillInfoScreen(
                     text = stringResource(R.string.bill_screen_do_transfer),
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .clickable { viewModel.openDialog(BillChangeReason.USER) }
+                        .clickable { viewModel.openDialog(NewTransactionType.TO_BILL) }
                         .background(MaterialTheme.colorScheme.surface)
                         .padding(horizontal = 12.dp, vertical = 6.dp),
                     color = MaterialTheme.colorScheme.primary,

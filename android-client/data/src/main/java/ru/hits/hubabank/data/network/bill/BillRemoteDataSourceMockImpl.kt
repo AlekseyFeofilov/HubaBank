@@ -48,4 +48,8 @@ internal class BillRemoteDataSourceMockImpl @Inject constructor(
     override fun endObserveBillHistory() {
         TODO("Not yet implemented")
     }
+
+    override suspend fun withdrawMoneyFromBill(billId: String, balanceChange: Long) {
+        TODO("Not yet implemented")
+    }
 }
