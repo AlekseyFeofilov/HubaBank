@@ -24,4 +24,7 @@ public class IdempotentRequest {
     @Id
     @Column(name = "idempotent_key", nullable = false)
     private String idempotentKey;
+
+    @Column(name = "done", nullable = false)
+    private boolean done;
 }

@@ -6,14 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.hubabank.core.constant.HeaderConstants;
-import ru.hubabank.core.entity.IdempotentRequest;
-import ru.hubabank.core.entity.IdempotentRequestId;
-import ru.hubabank.core.repository.IdempotentRequestRepository;
+import ru.hubabank.core.service.IdempotentRequestService;
 import ru.hubabank.core.versioning.ApiVersion;
 
 import java.io.IOException;
@@ -27,10 +25,14 @@ public class IdempotencyFilter extends OncePerRequestFilter {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("(?<=/api/v)\\d+(?=/)");
 
-    private final IdempotentRequestRepository idempotentRequestRepository;
+    private final IdempotentRequestService idempotentRequestService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain
+    ) throws ServletException, IOException {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
         if (!isIdempotentMethod(method) || getVersion(request) < ApiVersion.VERSION_3.getNumber()) {
@@ -47,28 +49,7 @@ public class IdempotencyFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (idempotentRequestRepository.existsById(IdempotentRequestId.builder()
-                .method(request.getMethod())
-                .request(request.getRequestURI())
-                .idempotentKey(idempotentKey)
-                .build())) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            log.warn("Запрос {} {} уже был выполнен с ключом идемпотентности {}",
-                    request.getMethod(), request.getRequestURI(), idempotentKey);
-            return;
-        }
-
-        filterChain.doFilter(request, response);
-
-        HttpStatus status = HttpStatus.valueOf(response.getStatus());
-
-        if (status.is2xxSuccessful()) {
-            idempotentRequestRepository.save(IdempotentRequest.builder()
-                    .method(request.getMethod())
-                    .request(request.getRequestURI())
-                    .idempotentKey(idempotentKey)
-                    .build());
-        }
+        idempotentRequestService.processRequest(request, response, filterChain, idempotentKey);
     }
 
     private boolean isIdempotentMethod(HttpMethod method) {

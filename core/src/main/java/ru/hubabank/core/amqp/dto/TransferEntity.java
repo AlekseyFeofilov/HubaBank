@@ -21,6 +21,9 @@ public class TransferEntity {
     @Schema(description = "Тип сущности")
     private BillType type;
 
+    @Schema(description = "Изменение баланса счета в копейках")
+    private long amount;
+
     @Schema(description = "Тип валюты счета")
     private CurrencyType currency;
 }
