@@ -1,19 +1,18 @@
 package ru.hits.hubabank.data.database.credit
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.hits.hubabank.data.database.credit.model.CreditEntity
 
 @Dao
 internal interface CreditDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertCredit(creditEntity: CreditEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertCredits(bills: List<CreditEntity>)
 
     @Query("SELECT * FROM Credit")

@@ -52,8 +52,8 @@ fun CreditCard(
                 Text(
                     text = stringResource(
                         R.string.main_screen_balance_with_kopecks,
-                        credit.sum / 100,
-                        credit.sum % 100,
+                        credit.principal / 100,
+                        credit.principal % 100,
                         Currency.RUB.getSymbol(),
                     ),
                     color = MaterialTheme.colorScheme.primary,

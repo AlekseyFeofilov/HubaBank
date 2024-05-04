@@ -8,7 +8,6 @@ import ru.hits.hubabank.domain.bill.FetchAllBillsUseCase
 import ru.hits.hubabank.domain.bill.ObserveAllBillsUseCase
 import ru.hits.hubabank.domain.bill.model.Bill
 import ru.hits.hubabank.domain.bill.model.Currency
-import ru.hits.hubabank.domain.credit.AddNewCreditUseCase
 import ru.hits.hubabank.domain.credit.FetchAllCreditsUseCase
 import ru.hits.hubabank.domain.credit.ObserveAllCreditsUseCase
 import ru.hits.hubabank.domain.credit.model.Credit
@@ -24,7 +23,6 @@ class MainViewModel @Inject constructor(
     private val addNewBillUseCase: AddNewBillUseCase,
     private val observeAllCreditsUseCase: ObserveAllCreditsUseCase,
     private val fetchAllCreditsUseCase: FetchAllCreditsUseCase,
-    private val addNewCreditUseCase: AddNewCreditUseCase,
 ) : BaseViewModel<MainState, MainAction>(
     MainState(isLoading = true, isCreatingDialogOpen = false, bills = emptyList(), credits = emptyList())
 ) {
@@ -65,9 +63,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun addNewCredit() {
-        launch {
-            addNewCreditUseCase(Unit)
-        }
+        sendAction(MainAction.OpenCreditAddingScreen)
     }
 
     fun fetchBills() {

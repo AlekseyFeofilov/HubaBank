@@ -17,7 +17,7 @@ class ExitUseCase @Inject constructor(
     override suspend fun execute(param: Unit) {
         userLocalDataSource.deleteProfile()
         billLocalDataSource.deleteAllData()
-        creditLocalDataSource.deleteAllCredits()
+        creditLocalDataSource.deleteAllCreditsAndTermsAndPayments()
         try {
             userRemoteDataSource.logout()
         } catch (e: Exception) {

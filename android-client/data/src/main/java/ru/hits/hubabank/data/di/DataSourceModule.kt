@@ -10,7 +10,7 @@ import ru.hits.hubabank.data.database.credit.CreditLocalDataSourceImpl
 import ru.hits.hubabank.data.database.user.UserLocalDataSourceImpl
 import ru.hits.hubabank.data.network.auth.AuthRemoteDataSourceImpl
 import ru.hits.hubabank.data.network.bill.BillRemoteDataSourceImpl
-import ru.hits.hubabank.data.network.credit.CreditRemoteDataSourceMockImpl
+import ru.hits.hubabank.data.network.credit.CreditRemoteDataSourceImpl
 import ru.hits.hubabank.data.network.user.UserRemoteDataSourceImpl
 import ru.hits.hubabank.domain.auth.AuthLocalDataSource
 import ru.hits.hubabank.domain.auth.AuthRemoteDataSource
@@ -47,5 +47,5 @@ internal interface DataSourceModule {
     fun bindCreditLocalDataSource(creditLocalDataSourceImpl: CreditLocalDataSourceImpl): CreditLocalDataSource
 
     @Binds
-    fun bindCreditRemoteDataSource(creditRemoteDataSourceImpl: CreditRemoteDataSourceMockImpl): CreditRemoteDataSource
+    fun bindCreditRemoteDataSource(creditRemoteDataSourceImpl: CreditRemoteDataSourceImpl): CreditRemoteDataSource
 }

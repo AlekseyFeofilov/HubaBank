@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,8 +60,8 @@ fun MainScreen(
         when (action) {
             MainAction.OpenProfileScreen -> onOpenProfileScreen()
             is MainAction.OpenBillInfoScreen -> onOpenBillInfoScreen(action.billId)
+            MainAction.OpenCreditAddingScreen -> onOpenCreditAddingScreen()
             is MainAction.OpenCreditInfoScreen -> onOpenCreditInfoScreen(action.creditId)
-            MainAction.OpenOpenCreditAddingScreen -> onOpenCreditAddingScreen()
             is MainAction.ShowError -> snackbarController.show(action.errorRes)
         }
     }
@@ -108,11 +111,24 @@ fun MainScreen(
             contentPadding = PaddingValues(16.dp),
         ) {
             item {
-                Text(
-                    text = stringResource(R.string.main_screen_your_bills),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.main_screen_your_bills),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.material.IconButton(
+                        onClick = { viewModel.fetchBills() },
+                        modifier = Modifier.size(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
             }
             itemsIndexed(state.bills, key = { _, bill -> bill.id }) { index, bill ->
                 Spacer(modifier = Modifier.height(16.dp))
@@ -143,11 +159,24 @@ fun MainScreen(
             }
             item {
                 Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    text = stringResource(R.string.main_screen_your_credit),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.main_screen_your_credit),
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    androidx.compose.material.IconButton(
+                        onClick = { viewModel.fetchCredits() },
+                        modifier = Modifier.size(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
             }
             itemsIndexed(state.credits, key = { _, credit -> credit.id } ) { index, credit ->
                 Spacer(modifier = Modifier.height(16.dp))
