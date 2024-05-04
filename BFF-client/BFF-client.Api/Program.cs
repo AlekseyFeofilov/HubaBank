@@ -39,6 +39,7 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+    options.MapType<DateOnly>(() => new OpenApiSchema { Type = "string", Format = "date" });
 });
 
 /*builder.Services.AddCors(options =>
@@ -61,8 +62,6 @@ builder.ConfigureAppServices();
 builder.Services.Configure<ConfigUrls>(builder.Configuration.GetRequiredSection("MicroserversUrls"));
 
 builder.Services.AddSingleton<IWebSocketUserDb, WebSocketUserDb>();
-/*builder.Services.AddSingleton<IUserIdProvider, UserIdProvider>();
-builder.Services.AddSignalR(options => { options.AddFilter<AuthHubFilter>(); });*/
 
 builder.Services.AddHostedService<TransactionsListener>();
 
@@ -75,6 +74,8 @@ app.UseHttpsRedirection();
 
 app.UseWebSockets();
 app.UseMiddleware<WebSocketMiddleware>();
+
+app.UseMiddleware<LoggerMiddleware>();
 
 app.UseAuthorization();
 

@@ -25,13 +25,20 @@ namespace BFF_client.Api.Controllers
         {
             if (response.IsSuccessStatusCode)
             {
-                var downstreamResponse = await response.Content.ReadAsStringAsync();
-                var body = JsonSerializer.Deserialize<T>(downstreamResponse, jsonOptions);
-                if (mapping != null && body != null)
+                try
                 {
-                    mapping(body);
+                    var downstreamResponse = await response.Content.ReadAsStringAsync();
+                    var body = JsonSerializer.Deserialize<T>(downstreamResponse, jsonOptions);
+                    if (mapping != null && body != null)
+                    {
+                        mapping(body);
+                    }
+                    return controllerBase.Ok(body);
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    return controllerBase.StatusCode(500);
                 }
-                return controllerBase.Ok(body);
             }
             else
             {
@@ -94,7 +101,8 @@ namespace BFF_client.Api.Controllers
         public static async Task<ProfileWithPrivileges?> GetProfileWithPrivileges(
             string authHeader,
             ConfigUrls configUrls, 
-            HttpClient client
+            HttpClient client,
+            string? requestId
             )
         {
             string profileUrl = configUrls.users + "users/my";
@@ -108,6 +116,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Authorization = new AuthenticationHeaderValue(
             "Bearer", authHeader.Substring(6)
                 );
+            message.Headers.Add("requestId", requestId);
             var profileResponse = await client.SendAsync(message);
             if (profileResponse.IsSuccessStatusCode)
             {

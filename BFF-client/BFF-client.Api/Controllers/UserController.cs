@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http.Json;
 using BFF_client.Api.Services.User;
 using static BFF_client.Api.Controllers.ControllersUtils;
 using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin.Messaging;
 
 namespace BFF_client.Api.Controllers
 {
@@ -37,13 +38,17 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("login")]
         [Produces("application/json")]
-        public async Task<ActionResult<TokensDto>> PostLogin(CredentialsDto credentials)
+        public async Task<ActionResult<TokensDto>> PostLogin(CredentialsDto credentials, [FromHeader] string? requestId = null)
         {
             string downstreamUrl = _configUrls.users + "jwt";
 
             var content = new StringContent(credentials.JwtSOO, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(downstreamUrl, content);
+            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
+            message.Headers.Add("requestId", requestId);
+            message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+            message.Content = content;
+            var response = await _httpClient.SendAsync(message);
 
             if (response.IsSuccessStatusCode)
             {
@@ -58,13 +63,17 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("register")]
         [Produces("application/json")]
-        public async Task<ActionResult<TokensDto>> PostRegister(RegisterDto register)
+        public async Task<ActionResult<TokensDto>> PostRegister(RegisterDto register, [FromHeader] string? requestId = null)
         {
             string downstreamUrl = _configUrls.users + "register";
             var json = JsonSerializer.Serialize(register, ControllersUtils.jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(downstreamUrl, content);
+            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
+            message.Headers.Add("requestId", requestId);
+            message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+            message.Content = content;
+            var response = await _httpClient.SendAsync(message);
 
             var tokens = await this.GetResultFromResponse<TokensDto>(response);
 
@@ -82,7 +91,11 @@ namespace BFF_client.Api.Controllers
             var jsonRole = JsonSerializer.Serialize(clientRole, ControllersUtils.jsonOptions);
             var contentRole = new StringContent(jsonRole, Encoding.UTF8, "application/json");
 
-            var responseRole = await _httpClient.PostAsync(downstreamUrlRole, contentRole);
+            var messageRole = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrlRole);
+            messageRole.Headers.Add("requestId", requestId);
+            messageRole.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+            messageRole.Content = contentRole;
+            var responseRole = await _httpClient.SendAsync(messageRole);
 
             if (responseRole.IsSuccessStatusCode)
             {
@@ -94,20 +107,24 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("refresh")]
         [Produces("application/json")]
-        public async Task<ActionResult<TokensDto>> PostRefresh(RefreshTokenDto refreshToken)
+        public async Task<ActionResult<TokensDto>> PostRefresh(RefreshTokenDto refreshToken, [FromHeader] string? requestId = null)
         {
             string downstreamUrl = _configUrls.users + "refresh";
             var json = JsonSerializer.Serialize(refreshToken, ControllersUtils.jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(downstreamUrl, content);
+            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
+            message.Headers.Add("requestId", requestId);
+            message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+            message.Content = content;
+            var response = await _httpClient.SendAsync(message);
 
             return await this.GetResultFromResponse<TokensDto>(response);
         }
 
         [HttpGet("my")]
         [Produces("application/json")]
-        public async Task<ActionResult<ProfileDto>> GetProfile()
+        public async Task<ActionResult<ProfileDto>> GetProfile([FromHeader] string? requestId = null)
         {
             string downstreamUrl = _configUrls.users + "users/my";
 
@@ -125,6 +142,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 "Bearer", authHeader.Substring(6)
                 );
+            message.Headers.Add("requestId", requestId);
             var response = await _httpClient.SendAsync(message);
 
             var isDarkTheme = await _userService.GetIsDarkTheme(Guid.Parse(userId));
@@ -134,7 +152,7 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("theme")]
         [Produces("application/json")]
-        public async Task<IActionResult> ChangeTheme([FromBody] bool isDarkTheme)
+        public async Task<IActionResult> ChangeTheme([FromBody] bool isDarkTheme, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -147,7 +165,8 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
 
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();

@@ -1,27 +1,22 @@
-﻿using BFF_client.Api.model;
+﻿using BFF_client.Api.model.bill;
+using BFF_client.Api.model;
+using BFF_client.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Text.Json;
-using System.Text;
-using Microsoft.AspNetCore.Http.Json;
-using System.Security.Claims;
-using BFF_client.Api.model.bill;
-using System.Net.Http.Headers;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Win32;
-using BFF_client.Api.Services.Bill;
 using System.Net.Http;
-using BFF_client.Api.Models;
-using RabbitMQ.Client;
-using System.Threading.Channels;
+using BFF_client.Api.Services.Bill;
+using Microsoft.Extensions.Options;
+using BFF_client.Api.Models.Credit;
+using Microsoft.AspNetCore.Http.Json;
+using System.Text.Json;
 using BFF_client.Api.Models.bill;
+using System.Text;
 
 namespace BFF_client.Api.Controllers
 {
-    [Route("api/bills")]
+    [Route("api/credits")]
     [ApiController]
-    public class BillController : ControllerBase
+    public class CreditController : ControllerBase
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigUrls _configUrls;
@@ -29,7 +24,7 @@ namespace BFF_client.Api.Controllers
         private readonly IBillService _billService;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public BillController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration, IBillService billService)
+        public CreditController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration, IBillService billService)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
@@ -38,9 +33,9 @@ namespace BFF_client.Api.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        [HttpGet("")]
+        [HttpGet("credit/{creditId:guid}")]
         [Produces("application/json")]
-        public async Task<ActionResult<List<ClientBillDto>>> GetAllBills([FromHeader] string? requestId = null)
+        public async Task<ActionResult<CreditDto>> GetCreditById(Guid creditId, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -58,27 +53,28 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_READ) == false)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
 
-            string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
+            string downstreamUrl = _configUrls.credit + "Credit/" + creditId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
             var response = await _httpClient.SendAsync(message);
 
-            var knownBills = await _billService.GetKnownUserBills(Guid.Parse(userId));
+            if (response.IsSuccessStatusCode)
+            {
+                var downstreamResponse = await response.Content.ReadAsStringAsync();
+                var body = JsonSerializer.Deserialize<CreditDto>(downstreamResponse, ControllersUtils.jsonOptions);
+                if (body.AccountId.ToString() != userId)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
+            }
 
-            return await this.GetResultFromResponse<List<ClientBillDto>>(
-                response,
-                l => l.ForEach(b => b.isHidden = knownBills.Find(kb => kb.BillId == Guid.Parse(b.Id))?.IsHidden ?? false)
-            );
+            return await this.GetResultFromResponse<CreditDto>(response);
         }
 
-        [HttpPost("")]
+        [HttpGet("credit")]
         [Produces("application/json")]
-        public async Task<ActionResult<ClientBillDto>> CreateBill(CreateBillDto createBill, [FromHeader] string? requestId = null)
+        public async Task<ActionResult<List<CreditDto>>> GetAllCredits([FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -96,28 +92,54 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_WRITE) == false)
+
+            string downstreamUrl = _configUrls.credit + "Credit/users/" + userId;
+            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
+            message.Headers.Add("requestId", requestId);
+            var response = await _httpClient.SendAsync(message);
+
+            return await this.GetResultFromResponse<List<CreditDto>>(response);
+        }
+
+        [HttpPost("credit")]
+        [Produces("application/json")]
+        public async Task<IActionResult> CreateCredit(CreateCreditDto createCredit, [FromHeader] string? requestId = null)
+        {
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
             {
-                return StatusCode(StatusCodes.Status403Forbidden);
+                return Unauthorized();
+            }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+            if (profileWithPrivileges == null)
+            {
+                return Unauthorized();
             }
 
-            string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
+            string downstreamUrl = _configUrls.credit + "Credit";
 
-            var json = JsonSerializer.Serialize(createBill, ControllersUtils.jsonOptions);
+            createCredit.AccountId = Guid.Parse(userId);
+            var json = JsonSerializer.Serialize(createCredit, ControllersUtils.jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            
+
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
             var response = await _httpClient.SendAsync(message);
 
-            return await this.GetResultFromResponse<ClientBillDto>(response);
+            return await this.GetResult(response);
         }
 
-        [HttpGet("{billId:guid}")]
+        [HttpGet("creditTerms")]
         [Produces("application/json")]
-        public async Task<ActionResult<ClientBillDto>> GetBillById(Guid billId, [FromHeader] string? requestId = null)
+        public async Task<ActionResult<List<CreditTermsDto>>> GetAllCreditTermsDto([FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -135,65 +157,18 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_READ) == false)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
 
-            string downstreamUrl = _configUrls.core + "bills/" + billId;
+            string downstreamUrl = _configUrls.credit + "CreditTerms";
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
             var response = await _httpClient.SendAsync(message);
 
-            if (response.IsSuccessStatusCode)
-            {
-                var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
-                if (IsBillBelongToUser == false)
-                {
-                    return StatusCode(StatusCodes.Status403Forbidden);
-                }
-            }
-
-            var isHidden = await _billService.GetIsBillHidden(Guid.Parse(userId), billId);
-
-            return await this.GetResultFromResponse<ClientBillDto>(response, b => b.isHidden = isHidden) ;
+            return await this.GetResultFromResponse<List<CreditTermsDto>>(response);
         }
 
-        [HttpPost("{billId:guid}/hidden")]
+        [HttpGet("payment/{creditId:guid}")]
         [Produces("application/json")]
-        public async Task<IActionResult> ChangeBillHidden(Guid billId, [FromBody] bool isHidden, [FromHeader] string? requestId = null)
-        {
-            var authHeader = Request.Headers.Authorization.FirstOrDefault();
-            if (authHeader == null)
-            {
-                return Unauthorized();
-            }
-            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
-            if (IsBillBelongToUser == false)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
-
-            await _billService.SetIsBillHidden(Guid.Parse(userId), billId, isHidden);
-
-            return Ok();
-        }
-
-        [HttpDelete("{billId:guid}")]
-        [Produces("application/json")]
-        public async Task<IActionResult> DeleteBill(Guid billId, [FromHeader] string? requestId = null)
+        public async Task<ActionResult<List<CreditPaymentDto>>> GetCreditPayments(Guid creditId, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -211,26 +186,41 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.BILL_WRITE) == false)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
-            if (IsBillBelongToUser == false)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden);
-            }
 
-            string downstreamUrl = _configUrls.core + "bills/" + billId;
+            string downstreamUrl = _configUrls.credit + "Payment/" + creditId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             var response = await _httpClient.SendAsync(message);
-            
-            if (response.IsSuccessStatusCode)
+
+            return await this.GetResultFromResponse<List<CreditPaymentDto>>(response);
+        }
+
+        [HttpDelete("credit/{creditId:guid}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> DeleteCreditById(Guid creditId, [FromHeader] string? requestId = null)
+        {
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
             {
-                await _billService.DeleteBill(Guid.Parse(userId), billId);
+                return Unauthorized();
             }
+            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+            if (profileWithPrivileges == null)
+            {
+                return Unauthorized();
+            }
+
+            string downstreamUrl = _configUrls.credit + "Credit/" + creditId;
+            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
+            message.Headers.Add("requestId", requestId);
+            var response = await _httpClient.SendAsync(message);
+
             return await this.GetResult(response);
         }
     }

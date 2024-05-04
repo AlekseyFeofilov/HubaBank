@@ -94,7 +94,7 @@ namespace BFF_client.Api.Services
                                 Notification = new Notification
                                 {
                                     Title = $"Списание",
-                                    Body = $"{transactionInfo.Source.Amount} {transactionInfo.Source.Currency} со счёта {transactionInfo.Source.BillId}"
+                                    Body = $"{(float)transactionInfo.Source.Amount / 100} {transactionInfo.Source.Currency} со счёта {transactionInfo.Source.BillId}"
                                 }
                             };
                             await FirebaseMessaging.DefaultInstance.SendAsync(firebaseMessage);
@@ -141,7 +141,7 @@ namespace BFF_client.Api.Services
                                 Notification = new Notification
                                 {
                                     Title = $"Пополнение",
-                                    Body = $"{transactionInfo.Target.Amount} {transactionInfo.Target.Currency} на счёт {transactionInfo.Target.BillId}"
+                                    Body = $"{(float)transactionInfo.Target.Amount / 100} {transactionInfo.Target.Currency} на счёт {transactionInfo.Target.BillId}"
                                 }
                             };
                             await FirebaseMessaging.DefaultInstance.SendAsync(firebaseMessage);
@@ -154,9 +154,16 @@ namespace BFF_client.Api.Services
                 }
                 catch (Exception ex)
                 {
-                    var body = eventArgs.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    _logger.LogError("Ошибка при обработке ответа тразакции" + ex.Message + "\n" + message);
+                    try
+                    {
+                        var body = eventArgs.Body.ToArray();
+                        var message = Encoding.UTF8.GetString(body);
+                        _logger.LogError("Ошибка при обработке ответа транзакции" + ex.Message + "\n" + message);
+                    }
+                    catch (Exception e2)
+                    {
+                        _logger.LogError("Ошибка при обработке ответа транзакции, пришёл какой-то ужас" + e2.Message);
+                    }
                 }
                 await Task.Yield();
             };
