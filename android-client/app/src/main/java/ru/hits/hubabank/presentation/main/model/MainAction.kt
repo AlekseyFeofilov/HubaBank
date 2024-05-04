@@ -11,7 +11,7 @@ sealed class MainAction: ScreenAction {
 
     data class OpenCreditInfoScreen(val creditId: String) : MainAction()
 
-    data object OpenOpenCreditAddingScreen : MainAction()
+    data object OpenCreditAddingScreen : MainAction()
 
     data class ShowError(@StringRes val errorRes: Int) : MainAction()
 }

@@ -153,7 +153,7 @@ class BillInfoViewModel @Inject constructor(
                     } else {
                         listOf(historyItem).plus(sameDateItems)
                     }
-                    billHistory[historyItem.dateTime.toLocalDate()] = newList
+                    billHistory[historyItem.dateTime.toLocalDate()] = newList.sortedByDescending { it.dateTime }
                     _screenState.value = _screenState.value.copy(
                         billHistory = billHistory.toSortedMap(compareByDescending { it.toString() }),
                         today = LocalDate.now(),

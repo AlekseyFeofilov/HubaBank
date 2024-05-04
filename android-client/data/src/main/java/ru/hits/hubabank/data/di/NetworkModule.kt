@@ -12,9 +12,12 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import ru.hits.hubabank.data.network.auth.AuthApi
 import ru.hits.hubabank.data.network.bill.BillApi
+import ru.hits.hubabank.data.network.core.AddRequestIdInterceptor
 import ru.hits.hubabank.data.network.core.AuthInterceptor
+import ru.hits.hubabank.data.network.core.LoggerInterceptor
 import ru.hits.hubabank.data.network.core.NetworkConstant
 import ru.hits.hubabank.data.network.core.TokenAuthenticator
+import ru.hits.hubabank.data.network.credit.CreditApi
 import ru.hits.hubabank.data.network.user.UserApi
 import javax.inject.Singleton
 
@@ -25,10 +28,15 @@ internal object NetworkModule {
     @AuthOkHttpClient
     @Singleton
     @Provides
-    fun provideAuthHttpClient(): OkHttpClient {
+    fun provideAuthHttpClient(
+        addRequestIdInterceptor: AddRequestIdInterceptor,
+        loggerInterceptor: LoggerInterceptor,
+    ): OkHttpClient {
         return OkHttpClient.Builder().apply {
             val logLevel = HttpLoggingInterceptor.Level.BODY
             addInterceptor(HttpLoggingInterceptor().setLevel(logLevel))
+            addInterceptor(addRequestIdInterceptor)
+            addInterceptor(loggerInterceptor)
         }.build()
     }
 
@@ -38,11 +46,15 @@ internal object NetworkModule {
     fun provideCommonHttpClient(
         authInterceptor: AuthInterceptor,
         authenticator: TokenAuthenticator,
+        addRequestIdInterceptor: AddRequestIdInterceptor,
+        loggerInterceptor: LoggerInterceptor,
     ): OkHttpClient {
         return OkHttpClient.Builder().apply {
             val logLevel = HttpLoggingInterceptor.Level.BODY
             addInterceptor(HttpLoggingInterceptor().setLevel(logLevel))
             addInterceptor(authInterceptor)
+            addInterceptor(addRequestIdInterceptor)
+            addInterceptor(loggerInterceptor)
             authenticator(authenticator)
         }.build()
     }
@@ -73,5 +85,11 @@ internal object NetworkModule {
     @Singleton
     fun provideUserApi(retrofit: Retrofit): UserApi {
         return retrofit.create(UserApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCreditApi(retrofit: Retrofit): CreditApi {
+        return retrofit.create(CreditApi::class.java)
     }
 }

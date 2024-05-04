@@ -11,6 +11,7 @@ import ru.hits.hubabank.data.database.auth.TokensDao
 import ru.hits.hubabank.data.database.bill.BillDao
 import ru.hits.hubabank.data.database.core.AppDatabase
 import ru.hits.hubabank.data.database.credit.CreditDao
+import ru.hits.hubabank.data.database.credit.CreditTermsAndPaymentDao
 import ru.hits.hubabank.data.database.user.UserDao
 import javax.inject.Singleton
 
@@ -36,6 +37,10 @@ internal object DatabaseModule {
 
     @Provides
     fun provideCreditDao(appDatabase: AppDatabase): CreditDao = appDatabase.getCreditDao()
+
+    @Provides
+    fun provideCreditTermsAndPaymentDao(appDatabase: AppDatabase): CreditTermsAndPaymentDao =
+        appDatabase.getCreditTermsAndPaymentDao()
 
     private const val DATABASE_NAME = "app_database"
 }

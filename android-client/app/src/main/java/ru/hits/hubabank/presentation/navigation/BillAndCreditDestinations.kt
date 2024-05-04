@@ -11,8 +11,7 @@ import ru.hits.hubabank.presentation.credit.adding.CreditAddingDestination
 import ru.hits.hubabank.presentation.credit.adding.CreditAddingScreen
 import ru.hits.hubabank.presentation.credit.info.CreditInfoDestination
 import ru.hits.hubabank.presentation.credit.info.CreditInfoScreen
-import ru.hits.hubabank.presentation.credit.rate.CreditRatesDestination
-import ru.hits.hubabank.presentation.credit.rate.CreditRatesScreen
+import ru.hits.hubabank.presentation.main.MainDestination
 
 fun NavGraphBuilder.billAndCreditDestinations(navController: NavController) {
     composable(
@@ -26,7 +25,16 @@ fun NavGraphBuilder.billAndCreditDestinations(navController: NavController) {
         )
     }
     composable(CreditAddingDestination.route) {
-        CreditAddingScreen()
+        CreditAddingScreen(
+            onNavigateBack = {
+                navController.navigateUp()
+            },
+            onOpenCreditInfoScreen = { creditId ->
+                navController.navigate(CreditInfoDestination.routeWithArg(creditId)) {
+                    popUpTo(MainDestination.route)
+                }
+            },
+        )
     }
     composable(
         route = CreditInfoDestination.routeTemplate,
@@ -37,8 +45,5 @@ fun NavGraphBuilder.billAndCreditDestinations(navController: NavController) {
                 navController.navigateUp()
             },
         )
-    }
-    composable(CreditRatesDestination.route) {
-        CreditRatesScreen()
     }
 }

@@ -9,7 +9,7 @@ class CloseCreditUseCase @Inject constructor(
 ) : SimpleUseCase<String, Unit> {
 
     override suspend fun execute(param: String) {
-        creditRemoteDataSource.closeCredit(param)
+        creditRemoteDataSource.deleteCredit(param)
         creditLocalDataSource.deleteCredit(param)
     }
 }
