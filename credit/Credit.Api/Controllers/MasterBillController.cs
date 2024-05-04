@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Utils.Http;
 
 namespace Credit.Api.Controllers;
 
@@ -20,7 +21,10 @@ public class MasterBillController : ControllerBase
     [HttpGet("balance")]
     public Task<long> FetchMasterBalance([FromHeader] Guid? requestId = null)
     {
-        return _mediator.Send(new Lib.Feature.MasterBill.Balance.Fetch.Request(), HttpContext.RequestAborted);
+        return _mediator.Send(new Lib.Feature.MasterBill.Balance.Fetch.Request
+        {
+            RequestId = HttpContext.GetXRequestId()
+        }, HttpContext.RequestAborted);
     }
     
 }

@@ -16,6 +16,9 @@ public class Handler : IRequestHandler<Request, long>
 
     public Task<long> Handle(Request request, CancellationToken cancellationToken)
     {
-        return _mediator.Send(new Bill.FetchBalance.Request(_masterBillSettings.MasterBillId), cancellationToken);
+        return _mediator.Send(new Bill.FetchBalance.Request(_masterBillSettings.MasterBillId)
+        {
+            RequestId = request.RequestId
+        }, cancellationToken);
     }
 }

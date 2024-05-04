@@ -10,4 +10,6 @@ public class Request : IRequest
     {
         PaymentId = paymentId;
     }
+    
+    public required Guid RequestId { get; init; }
 }

@@ -17,12 +17,12 @@
 #pragma warning disable 8625 // Disable "CS8625 Cannot convert null literal to non-nullable reference type"
 #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
 
-namespace Log.Service.Provider.v1
+namespace LogService.Provider.v2
 {
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.0.7.0 (NJsonSchema v11.0.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial interface ILogServiceProviderV1 : Utils.ClientGenerator.Base.IClientBase
+    public partial interface ILogServiceProviderV2 : Utils.ClientGenerator.Base.IClientBase
     {
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -32,6 +32,28 @@ namespace Log.Service.Provider.v1
         /// <returns>OK</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task PublishLogAsync(PublishLogDto body, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<double> GetPercentAsync(System.DateTime? time, string serviceName);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<double> GetPercentAsync(System.DateTime? time, string serviceName, System.Threading.CancellationToken cancellationToken);
+
+    }
+    
+    public partial interface ILogServiceProviderV2 : Utils.ClientGenerator.Base.IClientBase
+    {
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<double> GetPercentInSecondsAsync(int second, string serviceName);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<double> GetPercentInSecondsAsync(int second, string serviceName, System.Threading.CancellationToken cancellationToken);
 
     }
 

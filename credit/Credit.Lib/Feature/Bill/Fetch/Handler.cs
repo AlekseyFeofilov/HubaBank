@@ -1,19 +1,22 @@
-using Core.Provider.v2;
+using Core.Provider.v3;
 using Credit.Primitives;
+using LogService.Provider.v2;
 using MediatR;
 
 namespace Credit.Lib.Feature.Bill.Fetch;
 
 public class Handler : IRequestHandler<Request, BillDtoV2>
 {
-    private readonly ICoreProviderV2 _coreProviderV2;
+    private readonly ICoreProviderV3 _coreProvider;
+    private readonly ILogServiceProviderV2 _logServiceProvider;
     private readonly IMediator _mediator;
     private readonly Guid _providerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
-    public Handler(ICoreProviderV2 coreProviderV2, IMediator mediator)
+    public Handler(ICoreProviderV3 coreProvider, IMediator mediator, ILogServiceProviderV2 logServiceProvider)
     {
-        _coreProviderV2 = coreProviderV2;
+        _coreProvider = coreProvider;
         _mediator = mediator;
+        _logServiceProvider = logServiceProvider;
     }
 
     public async Task<BillDtoV2> Handle(Request request, CancellationToken cancellationToken)
@@ -24,19 +27,22 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
         {
             try
             {
-                var bill = await _coreProviderV2.GetBillV2Async(request.BillId, cancellationToken);
+                var bill = await _coreProvider.GetBillV3Async(request.BillId, request.RequestId.ToString(), cancellationToken);
 
                 if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.HalfOpen)
                 {
                     await _mediator.Send(new CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Closed), cancellationToken);
                 }
                 
-                await _mediator.Send(new CircuitBreaker.IncreaseErrorCount.Request(_providerId, retry), cancellationToken);
                 return bill;
             }
             catch (Exception)
             {
-                if (circuitBreaker.ErrorCount + retry > 50 && circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
+                var faultPercent = await _logServiceProvider.GetPercentInSecondsAsync(10, "core", cancellationToken);
+                
+                if (circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen && faultPercent > 0.7)
+                    // && circuitBreaker.ErrorCount + retry > 10
+                    // && 1.0 * circuitBreaker.ErrorCount / (circuitBreaker.SuccessCount + circuitBreaker.ErrorCount) > 0.7)
                 {
                     await _mediator.Send(new CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Open), cancellationToken);
                     throw;
@@ -44,7 +50,7 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
 
                 if (retry == 5)
                 {
-                    await _mediator.Send(new CircuitBreaker.IncreaseErrorCount.Request(_providerId, retry), cancellationToken);
+                    // await _mediator.Send(new CircuitBreaker.IncreaseErrorCount.Request(_providerId, retry), cancellationToken);
                     throw;
                 }
 

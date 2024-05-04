@@ -10,4 +10,5 @@ public class Request : IRequest
     }
 
     public Guid CreditId { get; set; }
+    public required Guid RequestId { get; init; }
 }

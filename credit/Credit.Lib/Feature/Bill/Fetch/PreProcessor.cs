@@ -22,6 +22,11 @@ public class PreProcessor : IRequestPreProcessor<Request>
     {
         var circuitBreaker = await _mediator.Send(new CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
 
+        // if (circuitBreaker.LastUpdate.GetDifferenceInSeconds(DateTime.Now) > 10)
+        // {
+        //     await _mediator.Send(new CircuitBreaker.ResetStatistic.Request(circuitBreaker.Id), cancellationToken);
+        // }
+
         switch (circuitBreaker.CircuitBreakerStatus)
         {
             case CircuitBreakerStatus.Open:
@@ -40,7 +45,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
     private async Task ProcessOpenCircuitBreaker(Data.Responses.CircuitBreakerResponse circuitBreaker,
         CancellationToken cancellationToken)
     {
-        if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Parse("10.10.2022")) > 10)
+        if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Now) > 10)
         {
             await _mediator.Send(new CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.HalfOpen),
                 cancellationToken);
@@ -52,7 +57,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
     private async Task ProcessHalfOpenCircuitBreaker(Data.Responses.CircuitBreakerResponse circuitBreaker,
         CancellationToken cancellationToken)
     {
-        if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Parse("10.10.2022")) > 30)
+        if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Now) > 30)
         {
             await _mediator.Send(new CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.Closed),
                 cancellationToken);

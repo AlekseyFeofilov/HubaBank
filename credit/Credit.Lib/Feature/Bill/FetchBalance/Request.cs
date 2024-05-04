@@ -10,4 +10,5 @@ public class Request : IRequest<long>
     }
 
     public Guid BillId { get; set; }
+    public required Guid RequestId { get; init; }
 }

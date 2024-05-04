@@ -13,7 +13,10 @@ public class Handler : IRequestHandler<Request, long>
 
     public async Task<long> Handle(Request request, CancellationToken cancellationToken)
     {
-        var bill = await _mediator.Send(new Bill.Fetch.Request(request.BillId), cancellationToken);
+        var bill = await _mediator.Send(new Bill.Fetch.Request(request.BillId)
+        {
+            RequestId = request.RequestId
+        }, cancellationToken);
         return bill.Balance;
     }
 }

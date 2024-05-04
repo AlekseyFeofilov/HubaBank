@@ -20,7 +20,10 @@ public class Handler : IRequestHandler<Request>
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
         var credit = await _mediator.Send(new Credit.Fetch.ById.Request(request.CreditId), cancellationToken);
-        var billBalance = await _mediator.Send(new Bill.FetchBalance.Request(credit.BillId), cancellationToken);
+        var billBalance = await _mediator.Send(new Bill.FetchBalance.Request(credit.BillId)
+        {
+            RequestId = request.RequestId
+        }, cancellationToken);
         var overdidPayments =
             (await _mediator.Send(new Payment.Fetch.All.Request(new OverdidPaymentSpecification()), cancellationToken))
             .OrderBy(x => x.PaymentDay);
