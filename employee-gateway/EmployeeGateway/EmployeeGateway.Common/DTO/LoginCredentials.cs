@@ -1,9 +1,10 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace EmployeeGateway.Models;
 
 public class LoginCredentials
 {
-    [Required]
-    public string JwtSso { get; set; }
+    public string PhoneNumber { get; set; }
+
+    public string Password { get; set; }
+    public string MessagingToken { get; set; }
+
 }

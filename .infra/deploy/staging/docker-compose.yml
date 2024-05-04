@@ -26,7 +26,13 @@ services:
     ports:
       - "9002:80"
     environment:
+      ConnectionStrings__DefaultConnection: Server=gatewayEmployeeDB;Port=5432;Database=gatewayEmployeeDatabase;Username=postgres;Password=asd123
       ASPNETCORE_ENVIRONMENT: Staging
+      RABBITMQ_HOST: hits-huba-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: huba
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_VHOST: huba
     volumes:
       - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     networks:

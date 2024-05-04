@@ -133,6 +133,19 @@ public static class UtilsService
         else { return null; }
     }
 
+    public static bool IsUnstableOperationService()
+    {
+        var random = new Random();
+        var randomNumber = random.NextDouble();
+                
+        var currentTime = DateTime.Now;
+        var errorPercentage = 0.5;
+                
+        if (currentTime.Minute % 2 == 0)
+        {
+            errorPercentage = 0.9;
+        }
 
-
+        return randomNumber <= errorPercentage;
+    }
 }

@@ -1,4 +1,5 @@
 using EmployeeGateway.BL.Services;
+using EmployeeGateway.Common.Enum;
 using EmployeeGateway.Common.ServicesInterface;
 using EmployeeGateway.DAL;
 using Microsoft.AspNetCore.Builder;
@@ -24,11 +25,25 @@ public static class Configurator
         builder.Services.AddSingleton<IFirebaseNotificationService, FirebaseNotificationService>();
         builder.Services.AddSingleton<IWebSocketUserDb, WebSocketUserDb>();
         builder.Services.AddHostedService<TransactionsListener>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<ICircuitBreakerService, CircuitBreakerService>();
     }
     
     public static void ConfigureMicroserviceUrls(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<UrlsMicroserviceOptions>(builder.Configuration.GetSection("MicroservicesUrls"));
+    }
+    
+    public static async Task SeedCircuitBreaker(IServiceProvider serviceProvider)
+    {
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var service = scope.ServiceProvider.GetRequiredService<ICircuitBreakerService>();
+
+            await service.CreateCircuitBreaker(MicroserviceName.User);
+            await service.CreateCircuitBreaker(MicroserviceName.Core);
+            await service.CreateCircuitBreaker(MicroserviceName.Credit);
+        }
     }
     
     public static void ConfigureMigrate(IServiceProvider serviceProvider)
