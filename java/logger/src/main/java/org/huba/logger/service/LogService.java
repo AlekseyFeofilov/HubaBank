@@ -12,6 +12,8 @@ import org.huba.logger.repository.StackTraceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +51,27 @@ public class LogService {
         stackTraceRepository.save(stackTraceEntity);
         stackTraceEntity.getLogEntity().getStackTrace().add(stackTraceEntity);
         logRepository.save(stackTraceEntity.getLogEntity());
+    }
+
+    public Double getPercent(LocalDateTime time, String serviceName) {
+        if(time == null) {
+            time = LocalDateTime.now().minusMinutes(1);
+        }
+        List<StackTraceEntity> list = stackTraceRepository.findByDateAfterAndPublishService(time, serviceName);
+        double normal = 0d;
+        double errors = 0d;
+
+        for(StackTraceEntity stackTraceEntity : list) {
+            if(stackTraceEntity.getResponse().getStatus() >= 500) {
+                errors += 1d;
+            }
+            else {
+                normal += 1d;
+            }
+        }
+        if(errors == 0) {
+            return 0d;
+        }
+        return errors / (normal + errors);
     }
 }
