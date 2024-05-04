@@ -29,43 +29,9 @@ namespace BFF_client.Api.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        /*[HttpGet("{billId:guid}/transactions")]
-        [Produces("application/json")]
-        public async Task<ActionResult<List<TransactionDto>>> GetBillHistory(Guid billId)
-        {
-            var authHeader = Request.Headers.Authorization.FirstOrDefault();
-            if (authHeader == null)
-            {
-                return Unauthorized();
-            }
-            var userId = ControllersUtils.GetUserIdByHeader(authHeader);
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
-            if (profileWithPrivileges == null)
-            {
-                return Unauthorized();
-            }
-            if (profileWithPrivileges.Privileges.Contains(Privileges.TRANSACTION_READ) == false)
-            {
-                return Forbid();
-            }
-
-            string downstreamUrl = _configUrls.core + "users/" + userId + "/bills/" + billId + "/transactions";
-            var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
-            message.Headers.Authorization = new AuthenticationHeaderValue(
-                "Bearer", authHeader.Substring(6)
-                );
-            var response = await _httpClient.SendAsync(message);
-
-            return await this.GetResultFromResponse<List<TransactionDto>>(response);
-        }*/
-
         [HttpPost("tobill")]
         [Produces("application/json")]
-        public async Task<IActionResult> MakeToBillTransaction(TransactionToBillDto transactionCreation)
+        public async Task<IActionResult> MakeToBillTransaction(TransactionToBillDto transactionCreation, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -77,7 +43,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -106,7 +73,7 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("deposit")]
         [Produces("application/json")]
-        public async Task<IActionResult> GiveMoneyToBillTransaction(TransactionGiveMoneyDto transactionCreation)
+        public async Task<IActionResult> GiveMoneyToBillTransaction(TransactionGiveMoneyDto transactionCreation, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -118,7 +85,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -147,7 +115,7 @@ namespace BFF_client.Api.Controllers
 
         [HttpPost("withdrawal")]
         [Produces("application/json")]
-        public async Task<IActionResult> WithdrawMoneyFromBillTransaction(TransactionWithdrawMoneyDto transactionCreation)
+        public async Task<IActionResult> WithdrawMoneyFromBillTransaction(TransactionWithdrawMoneyDto transactionCreation, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -159,7 +127,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();

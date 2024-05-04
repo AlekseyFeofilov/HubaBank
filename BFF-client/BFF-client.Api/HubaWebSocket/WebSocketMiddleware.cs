@@ -61,7 +61,7 @@ namespace BFF_client.Api.HubaWebSocket
                     new SocketUserModel { BillId = Guid.Parse(billIdString), WebSocket = webSocket }
                     );
 
-                await GetOldTransactions(billIdString, webSocket);
+                await GetOldTransactions(billIdString, webSocket, context.Request.Headers);
 
                 await ReceiveMessage(webSocket, async (result, buffer) =>
                 {
@@ -109,7 +109,9 @@ namespace BFF_client.Api.HubaWebSocket
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return false;
             }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            httpContext.Request.Headers.TryGetValue("requestId", out var requestId);
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -139,10 +141,12 @@ namespace BFF_client.Api.HubaWebSocket
             return true;
         }
 
-        private async Task GetOldTransactions(string billId, WebSocket webSocket)
+        private async Task GetOldTransactions(string billId, WebSocket webSocket, IHeaderDictionary headers)
         {
             var oldHistoryUrl = _configUrls.core + "bills/" + billId + "/transfers";
             var message = new HttpRequestMessage(HttpMethod.Get, oldHistoryUrl);
+            headers.TryGetValue("requestId", out var requestId);
+            message.Headers.Add("requestId", requestId.SingleOrDefault());
             var response = await _httpClientFactory.CreateClient().SendAsync(message);
 
             if (response.IsSuccessStatusCode)

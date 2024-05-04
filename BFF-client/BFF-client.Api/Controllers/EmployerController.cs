@@ -28,7 +28,7 @@ namespace BFF_client.Api.Controllers
 
         [HttpGet("{userId:guid}/bills")]
         [Produces("application/json")]
-        public async Task<ActionResult<List<ClientBillDto>>> GetAllUserBills(Guid userId)
+        public async Task<ActionResult<List<ClientBillDto>>> GetAllUserBills(Guid userId, [FromHeader] string? requestId = null)
         {
             var authHeader = Request.Headers.Authorization.FirstOrDefault();
             if (authHeader == null)
@@ -40,7 +40,8 @@ namespace BFF_client.Api.Controllers
             {
                 return Unauthorized();
             }
-            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -52,9 +53,7 @@ namespace BFF_client.Api.Controllers
 
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
-            message.Headers.Authorization = new AuthenticationHeaderValue(
-                "Bearer", authHeader.Substring(6)
-                );
+            message.Headers.Add("requestId", requestId);
             var response = await _httpClient.SendAsync(message);
 
             var knownBills = await _billService.GetKnownUserBills(userId);
