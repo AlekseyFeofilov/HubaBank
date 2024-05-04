@@ -1,4 +1,5 @@
 using LogService.Provider;
+using LogService.Provider.v2;
 using MediatR;
 using Microsoft.AspNetCore.Http.Extensions;
 using Utils.Http;
@@ -7,9 +8,9 @@ namespace Credit.Lib.Feature.LogService.Log;
 
 public class Handler : IRequestHandler<Request>
 {
-    private readonly ILogServiceProviderV1 _logServiceProvider;
+    private readonly ILogServiceProviderV2 _logServiceProvider;
 
-    public Handler(ILogServiceProviderV1 logServiceProvider)
+    public Handler(ILogServiceProviderV2 logServiceProvider)
     {
         _logServiceProvider = logServiceProvider;
     }

@@ -8,6 +8,8 @@ public class Request : Base.Update.Request<Dal.Models.CircuitBreaker, Data.Respo
     public Request(Guid id, CircuitBreakerStatus status)
         : base(new IdentitySpecification<Dal.Models.CircuitBreaker, Guid>(id))
     {
+        var now = DateTime.Now;
+        
         Expression = circuitBreaker =>
         {
             circuitBreaker.CircuitBreakerStatus = status;
@@ -15,10 +17,12 @@ public class Request : Base.Update.Request<Dal.Models.CircuitBreaker, Data.Respo
             switch (status)
             {
                 case CircuitBreakerStatus.Closed:
-                    circuitBreaker.ErrorCount = 0;
+                    // circuitBreaker.ErrorCount = 0;
+                    // circuitBreaker.SuccessCount = 0;
+                    // circuitBreaker.LastUpdate = now;
                     break;
                 case CircuitBreakerStatus.Open:
-                    circuitBreaker.OpenTime = DateTime.Now;
+                    circuitBreaker.OpenTime = now;
                     break;
                 case CircuitBreakerStatus.HalfOpen:
                     break;

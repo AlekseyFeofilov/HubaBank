@@ -3,7 +3,7 @@
   "info": {
     "title": "Core Service",
     "description": "Сервис для взаимодействия со счетами и транзакциями",
-    "version": "v2"
+    "version": "v3"
   },
   "servers": [
     {
@@ -12,13 +12,13 @@
     }
   ],
   "paths": {
-    "/core/api/v2/users/{userId}/bills": {
+    "/core/api/v3/users/{userId}/bills": {
       "get": {
         "tags": [
           "bill-controller"
         ],
         "summary": "Посмотреть все счета пользователя",
-        "operationId": "getUserBillsV2",
+        "operationId": "getUserBillsV3",
         "parameters": [
           {
             "name": "userId",
@@ -27,6 +27,15 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -92,7 +101,7 @@
         ],
         "summary": "Создать счет для пользователя",
         "description": "Возвращает информацию о созданном счете.",
-        "operationId": "createBillV2",
+        "operationId": "createBillV3",
         "parameters": [
           {
             "name": "userId",
@@ -101,6 +110,24 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "idempotentKey",
+            "in": "header",
+            "description": "Ключ идемпотентности",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -168,253 +195,24 @@
         }
       }
     },
-    "/core/api/v2/users/{userId}/bills/{billId}": {
-      "get": {
-        "tags": [
-          "bill-controller"
-        ],
-        "summary": "Посмотреть информацию о счете пользователя",
-        "operationId": "getUserBillV2",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "billId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Бизнес ошибка: что-то не найдено",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Бизнес ошибка или ошибка валидации",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Ошибка взаимодействия с другими с сервисами",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Внутренняя ошибка сервиса",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ClientBillDtoV2"
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true
-      },
-      "delete": {
-        "tags": [
-          "bill-controller"
-        ],
-        "summary": "Закрыть счет у пользователя",
-        "operationId": "closeUserBillV2",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "billId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Бизнес ошибка: что-то не найдено",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Бизнес ошибка или ошибка валидации",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Ошибка взаимодействия с другими с сервисами",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Внутренняя ошибка сервиса",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK"
-          }
-        },
-        "deprecated": true
-      }
-    },
-    "/core/api/v2/users/{userId}/bills/{billId}/transactions": {
-      "get": {
-        "tags": [
-          "transaction-controller"
-        ],
-        "summary": "Посмотреть историю транзакций по счету у пользователя",
-        "operationId": "getUserTransactionsV2",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "billId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Бизнес ошибка: что-то не найдено",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Бизнес ошибка или ошибка валидации",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Ошибка взаимодействия с другими с сервисами",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Внутренняя ошибка сервиса",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TransactionDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true
-      }
-    },
-    "/core/api/v2/bills": {
+    "/core/api/v3/bills": {
       "get": {
         "tags": [
           "bill-controller"
         ],
         "summary": "Посмотреть все счета",
-        "operationId": "getBillsV2",
+        "operationId": "getBillsV3",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "404": {
             "description": "Бизнес ошибка: что-то не найдено",
@@ -472,13 +270,13 @@
         }
       }
     },
-    "/core/api/v2/bills/{billId}": {
+    "/core/api/v3/bills/{billId}": {
       "get": {
         "tags": [
           "bill-controller"
         ],
         "summary": "Посмотреть информацию о счете",
-        "operationId": "getBillV2",
+        "operationId": "getBillV3",
         "parameters": [
           {
             "name": "billId",
@@ -487,6 +285,15 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -548,7 +355,7 @@
           "bill-controller"
         ],
         "summary": "Закрыть счет",
-        "operationId": "closeBillV2",
+        "operationId": "closeBillV3",
         "parameters": [
           {
             "name": "billId",
@@ -557,6 +364,24 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "idempotentKey",
+            "in": "header",
+            "description": "Ключ идемпотентности",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -607,13 +432,13 @@
         }
       }
     },
-    "/core/api/v2/bills/{billId}/transfers": {
+    "/core/api/v3/bills/{billId}/transfers": {
       "get": {
         "tags": [
           "transfer-controller"
         ],
         "summary": "Посмотреть историю переводов по счету",
-        "operationId": "getTransfersV2",
+        "operationId": "getTransfersV3",
         "parameters": [
           {
             "name": "billId",
@@ -622,6 +447,15 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "header",
+            "description": "Идентификатор запроса для трассировки",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -680,82 +514,6 @@
             }
           }
         }
-      }
-    },
-    "/core/api/v2/bills/{billId}/transactions": {
-      "get": {
-        "tags": [
-          "transaction-controller"
-        ],
-        "summary": "Посмотреть историю транзакций по счету у пользователя",
-        "operationId": "getTransactionsV2",
-        "parameters": [
-          {
-            "name": "billId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "404": {
-            "description": "Бизнес ошибка: что-то не найдено",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Бизнес ошибка или ошибка валидации",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Ошибка взаимодействия с другими с сервисами",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Внутренняя ошибка сервиса",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorDto"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TransactionDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated": true
       }
     }
   },
@@ -830,40 +588,6 @@
               "JPY",
               "CNY"
             ]
-          }
-        }
-      },
-      "TransactionDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Идентификатор транзакции",
-            "format": "uuid"
-          },
-          "billId": {
-            "type": "string",
-            "description": "Идентификатор счета транзакции",
-            "format": "uuid"
-          },
-          "balanceChange": {
-            "type": "integer",
-            "description": "Изменение баланса счета в копейках",
-            "format": "int64"
-          },
-          "reason": {
-            "type": "string",
-            "description": "Причина выполнения транзакции",
-            "enum": [
-              "TERMINAL",
-              "LOAN",
-              "TRANSFER"
-            ]
-          },
-          "instant": {
-            "type": "string",
-            "description": "Момент времени выполнения транзакции",
-            "format": "date-time"
           }
         }
       },
@@ -943,6 +667,12 @@
               "JPY",
               "CNY"
             ]
+          },
+          "amount": {
+            "type": "integer",
+            "description": "Изменение баланса счета в копейках",
+            "format": "int64",
+            "nullable": true
           }
         },
         "description": "Счет, на который поступили деньги"
@@ -960,11 +690,6 @@
           },
           "target": {
             "$ref": "#/components/schemas/BillInfoDto"
-          },
-          "amount": {
-            "type": "integer",
-            "description": "Изменение баланса счета в копейках",
-            "format": "int64"
           },
           "instant": {
             "type": "string",

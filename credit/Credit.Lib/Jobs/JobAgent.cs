@@ -24,7 +24,10 @@ public class JobAgent : IJobAgent
 
     public Task EnqueuePayment(Guid paymentId)
     {
-        return _mediator.Send(new Feature.Payment.Handle.Request(paymentId));
+        return _mediator.Send(new Feature.Payment.Handle.Request(paymentId)
+        {
+            RequestId = Guid.NewGuid()
+        });
     }
 
     public Task EnqueueCreditActivation(Guid creditId)

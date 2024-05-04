@@ -50,7 +50,7 @@
       "wrapResponseMethods": [],
       "generateResponseClasses": true,
       "responseClass": "SwaggerResponse",
-      "namespace": "Core.Provider",
+      "namespace": "Log.Service.Provider",
       "requiredPropertiesMustBeDefined": true,
       "dateType": "System.DateTime",
       "jsonConverters": null,

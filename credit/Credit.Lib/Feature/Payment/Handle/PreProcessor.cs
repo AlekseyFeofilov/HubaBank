@@ -23,9 +23,15 @@ public class PreProcessor : IRequestPreProcessor<Request>
         
         if (haveArrears)
         {
-            await _mediator.Send(new Credit.Arrears.Handle.Request(payment.CreditId), cancellationToken);
+            await _mediator.Send(new Credit.Arrears.Handle.Request(payment.CreditId)
+            {
+                RequestId = request.RequestId
+            }, cancellationToken);
         }
         
-        await _mediator.Send(new Credit.Interest.Handle.Request(payment.CreditId), cancellationToken);
+        await _mediator.Send(new Credit.Interest.Handle.Request(payment.CreditId)
+        {
+            RequestId = request.RequestId
+        }, cancellationToken);
     }
 }

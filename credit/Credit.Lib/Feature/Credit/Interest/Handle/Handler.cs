@@ -14,7 +14,10 @@ public class Handler : IRequestHandler<Request>
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
         var credit = await _mediator.Send(new Fetch.ById.Request(request.CreditId), cancellationToken);
-        var billBalance = await _mediator.Send(new Bill.FetchBalance.Request(credit.BillId), cancellationToken);
+        var billBalance = await _mediator.Send(new Bill.FetchBalance.Request(credit.BillId)
+        {
+            RequestId = request.RequestId
+        }, cancellationToken);
         
         //todo нормально считать проценты
         var interest = credit.Principal * credit.InterestRate / (DateTime.IsLeapYear(DateTime.Today.Year) ? 366 : 365);
