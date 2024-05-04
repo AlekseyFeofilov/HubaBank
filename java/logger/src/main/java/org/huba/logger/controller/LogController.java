@@ -25,4 +25,9 @@ public class LogController {
     public Double getPercent(@RequestParam(value = "time", required = false) LocalDateTime time, String serviceName) {
         return logService.getPercent(time, serviceName);
     }
+
+    @GetMapping("errors/percent/second")
+    public Double getPercent(Integer second, String serviceName) {
+        return logService.getPercent(LocalDateTime.now().minusSeconds(second), serviceName);
+    }
 }
