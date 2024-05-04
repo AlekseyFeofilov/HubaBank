@@ -1,6 +1,4 @@
 using EmployeeGateway.BL;
-using EmployeeGateway.BL.Services;
-using EmployeeGateway.Common.ServicesInterface;
 using EmployeeGateway.Common.System;
 using Microsoft.OpenApi.Models;
 
@@ -71,5 +69,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 Configurator.ConfigureMigrate(app.Services);
+
+await Configurator.SeedCircuitBreaker(app.Services);
 
 app.Run();

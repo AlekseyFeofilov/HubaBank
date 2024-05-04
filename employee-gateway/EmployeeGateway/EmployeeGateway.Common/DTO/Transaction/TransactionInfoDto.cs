@@ -10,4 +10,5 @@ public class TransactionInfoDto
 
     public string Instant { get; set; }
 
+
 }

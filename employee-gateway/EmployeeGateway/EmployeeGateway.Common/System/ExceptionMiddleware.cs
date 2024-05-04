@@ -22,6 +22,12 @@ public class ExceptionMiddleware
         {
             await _requestDelegate(context);
         }
+        catch (MaxCountException exception)
+        {
+            _logger.LogError(exception.Message);
+            context.Response.StatusCode = StatusCodes.Status504GatewayTimeout;
+            await context.Response.WriteAsJsonAsync(new ErrorResponse { StatusCode = 504, Message = exception.Message });
+        }
         catch (IncorrectDataException exception)
         {
             _logger.LogError(exception.Message);

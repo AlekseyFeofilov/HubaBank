@@ -9,6 +9,7 @@ public class TransactionDto
     public string BillId { get; set; }
 
     public long BalanceChange { get; set; }
+    public string Currency { get; set; }
 
     public BillTypeDto Reason { get; set; }
 

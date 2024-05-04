@@ -7,6 +7,5 @@ public enum BillTypeDto
 {
     USER,
     TERMINAL,
-    LOAN,
-    TRANSFER // FOR OLD TRANSACTION
+    LOAN
 }

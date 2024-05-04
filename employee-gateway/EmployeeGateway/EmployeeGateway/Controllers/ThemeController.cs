@@ -1,4 +1,3 @@
-using EmployeeGateway.BL.Services;
 using EmployeeGateway.Common.DTO;
 using EmployeeGateway.Common.ServicesInterface;
 using EmployeeGateway.Common.System;
@@ -51,5 +50,4 @@ public class ThemeController: ControllerBase
         await _themeService.ChangeTheme(new Guid(userId), themeSystem);
         return Ok();
     }
-
 }
