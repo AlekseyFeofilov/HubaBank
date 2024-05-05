@@ -45,7 +45,8 @@ public class WebSecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/v3/api-docs/**",
-                                "/core/api/**"
+                                "/core/api/**",
+                                "/health"
                         ).permitAll()
                         .requestMatchers(
                                 "/core/api/v1/**"
