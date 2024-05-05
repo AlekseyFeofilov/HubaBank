@@ -48,9 +48,7 @@ namespace Credit.Api.Middlewares
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int) code;
             
-            _logger.LogError("Тест лог до WriteAsync");
             await context.Response.WriteAsync(result);
-            _logger.LogError("Тест лог после WriteAsync");
 
             try
             {

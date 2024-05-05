@@ -10,7 +10,8 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
     private readonly ICoreProviderV3 _coreProvider;
     private readonly ILogServiceProviderV2 _logServiceProvider;
     private readonly IMediator _mediator;
-    private readonly Guid _providerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    private readonly Guid _circuitBreakerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    private readonly Guid _circuitBreakerSettingId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa5");
 
     public Handler(ICoreProviderV3 coreProvider, IMediator mediator, ILogServiceProviderV2 logServiceProvider)
     {
@@ -21,7 +22,14 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
 
     public async Task<BillDtoV2> Handle(Request request, CancellationToken cancellationToken)
     {
-        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
+        var circuitBreakerEnable =
+            await _mediator.Send(new Utils.Setting.Fetch.Request(_circuitBreakerSettingId), cancellationToken);
+        if (circuitBreakerEnable.Value == "false")
+        {
+            return await _coreProvider.GetBillV3Async(request.BillId, request.RequestId.ToString(), cancellationToken);
+        }
+        
+        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_circuitBreakerId), cancellationToken);
         
         for (var retry = 0; ; retry++)
         {
@@ -31,7 +39,7 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
 
                 if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.HalfOpen)
                 {
-                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Closed), cancellationToken);
+                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_circuitBreakerId, CircuitBreakerStatus.Closed), cancellationToken);
                 }
                 
                 return bill;
@@ -42,7 +50,7 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
                 
                 if (circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen && faultPercent > 0.7)
                 {
-                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Open), cancellationToken);
+                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_circuitBreakerId, CircuitBreakerStatus.Open), cancellationToken);
                     throw;
                 }
 
