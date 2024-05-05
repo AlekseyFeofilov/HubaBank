@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using EmployeeGateway.BL;
@@ -9,6 +10,7 @@ using EmployeeGateway.Common.ServicesInterface;
 using EmployeeGateway.Common.System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace EmployeeGateway.Controllers;
 
@@ -17,63 +19,70 @@ namespace EmployeeGateway.Controllers;
 public class CreditController: ControllerBase
 {
     private readonly HttpClient _httpClient;
+    private readonly IUserService _userService;
     private readonly UrlsMicroserviceOptions _urlsMicroservice;
     private readonly ICircuitBreakerService _circuitBreakerService;
     
-    public CreditController(ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
+    public CreditController(IUserService userService, ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
     {
         _httpClient = httpClientFactory.CreateClient();
+        _userService = userService;
         _urlsMicroservice = urlsMicroserviceOptions.Value;
         _circuitBreakerService = circuitBreakerService;
     }
 
     [HttpGet("users/{userId:guid}/credits")]
-    public async Task<ActionResult<List<CreditDto>>> GetCredits(Guid userId, Guid requestId)
+    public async Task<ActionResult<List<CreditDto>>> GetCredits(Guid userId)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var authUserId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-        
                 var url = _urlsMicroservice.CreditUrl + $"Credit/users/{userId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<List<CreditDto>>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -81,10 +90,10 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -98,45 +107,50 @@ public class CreditController: ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var userId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-  
                 var url = _urlsMicroservice.ClientGateway + $"Credit/{creditId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<CreditDto>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -144,10 +158,10 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -161,45 +175,50 @@ public class CreditController: ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var userId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-  
                 var url = _urlsMicroservice.CreditUrl + "CreditTerms";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<List<CreditTermDto>>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -207,16 +226,16 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
     }
     
-    [HttpPut("credit-terms")]
+    [HttpPost("credit-terms")]
     public async Task<ActionResult<string>> CreateCreditTerm(CreditTermCreateDto model)
     {
         var retryCount = 0;
@@ -224,47 +243,56 @@ public class CreditController: ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var userId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-  
                 var downstreamUrl = _urlsMicroservice.CreditUrl + "CreditTerms";
                 var json = JsonSerializer.Serialize(model, UtilsService.jsonOptions);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-      
-                var response = await _httpClient.PostAsync(downstreamUrl, content);
-                
-                if (!response.IsSuccessStatusCode)
+                var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl)
                 {
-                    throw new Exception();
+                    Content = content
+                };
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("idempotentKey", new Guid().ToString());
+      
+                var response = await _httpClient.SendAsync(message);
+                
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<string>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -272,10 +300,10 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -289,45 +317,51 @@ public class CreditController: ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var userId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-  
                 var url = _urlsMicroservice.CreditUrl + $"CreditTerms/{creditTermsId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("idempotentKey", new Guid().ToString());
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResult(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -335,10 +369,10 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -352,45 +386,50 @@ public class CreditController: ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var token = Request.Headers[HeaderNames.Authorization].ToString();
+        var userId = UtilsService.GetUserIdByHeader(token);
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Credit);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Credit);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-        
                 var url = _urlsMicroservice.CreditUrl + $"Payment/{creditId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<List<CreditPaymentDto>>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -398,10 +437,10 @@ public class CreditController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Credit);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }

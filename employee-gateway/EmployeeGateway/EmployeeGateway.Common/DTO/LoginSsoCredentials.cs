@@ -8,5 +8,5 @@ public class LoginSsoCredentials
     public string JwtSso { get; set; }
     
     [Required]
-    public string MessagingToken { get; set; }
+    public Guid MessagingToken { get; set; }
 }

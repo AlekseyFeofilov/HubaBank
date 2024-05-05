@@ -18,7 +18,7 @@ public class RegisterCredential
     public string Phone { get; set; }
     
     [Required]
-    public string MessagingToken { get; set; }
+    public Guid MessagingToken { get; set; }
 }
 
 public class FullName

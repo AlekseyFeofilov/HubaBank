@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using EmployeeGateway.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -37,32 +38,38 @@ public class AuthGatewayController : ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        string downstreamUrl = _urlsMicroservice.AuthUrl + "register";
+        var json = JsonSerializer.Serialize(requestBody, UtilsService.jsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl)
+        {
+            Content = content
+        };
+        message.Headers.Add("requestId", await _userService.GetMessagingToken(requestBody.MessagingToken));
+        message.Headers.Add("idempotentKey", new Guid().ToString());
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.User);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.User);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                string downstreamUrl = _urlsMicroservice.AuthUrl + "register";
-                var json = JsonSerializer.Serialize(requestBody, UtilsService.jsonOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(downstreamUrl, content);
+                var response = await _httpClient.SendAsync(message);
 
                 var tokens = await this.GetResultFromResponse<TokenPairs>(response);
 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    return tokens;
+                    throw new InternalServerErrorException();
                 }
 
                 var downstreamResponse = await response.Content.ReadAsStringAsync();
@@ -76,21 +83,21 @@ public class AuthGatewayController : ControllerBase
 
                 var responseRole = await _httpClient.PostAsync(downstreamUrlRole, contentRole);
                 
-                if (!responseRole.IsSuccessStatusCode)
+                if (responseRole.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
-                await _userService.SetMessagingToken(Guid.Parse(userId), requestBody.MessagingToken);
+                await _userService.SetMessagingToken(Guid.Parse(userId), requestBody.MessagingToken.ToString());
                 return tokens;
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -98,10 +105,10 @@ public class AuthGatewayController : ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.User);
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -116,57 +123,65 @@ public class AuthGatewayController : ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        string downstreamUrl = _urlsMicroservice.AuthUrl + "login";
+
+        var json = JsonSerializer.Serialize(credentials, UtilsService.jsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl)
+        {
+            Content = content
+        };
+        message.Headers.Add("requestId", await _userService.GetMessagingToken(credentials.MessagingToken));
+        message.Headers.Add("idempotentKey", new Guid().ToString());
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.User);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.User);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                string downstreamUrl = _urlsMicroservice.AuthUrl + "login";
-
-                var json = JsonSerializer.Serialize(credentials, UtilsService.jsonOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(downstreamUrl, content);
+                var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
                 
                 var downstreamResponse = await response.Content.ReadAsStringAsync();
                 var body = JsonSerializer.Deserialize<TokenPairs>(downstreamResponse, UtilsService.jsonOptions);
                 var userId = UtilsService.GetUserIdByHeader(body.accessToken);
-                await _userService.SetMessagingToken(Guid.Parse(userId), credentials.MessagingToken);
+                await _userService.SetMessagingToken(Guid.Parse(userId), credentials.MessagingToken.ToString());
         
                 return await this.GetResultFromResponse<TokenPairs>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
                 }
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
-                
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.User);
+                {
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
+                }
             }
         }
     }
@@ -180,56 +195,63 @@ public class AuthGatewayController : ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        string downstreamUrl = _urlsMicroservice.AuthUrl + "jwt";
+        var content = new StringContent(credentials.JwtSso, Encoding.UTF8, "application/json");
+        var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl)
+        {
+            Content = content
+        };
+        message.Headers.Add("requestId", await _userService.GetMessagingToken(credentials.MessagingToken));
+        message.Headers.Add("idempotentKey", new Guid().ToString());
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.User);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.User);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                string downstreamUrl = _urlsMicroservice.AuthUrl + "jwt";
-
-                var content = new StringContent(credentials.JwtSso, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(downstreamUrl, content);
+                var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
                 
                 var downstreamResponse = await response.Content.ReadAsStringAsync();
                 var body = JsonSerializer.Deserialize<TokenPairs>(downstreamResponse, UtilsService.jsonOptions);
                 var userId = UtilsService.GetUserIdByHeader(body.accessToken);
-                await _userService.SetMessagingToken(Guid.Parse(userId), credentials.MessagingToken);
+                await _userService.SetMessagingToken(Guid.Parse(userId), credentials.MessagingToken.ToString());
         
                 return await this.GetResultFromResponse<TokenPairs>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
                 }
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
-                
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.User);
+                {
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
+                }
             }
         }
     }
