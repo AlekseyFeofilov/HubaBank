@@ -22,6 +22,8 @@ services:
       retries: 5
       start_period: 5s
       timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -47,6 +49,8 @@ services:
       retries: 5
       start_period: 5s
       timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -77,6 +81,8 @@ services:
       retries: 5
       start_period: 5s
       timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -98,6 +104,8 @@ services:
       retries: 5
       start_period: 5s
       timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -124,6 +132,8 @@ services:
       retries: 5
       start_period: 5s
       timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -139,6 +149,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: logger_service
+    healthcheck:
+      test: curl --fail http://localhost:8080/swagger-ui/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
