@@ -86,6 +86,9 @@ public class LogService {
         return headersNew;
     }
     private String toLim(String str) {
+        if(str == null) {
+            return str;
+        }
         if(str.length() >= 5000) {
             return str.substring(0, limit);
         }
