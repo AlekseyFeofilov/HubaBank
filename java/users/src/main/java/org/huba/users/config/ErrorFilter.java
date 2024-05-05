@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Set;
 
-@Order(Ordered.LOWEST_PRECEDENCE - 1)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @Component
 @WebFilter(filterName = "LogFilter", urlPatterns = "/*")
 @RequiredArgsConstructor
