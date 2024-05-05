@@ -128,11 +128,12 @@ namespace BFF_client.Api.Controllers
             else { return null; }
         }
 
-        public static async Task<bool> IsBillBelongToUser(string userId, Guid billId, ConfigUrls configUrls, HttpClient client, ICircuitBreakerService circuitBreaker)
+        public static async Task<bool> IsBillBelongToUser(string userId, Guid billId, ConfigUrls configUrls, HttpClient client, string? requestId, ICircuitBreakerService circuitBreaker)
         {
             string downstreamUrl = configUrls.core + "bills/" + billId.ToString();
 
             var message = new HttpRequestMessage(HttpMethod.Get, downstreamUrl);
+            message.Headers.Add("requestId", requestId);
             var response = await client.SendWithRetryAsync(message, circuitBreaker, UnstableService.CORE);
             if (response.IsSuccessStatusCode)
             {

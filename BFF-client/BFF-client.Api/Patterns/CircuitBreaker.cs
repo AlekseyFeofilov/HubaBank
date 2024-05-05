@@ -29,7 +29,7 @@ namespace BFF_client.Api.Patterns
 
         public void NewUsersPercent(float percent)
         {
-            if (percent > 0.65 && usersState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
+            if (percent > 0.75 && usersState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
             {
                 usersState = new BreakerOpen(DateTime.Now);
                 _logger.LogWarning("Проблемы с UserService. BreakerOpen");
@@ -43,7 +43,7 @@ namespace BFF_client.Api.Patterns
 
         public void NewCorePercent(float percent)
         {
-            if (percent > 0.8 && coreState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
+            if (percent > 0.95 && coreState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
             {
                 coreState = new BreakerOpen(DateTime.Now);
                 _logger.LogWarning("Проблемы с CoreService. BreakerOpen");
@@ -57,7 +57,7 @@ namespace BFF_client.Api.Patterns
 
         public void NewCreditPercent(float percent)
         {
-            if (percent > 0.8 && creditState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
+            if (percent > 0.95 && creditState is BreakerHalfOpen halfOpen && (DateTime.Now - halfOpen.halfOpenInTime).TotalSeconds > 8)
             {
                 creditState = new BreakerOpen(DateTime.Now);
                 _logger.LogWarning("Проблемы с CreditService. BreakerOpen");
