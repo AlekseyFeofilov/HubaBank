@@ -20,13 +20,24 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger/index.html' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   gateway-employer:
     image: registry.gitlab.com/hits-tsu/huba/gateway-employer:latest
@@ -47,13 +58,24 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost/index.html' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   core:
     image: registry.gitlab.com/hits-tsu/huba/core:latest
@@ -79,13 +101,24 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/health' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   users:
     image: registry.gitlab.com/hits-tsu/huba/users:latest
@@ -102,13 +135,24 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger-ui/index.html' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   credit:
     image: registry.gitlab.com/hits-tsu/huba/credit:latest
@@ -130,13 +174,25 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger/index.html' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
+
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   logger:
     image: registry.gitlab.com/hits-tsu/huba/logger:latest
@@ -153,13 +209,24 @@ services:
       test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger-ui/index.html' ]
       interval: 5s
       retries: 5
-      start_period: 5s
+      start_period: 20s
       timeout: 10s
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: 10
+        compress: 'true'
     labels:
       io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
-    restart: always
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 60s
 
   grafana:
     image: grafana/grafana:10.4.2

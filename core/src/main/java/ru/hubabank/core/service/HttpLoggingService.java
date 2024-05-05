@@ -1,6 +1,7 @@
 package ru.hubabank.core.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -23,6 +24,7 @@ public class HttpLoggingService {
 
     private final LoggerService loggerService;
 
+    @SneakyThrows
     public void handle(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, long nanosElapsed) {
         String httpMethod = request.getMethod();
         String path = request.getRequestURI();
@@ -32,6 +34,7 @@ public class HttpLoggingService {
 
         int httpStatus = response.getStatus();
         Map<String, String> responseHeaders = toHeaderMap(response.getHeaderNames().iterator(), response::getHeader);
+        response.copyBodyToResponse();
         byte[] responseBody = response.getContentAsByteArray();
 
         loggerService.sendLog(LogDto.builder()
