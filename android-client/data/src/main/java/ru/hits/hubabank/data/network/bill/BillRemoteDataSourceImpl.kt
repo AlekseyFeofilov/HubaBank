@@ -11,6 +11,7 @@ import ru.hits.hubabank.data.network.bill.model.TransactionDepositCreationDto
 import ru.hits.hubabank.data.network.bill.model.TransactionToBillCreationDto
 import ru.hits.hubabank.data.network.bill.model.TransactionWithdrawalCreationDto
 import ru.hits.hubabank.data.network.bill.model.toDomain
+import ru.hits.hubabank.data.network.core.AddRequestIdInterceptor
 import ru.hits.hubabank.data.network.core.AuthInterceptor
 import ru.hits.hubabank.data.network.core.TokenAuthenticator
 import ru.hits.hubabank.domain.bill.BillRemoteDataSource
@@ -25,6 +26,7 @@ internal class BillRemoteDataSourceImpl @Inject constructor(
     private val billApi: BillApi,
     private val authInterceptor: AuthInterceptor,
     private val authenticator: TokenAuthenticator,
+    private val addRequestIdInterceptor: AddRequestIdInterceptor,
 ) : BillRemoteDataSource {
 
     private lateinit var socket: WebSocket
@@ -79,6 +81,7 @@ internal class BillRemoteDataSourceImpl @Inject constructor(
         val client = OkHttpClient.Builder().apply {
             val logLevel = HttpLoggingInterceptor.Level.BODY
             addInterceptor(HttpLoggingInterceptor().setLevel(logLevel))
+            addInterceptor(addRequestIdInterceptor)
             addInterceptor(authInterceptor)
             authenticator(authenticator)
         }.build()
