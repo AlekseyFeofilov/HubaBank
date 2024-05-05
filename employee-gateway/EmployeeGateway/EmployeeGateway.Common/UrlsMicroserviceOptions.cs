@@ -6,4 +6,5 @@ public class UrlsMicroserviceOptions
     public string CoreUrl { get; set; }
     public string ClientGateway { get; set; }
     public string CreditUrl { get; set; }
+    public string LoggerUrl { get; set; }
 }

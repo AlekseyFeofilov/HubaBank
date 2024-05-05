@@ -5,6 +5,9 @@ using System.Text.Json;
 using EmployeeGateway.BL;
 using EmployeeGateway.Common.DTO;
 using EmployeeGateway.Common.DTO.Bill;
+using EmployeeGateway.Common.Enum;
+using EmployeeGateway.Common.Exceptions;
+using EmployeeGateway.Common.ServicesInterface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeGateway.Common.System;
@@ -109,7 +112,8 @@ public static class UtilsService
     public static async Task<ProfileWithPrivileges?> GetProfileWithPrivileges(
         string authHeader,
         UrlsMicroserviceOptions configUrls, 
-        HttpClient client
+        HttpClient client,
+        string? requestId
     )
     {
         string profileUrl = configUrls.AuthUrl + "users/my";
@@ -123,6 +127,7 @@ public static class UtilsService
         message.Headers.Authorization = new AuthenticationHeaderValue(
             "Bearer", authHeader.Substring(6)
         );
+        message.Headers.Add("requestId", requestId);
         var profileResponse = await client.SendAsync(message);
         if (profileResponse.IsSuccessStatusCode)
         {
@@ -130,7 +135,8 @@ public static class UtilsService
             var body = JsonSerializer.Deserialize<ProfileWithPrivileges>(downstreamResponse, jsonOptions);
             return body;
         }
-        else { return null; }
+                
+        return null;
     }
 
     public static bool IsUnstableOperationService()

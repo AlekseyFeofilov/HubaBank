@@ -31,7 +31,7 @@ public class BillGatewayController: ControllerBase
     }
     
     [HttpGet("{userId:guid}")]
-    public async Task<ActionResult<List<ClientBillDto>>> GetBills(Guid userId)
+    public async Task<ActionResult<List<ClientBillDto>>> GetBills(Guid userId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -69,7 +69,7 @@ public class BillGatewayController: ControllerBase
             {
                 var url = _urlsMicroservice.CoreUrl + $"users/{userId}/bills";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(userId));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -104,7 +104,7 @@ public class BillGatewayController: ControllerBase
     }
     
     [HttpGet("{userId:guid}/bill/{billId}")]
-    public async Task<ActionResult<ClientBillDto>> GetBill(Guid userId, Guid billId)
+    public async Task<ActionResult<ClientBillDto>> GetBill(Guid userId, Guid billId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -142,7 +142,7 @@ public class BillGatewayController: ControllerBase
             {
                 var url = _urlsMicroservice.CoreUrl + $"users/{userId}/bills";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(userId));
+                message.Headers.Add("requestId", requestId);
                
                 var response = await _httpClient.SendAsync(message);
                 

@@ -32,7 +32,7 @@ public class CreditController: ControllerBase
     }
 
     [HttpGet("users/{userId:guid}/credits")]
-    public async Task<ActionResult<List<CreditDto>>> GetCredits(Guid userId)
+    public async Task<ActionResult<List<CreditDto>>> GetCredits(Guid userId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -65,7 +65,7 @@ public class CreditController: ControllerBase
             {
                 var url = _urlsMicroservice.CreditUrl + $"Credit/users/{userId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -100,7 +100,7 @@ public class CreditController: ControllerBase
     }
     
     [HttpGet("credits/{creditId:guid}")]
-    public async Task<ActionResult<CreditDto>> GetCredit(Guid creditId)
+    public async Task<ActionResult<CreditDto>> GetCredit(Guid creditId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -133,7 +133,7 @@ public class CreditController: ControllerBase
             {
                 var url = _urlsMicroservice.ClientGateway + $"Credit/{creditId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -168,7 +168,7 @@ public class CreditController: ControllerBase
     }
     
     [HttpGet("credit-terms")]
-    public async Task<ActionResult<List<CreditTermDto>>> GetCreditTerms()
+    public async Task<ActionResult<List<CreditTermDto>>> GetCreditTerms([FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -201,7 +201,7 @@ public class CreditController: ControllerBase
             {
                 var url = _urlsMicroservice.CreditUrl + "CreditTerms";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -236,7 +236,7 @@ public class CreditController: ControllerBase
     }
     
     [HttpPost("credit-terms")]
-    public async Task<ActionResult<string>> CreateCreditTerm(CreditTermCreateDto model)
+    public async Task<ActionResult<string>> CreateCreditTerm(CreditTermCreateDto model, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -274,9 +274,9 @@ public class CreditController: ControllerBase
                 {
                     Content = content
                 };
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-      
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -310,7 +310,7 @@ public class CreditController: ControllerBase
     }
     
     [HttpDelete("credit-terms/{creditTermsId:guid}")]
-    public async Task<IActionResult> DeleteCreditTerms(Guid creditTermsId)
+    public async Task<IActionResult> DeleteCreditTerms(Guid creditTermsId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -343,9 +343,9 @@ public class CreditController: ControllerBase
             {
                 var url = _urlsMicroservice.CreditUrl + $"CreditTerms/{creditTermsId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-                
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -379,7 +379,7 @@ public class CreditController: ControllerBase
     }
     
     [HttpGet("credits/{creditId:guid}/payments")]
-    public async Task<ActionResult<List<CreditPaymentDto>>> GetPaymentsOfCredit(Guid creditId)
+    public async Task<ActionResult<List<CreditPaymentDto>>> GetPaymentsOfCredit(Guid creditId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -412,7 +412,7 @@ public class CreditController: ControllerBase
             {
                 var url = _urlsMicroservice.CreditUrl + $"Payment/{creditId}";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
