@@ -45,7 +45,7 @@ services:
     ports:
       - "9002:80"
     environment:
-      ConnectionStrings__DefaultConnection: Server=hits-huba-database;Port=5432;Database=gateway_client_service;Username=postgres;Password='${POSTGRES_PASSWORD}'
+      ConnectionStrings__DefaultConnection: Server=hits-huba-database;Port=5432;Database=gateway_employer_service;Username=postgres;Password='${POSTGRES_PASSWORD}'
       ASPNETCORE_ENVIRONMENT: Staging
       RABBITMQ_HOST: hits-huba-rabbitmq
       RABBITMQ_PORT: 5672
