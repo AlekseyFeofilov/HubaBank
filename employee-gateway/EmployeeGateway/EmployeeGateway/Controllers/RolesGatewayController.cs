@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -18,17 +19,17 @@ namespace EmployeeGateway.Controllers;
 public class RolesGatewayController : ControllerBase
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<AuthGatewayController> _logger;
+    private readonly IUserService _userService;
     private readonly UrlsMicroserviceOptions _urlsMicroservice;
     private readonly ICircuitBreakerService _circuitBreakerService;
 
-    public RolesGatewayController(ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory, ILogger<AuthGatewayController> logger,
+    public RolesGatewayController(IUserService userService, ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory,
         IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _logger = logger;
         _urlsMicroservice = urlsMicroserviceOptions.Value;
         _circuitBreakerService = circuitBreakerService;
+        _userService = userService;
     }
 
     [HttpPost("{userId:guid}")]
@@ -39,43 +40,36 @@ public class RolesGatewayController : ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
+            return Unauthorized();
+        
+        var authUserId = UtilsService.GetUserIdByHeader(authHeader);
+        if (authUserId == null)
+            return Unauthorized();
+        
+        var json = JsonSerializer.Serialize(roles, UtilsService.jsonOptions);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/roles";
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.User);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.User);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-                var serializeOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-                var currentUserId = UtilsService.GetUserIdByHeader(authHeader);
-                if (currentUserId == null)
-                {
-                    return Unauthorized();
-                }
-
-                var currentRoles = await GetRoles(new Guid(currentUserId));
+                var currentRoles = await GetRoles(new Guid(authUserId));
                 roles.Names.AddRange(currentRoles);
-        
-                var json = JsonSerializer.Serialize(roles, serializeOptions);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/roles";
+                
                 var message = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = content
@@ -83,33 +77,32 @@ public class RolesGatewayController : ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
+                message.Headers.Add("idempotentKey", new Guid().ToString());
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception();
-                }
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    throw new InternalServerErrorException();
 
                 return await this.GetResult(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
-                {
+                if (retryCount > 50)
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
-                }
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
-                {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.User);
+                { 
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -123,41 +116,39 @@ public class RolesGatewayController : ControllerBase
         if (UtilsService.IsUnstableOperationService())
             return StatusCode(500, "Internal Server Error: нестабильная работа gateway сервиса");
         
+        var authHeader = Request.Headers.Authorization.FirstOrDefault();
+        if (authHeader == null)
+            return Unauthorized();
+        
+        var authUserId = UtilsService.GetUserIdByHeader(authHeader);
+        if (authUserId == null)
+            return Unauthorized();
+        
+        var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/roles";
+        
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.User);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+            
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.User);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.User);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-                var serializeOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true
-                };
-        
                 var currentRoles = await GetRoles(userId);
                 currentRoles.Remove(roleName);
         
                 var json = JsonSerializer.Serialize(new Roles
                 {
                     Names = currentRoles
-                }, serializeOptions);
+                }, UtilsService.jsonOptions);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}/roles";
                 var message = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = content
@@ -165,33 +156,32 @@ public class RolesGatewayController : ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
+                message.Headers.Add("idempotentKey", new Guid().ToString());
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception();
-                }
-
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                    throw new InternalServerErrorException();
+                
                 return await this.GetResult(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
-                {
+                if (retryCount > 50)
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
-                }
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
-                {
-                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.User);
+                { 
+                    await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
                 }
             }
         }
@@ -199,6 +189,7 @@ public class RolesGatewayController : ControllerBase
     
     private async Task<List<string>> GetRoles(Guid userId)
     {
+        // TODO: добавить retry и breaker
         var serializeOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using EmployeeGateway.BL;
@@ -17,14 +18,16 @@ namespace EmployeeGateway.Controllers;
 public class BillGatewayController: ControllerBase
 {
     private readonly HttpClient _httpClient;
+    private readonly IUserService _userService;
     private readonly UrlsMicroserviceOptions _urlsMicroservice;
     private readonly ICircuitBreakerService _circuitBreakerService;
     
-    public BillGatewayController(ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
+    public BillGatewayController(IUserService userService, ICircuitBreakerService circuitBreakerService, IHttpClientFactory httpClientFactory, IOptions<UrlsMicroserviceOptions> urlsMicroserviceOptions)
     {
         _httpClient = httpClientFactory.CreateClient();
         _urlsMicroservice = urlsMicroserviceOptions.Value;
         _circuitBreakerService = circuitBreakerService;
+        _userService = userService;
     }
     
     [HttpGet("{userId:guid}")]
@@ -37,54 +40,53 @@ public class BillGatewayController: ControllerBase
         
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Core);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Core);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+        
+            var currentUserId = UtilsService.GetUserIdByHeader(authHeader);
+            if (currentUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            await CheckAvailableUser(new Guid(currentUserId), "BILL_READ_OTHERS");
+
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Core);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Core);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-        
-                var currentUserId = UtilsService.GetUserIdByHeader(authHeader);
-                if (currentUserId == null)
-                {
-                    return Unauthorized();
-                }
-
-                await CheckAvailableUser(new Guid(currentUserId), "BILL_READ_OTHERS");
-  
-                var url = _urlsMicroservice.ClientGateway + $"{userId}/bills";
+                var url = _urlsMicroservice.CoreUrl + $"users/{userId}/bills";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Authorization = new AuthenticationHeaderValue(
-                    "Bearer", authHeader[6..]
-                );
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(userId));
+                
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 return await this.GetResultFromResponse<List<ClientBillDto>>(response);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -92,7 +94,7 @@ public class BillGatewayController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
                     await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
@@ -111,43 +113,42 @@ public class BillGatewayController: ControllerBase
         
         while (true)
         {
+            await _circuitBreakerService.CheckStatus(MicroserviceName.Core);
+            circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Core);
+            if (circuitBreaker == null)
+                return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
+
+            if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
+                return StatusCode(523, "Микросервис временно не доступен");
+
+            retryCount++;
+            circuitBreaker.RequestCount++;
+
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null)
+            {
+                return Unauthorized();
+            }
+        
+            var currentUserId = UtilsService.GetUserIdByHeader(authHeader);
+            if (currentUserId == null)
+            {
+                return Unauthorized();
+            }
+
+            await CheckAvailableUser(new Guid(currentUserId), "BILL_READ_OTHERS");
+
             try
             {
-                await _circuitBreakerService.CheckStatus(MicroserviceName.Core);
-                circuitBreaker = await _circuitBreakerService.GetCircuitBreaker(MicroserviceName.Core);
-                if (circuitBreaker == null)
-                    return StatusCode(504, "Произошла неизвестная ошибка с подсчетом кол-ва ошибок");
-
-                if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.Open)
-                    return StatusCode(523, "Микросервис временно не доступен");
-
-                retryCount++;
-                circuitBreaker.RequestCount++;
-
-                var authHeader = Request.Headers.Authorization.FirstOrDefault();
-                if (authHeader == null)
-                {
-                    return Unauthorized();
-                }
-        
-                var currentUserId = UtilsService.GetUserIdByHeader(authHeader);
-                if (currentUserId == null)
-                {
-                    return Unauthorized();
-                }
-
-                await CheckAvailableUser(new Guid(currentUserId), "BILL_READ_OTHERS");
-  
-                var url = _urlsMicroservice.ClientGateway + $"{userId}/bills";
+                var url = _urlsMicroservice.CoreUrl + $"users/{userId}/bills";
                 var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
-                message.Headers.Authorization = new AuthenticationHeaderValue(
-                    "Bearer", authHeader[6..]
-                );
+                message.Headers.Add("requestId", await _userService.GetMessagingToken(userId));
+               
                 var response = await _httpClient.SendAsync(message);
                 
-                if (!response.IsSuccessStatusCode)
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
                 {
-                    throw new Exception();
+                    throw new InternalServerErrorException();
                 }
 
                 var bills = await this.GetResultFromResponse<List<ClientBillDto>>(response);
@@ -160,13 +161,13 @@ public class BillGatewayController: ControllerBase
 
                 return Ok(bill);
             }
-            catch (Exception)
+            catch (InternalServerErrorException)
             {
                 circuitBreaker.ErrorCount += 1;
                 
                 var percentageError = circuitBreaker.RequestCount / circuitBreaker.ErrorCount * 100;
                 
-                if (retryCount > 10)
+                if (retryCount > 50)
                 {
                     throw new MaxCountException(
                         "Превышено максимальное количество попыток получения успешного запроса");
@@ -174,7 +175,7 @@ public class BillGatewayController: ControllerBase
 
                 await _circuitBreakerService.ChangeCircuitBreakerModel(circuitBreaker);
 
-                if (circuitBreaker.ErrorCount + retryCount > 5 && percentageError > 70 &&
+                if (circuitBreaker.ErrorCount + retryCount > 30 && percentageError > 70 &&
                     circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen)
                 {
                     await _circuitBreakerService.OpenCircuitBreaker(MicroserviceName.Core);
@@ -185,6 +186,7 @@ public class BillGatewayController: ControllerBase
     
     private async Task<UserFill> GetUserProfile(Guid userId)
     {
+        // TODO: добавить retry и breaker
         var serializeOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -197,14 +199,14 @@ public class BillGatewayController: ControllerBase
             throw new UnauthorizedAccessException();
         }
   
-        var url = _urlsMicroservice.AuthUrl + $"/users/api/v1/user/{userId}";
+        var url = _urlsMicroservice.AuthUrl + $"user/{userId}";
         var message = new HttpRequestMessage(new HttpMethod(Request.Method), url);
         message.Headers.Authorization = new AuthenticationHeaderValue(
             "Bearer", authHeader[6..]
         );
+        message.Headers.Add("requestId", await _userService.GetMessagingToken(userId));
         var response = await _httpClient.SendAsync(message);
         
-        // TODO: Как-то не блокать предыдущий микросервис
         if (response.IsSuccessStatusCode)
         {
             var downstreamResponse = await response.Content.ReadAsStringAsync();
@@ -216,7 +218,7 @@ public class BillGatewayController: ControllerBase
         }
         else
         {
-            throw new BadHttpRequestException("Не удалось выполнить получение профиля пользователя для проверки возможностей");
+            throw new IncorrectDataException("Не удалось выполнить получение профиля пользователя для проверки возможностей");
         }
     }
 
