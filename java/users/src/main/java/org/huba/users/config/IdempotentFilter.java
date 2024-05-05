@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.UUID;
 
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 2)
 @Component
 @WebFilter(filterName = "IdempotentFilter", urlPatterns = "/*")
 @RequiredArgsConstructor
