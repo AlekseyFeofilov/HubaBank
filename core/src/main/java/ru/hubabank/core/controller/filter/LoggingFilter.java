@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 import ru.hubabank.core.constant.HeaderConstants;
 import ru.hubabank.core.service.HttpLoggingService;
 import ru.hubabank.core.versioning.ApiVersion;
@@ -26,7 +29,11 @@ public class LoggingFilter extends OncePerRequestFilter {
     private final HttpLoggingService httpLoggingService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NotNull HttpServletResponse response,
+            @NotNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String requestId = request.getHeader(HeaderConstants.REQUEST_ID_HEADER);
 
         if (request.getRequestURI().startsWith("/swagger-ui/")
@@ -44,12 +51,14 @@ public class LoggingFilter extends OncePerRequestFilter {
             return;
         }
 
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+        ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
         long start = System.nanoTime();
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(requestWrapper, responseWrapper);
         long finish = System.nanoTime();
         long timeElapsed = finish - start;
 
-        httpLoggingService.handle(request, response, timeElapsed);
+        httpLoggingService.handle(requestWrapper, responseWrapper, timeElapsed);
     }
 
     private int getVersion(HttpServletRequest request) {

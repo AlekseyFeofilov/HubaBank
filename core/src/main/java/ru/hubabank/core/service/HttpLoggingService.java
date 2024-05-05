@@ -1,7 +1,5 @@
 package ru.hubabank.core.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -25,16 +23,16 @@ public class HttpLoggingService {
 
     private final LoggerService loggerService;
 
-    public void handle(HttpServletRequest request, HttpServletResponse response, long nanosElapsed) {
+    public void handle(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response, long nanosElapsed) {
         String httpMethod = request.getMethod();
         String path = request.getRequestURI();
         String requestId = request.getHeader(REQUEST_ID_HEADER);
-        byte[] requestBody = new ContentCachingRequestWrapper(request).getContentAsByteArray();
+        byte[] requestBody = request.getContentAsByteArray();
         Map<String, String> requestHeaders = toHeaderMap(request.getHeaderNames().asIterator(), request::getHeader);
 
         int httpStatus = response.getStatus();
         Map<String, String> responseHeaders = toHeaderMap(response.getHeaderNames().iterator(), response::getHeader);
-        byte[] responseBody = new ContentCachingResponseWrapper(response).getContentAsByteArray();
+        byte[] responseBody = response.getContentAsByteArray();
 
         loggerService.sendLog(LogDto.builder()
                 .requestId(requestId)
