@@ -34,8 +34,8 @@ public class HttpLoggingService {
 
         int httpStatus = response.getStatus();
         Map<String, String> responseHeaders = toHeaderMap(response.getHeaderNames().iterator(), response::getHeader);
-        response.copyBodyToResponse();
         byte[] responseBody = response.getContentAsByteArray();
+        response.copyBodyToResponse();
 
         loggerService.sendLog(LogDto.builder()
                 .requestId(requestId)
