@@ -135,7 +135,7 @@ namespace BFF_client.Api.HubaWebSocket
                 return false;
             }
 
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
