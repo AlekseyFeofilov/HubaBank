@@ -33,7 +33,7 @@ public class RolesGatewayController : ControllerBase
     }
 
     [HttpPost("{userId:guid}")]
-    public async Task<IActionResult> SetRoles(Guid userId, Roles roles)
+    public async Task<IActionResult> SetRoles(Guid userId, Roles roles, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -77,9 +77,9 @@ public class RolesGatewayController : ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-                
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -109,7 +109,7 @@ public class RolesGatewayController : ControllerBase
     }
     
     [HttpDelete("{userId:guid}/{roleName}")]
-    public async Task<IActionResult> DeleteRole(Guid userId, string roleName)
+    public async Task<IActionResult> DeleteRole(Guid userId, string roleName, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -156,9 +156,9 @@ public class RolesGatewayController : ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-                
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)

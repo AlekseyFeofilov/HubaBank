@@ -30,7 +30,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpGet("employees")]
-    public async Task<ActionResult<List<UserFill>>> GetEmployees()
+    public async Task<ActionResult<List<UserFill>>> GetEmployees([FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -63,8 +63,8 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
-
+                message.Headers.Add("requestId", requestId);
+                
                 var response = await _httpClient.SendAsync(message);
 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -96,7 +96,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpGet("clients")]
-    public async Task<ActionResult<List<UserFill>>> GetClients()
+    public async Task<ActionResult<List<UserFill>>> GetClients([FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -107,7 +107,6 @@ public class ProfileGatewayController: ControllerBase
         if (authHeader == null)
             return Unauthorized();
         
-        var userId = UtilsService.GetUserIdByHeader(authHeader);
         var url = _urlsMicroservice.AuthUrl + "/users/api/v1/users";
         
         while (true)
@@ -130,7 +129,7 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -161,7 +160,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpGet("my")]
-    public async Task<ActionResult<UserFill>> GetProfile()
+    public async Task<ActionResult<UserFill>> GetProfile([FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -194,7 +193,7 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(userId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -225,7 +224,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpGet("{userId}")]
-    public async Task<ActionResult<UserFill>> GetUser(Guid userId)
+    public async Task<ActionResult<UserFill>> GetUser(Guid userId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -258,7 +257,7 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
+                message.Headers.Add("requestId", requestId);
                 
                 var response = await _httpClient.SendAsync(message);
                 
@@ -289,7 +288,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpPost("{userId}/block")]
-    public async Task<IActionResult> BlockUser(Guid userId)
+    public async Task<IActionResult> BlockUser(Guid userId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -322,9 +321,9 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-                
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)
@@ -354,7 +353,7 @@ public class ProfileGatewayController: ControllerBase
     }
     
     [HttpPost("{userId}/unblock")]
-    public async Task<IActionResult> UnblockUser(Guid userId)
+    public async Task<IActionResult> UnblockUser(Guid userId, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -387,9 +386,9 @@ public class ProfileGatewayController: ControllerBase
                 message.Headers.Authorization = new AuthenticationHeaderValue(
                     "Bearer", authHeader[6..]
                 );
-                message.Headers.Add("requestId", await _userService.GetMessagingToken(new Guid(authUserId)));
-                message.Headers.Add("idempotentKey", new Guid().ToString());
-                
+                message.Headers.Add("requestId", requestId);
+                message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+
                 var response = await _httpClient.SendAsync(message);
                 
                 if (response.StatusCode == HttpStatusCode.InternalServerError)

@@ -58,7 +58,7 @@ public class WebSocketMiddleware
                     new SocketUserDto { BillId = Guid.Parse(billIdString), WebSocket = webSocket }
                     );
 
-                await GetOldTransactions(billIdString, webSocket);
+                await GetOldTransactions(billIdString, webSocket, context.Request.Headers);
 
                 await ReceiveMessage(webSocket, async (result, buffer) =>
                 {
@@ -106,7 +106,8 @@ public class WebSocketMiddleware
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return false;
             }
-            var profileWithPrivileges = await UtilsService.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient());
+            httpContext.Request.Headers.TryGetValue("requestId", out var requestId);
+            var profileWithPrivileges = await UtilsService.GetProfileWithPrivileges(authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
             if (profileWithPrivileges == null)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -136,10 +137,12 @@ public class WebSocketMiddleware
             return true;
         }
 
-        private async Task GetOldTransactions(string billId, WebSocket webSocket)
+        private async Task GetOldTransactions(string billId, WebSocket webSocket, IHeaderDictionary headers)
         {
             var oldHistoryUrl = _configUrls.CoreUrl + "bills/" + billId + "/transactions";
             var message = new HttpRequestMessage(HttpMethod.Get, oldHistoryUrl);
+            headers.TryGetValue("requestId", out var requestId);
+            message.Headers.Add("requestId", requestId.SingleOrDefault());
             var response = await _httpClientFactory.CreateClient().SendAsync(message);
 
             if (response.IsSuccessStatusCode)

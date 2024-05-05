@@ -31,7 +31,7 @@ public class AuthGatewayController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<TokenPairs>> Register([FromBody] RegisterCredential requestBody)
+    public async Task<ActionResult<TokenPairs>> Register([FromBody] RegisterCredential requestBody, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -45,8 +45,8 @@ public class AuthGatewayController : ControllerBase
         {
             Content = content
         };
-        message.Headers.Add("requestId", await _userService.GetMessagingToken(requestBody.MessagingToken));
-        message.Headers.Add("idempotentKey", new Guid().ToString());
+        message.Headers.Add("requestId", requestId);
+        message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
         
         while (true)
         {
@@ -80,8 +80,12 @@ public class AuthGatewayController : ControllerBase
                 var clientRole = new EditUserRoleDto { names = new List<string>() { "CLIENT" } };
                 var jsonRole = JsonSerializer.Serialize(clientRole, UtilsService.jsonOptions);
                 var contentRole = new StringContent(jsonRole, Encoding.UTF8, "application/json");
-
-                var responseRole = await _httpClient.PostAsync(downstreamUrlRole, contentRole);
+            
+                var messageRole = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrlRole);
+                messageRole.Headers.Add("requestId", requestId);
+                messageRole.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
+                messageRole.Content = contentRole;
+                var responseRole = await _httpClient.SendAsync(messageRole);
                 
                 if (responseRole.StatusCode == HttpStatusCode.InternalServerError)
                 {
@@ -116,7 +120,7 @@ public class AuthGatewayController : ControllerBase
     
     [HttpPost("login")]
     [Produces("application/json")]
-    public async Task<ActionResult<TokenPairs>> Login([FromBody] LoginCredentials credentials)
+    public async Task<ActionResult<TokenPairs>> Login([FromBody] LoginCredentials credentials, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -131,8 +135,8 @@ public class AuthGatewayController : ControllerBase
         {
             Content = content
         };
-        message.Headers.Add("requestId", await _userService.GetMessagingToken(credentials.MessagingToken));
-        message.Headers.Add("idempotentKey", new Guid().ToString());
+        message.Headers.Add("requestId", requestId);
+        message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
         
         while (true)
         {
@@ -188,7 +192,7 @@ public class AuthGatewayController : ControllerBase
     
      [HttpPost("login-sso")]
     [Produces("application/json")]
-    public async Task<ActionResult<TokenPairs>> LoginSso([FromBody] LoginSsoCredentials credentials)
+    public async Task<ActionResult<TokenPairs>> LoginSso([FromBody] LoginSsoCredentials credentials, [FromHeader] string? requestId = null)
     {
         var retryCount = 0;
         var circuitBreaker = new CircuitBreakerDto();
@@ -201,8 +205,8 @@ public class AuthGatewayController : ControllerBase
         {
             Content = content
         };
-        message.Headers.Add("requestId", await _userService.GetMessagingToken(credentials.MessagingToken));
-        message.Headers.Add("idempotentKey", new Guid().ToString());
+        message.Headers.Add("requestId", requestId);
+        message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
         
         while (true)
         {

@@ -39,6 +39,7 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+    options.MapType<DateOnly>(() => new OpenApiSchema { Type = "string", Format = "date" });
 });
 
 // Configure Database
@@ -63,6 +64,7 @@ app.UseHttpsRedirection();
 app.UseWebSockets();
 app.UseMiddleware<WebSocketMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<LoggerMiddleware>();
 
 app.UseAuthorization();
 
