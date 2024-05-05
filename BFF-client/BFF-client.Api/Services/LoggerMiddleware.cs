@@ -33,6 +33,7 @@ namespace BFF_client.Api.Services
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var start = DateTime.Now;
             context.Request.EnableBuffering();
             var originalBody = context.Response.Body;
             var requestReader = new StreamReader(context.Request.Body);
@@ -66,7 +67,8 @@ namespace BFF_client.Api.Services
                         Status = context.Response.StatusCode,
                         Headers = context.Response.Headers.ToDictionary(x => x.Key, a => string.Join(";", a.Value)),
                         Body = responseBody
-                    }
+                    },
+                    otherInfo = (DateTime.Now - start).TotalSeconds.ToString()
                 };
                 try
                 {

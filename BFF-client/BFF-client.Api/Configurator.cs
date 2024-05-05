@@ -1,4 +1,7 @@
 ﻿using BFF_client.Api.Database;
+using BFF_client.Api.HubaWebSocket;
+using BFF_client.Api.Patterns;
+using BFF_client.Api.Services;
 using BFF_client.Api.Services.Bill;
 using BFF_client.Api.Services.User;
 using FirebaseAdmin;
@@ -19,6 +22,12 @@ namespace BFF_client.Api
         {
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IBillService, BillService>();
+
+            builder.Services.AddSingleton<ICircuitBreakerService, CircuitBreakerService>();
+            builder.Services.AddSingleton<IWebSocketUserDb, WebSocketUserDb>();
+
+            builder.Services.AddHostedService<TransactionsListener>();
+            builder.Services.AddHostedService<ServiceChecker>();
         }
 
         public static void InitializeFirebaseMessaging()
