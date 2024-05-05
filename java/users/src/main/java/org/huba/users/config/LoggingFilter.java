@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE - 2)
 @Component
 @WebFilter(filterName = "LogFilter", urlPatterns = "/*")
 public class LoggingFilter extends OncePerRequestFilter {
