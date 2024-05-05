@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ARG DLL
-USER app
 WORKDIR /app
 COPY bin/publish .
 RUN apt update
