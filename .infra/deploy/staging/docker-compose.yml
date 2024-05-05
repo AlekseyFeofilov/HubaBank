@@ -17,7 +17,7 @@ services:
     volumes:
       - ./gateway-client/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     healthcheck:
-      test: curl --fail http://localhost:8080/swagger/index.html || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger/index.html' ]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -44,7 +44,7 @@ services:
     volumes:
       - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     healthcheck:
-      test: curl --fail http://localhost/index.html || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost/index.html' ]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -76,7 +76,7 @@ services:
       CURRENCY_API_KEY: ${CURRENCY_API_KEY}
       LOGGER_SERVICE_URL: http://hits-huba-logger:8080/log/api/v1/
     healthcheck:
-      test: curl --fail http://localhost:8080/health || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/health' ]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -99,7 +99,7 @@ services:
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: users_service
     healthcheck:
-      test: curl --fail http://localhost:8080/swagger-ui/index.html || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger-ui/index.html' ]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -127,7 +127,7 @@ services:
     volumes:
       - ./credit/appsettings.Staging.json:/app/appsettings.Staging.json:ro
     healthcheck:
-      test: curl --fail http://localhost:8080/swagger/index.html || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger/index.html' ]
       interval: 5s
       retries: 5
       start_period: 5s
@@ -150,7 +150,7 @@ services:
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: logger_service
     healthcheck:
-      test: curl --fail http://localhost:8080/swagger-ui/index.html || exit 1
+      test: [ 'CMD-SHELL', 'wget --spider --tries=1 http://localhost:8080/swagger-ui/index.html' ]
       interval: 5s
       retries: 5
       start_period: 5s
