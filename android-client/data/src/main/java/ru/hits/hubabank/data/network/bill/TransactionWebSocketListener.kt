@@ -27,8 +27,12 @@ class TransactionWebSocketListener : WebSocketListener() {
     override fun onMessage(webSocket: WebSocket, text: String) {
         Log.w("TransactionWebSocketListener", text)
         Handler(Looper.getMainLooper()).post {
-            val dto: BillHistoryItemDto = Json.decodeFromString(text)
-            _message.trySend(dto.toDomain())
+            try {
+                val dto: BillHistoryItemDto = Json.decodeFromString(text)
+                _message.trySend(dto.toDomain())
+            } catch (e: Exception) {
+                Log.e("TransactionWebSocketListener", e.message.toString())
+            }
         }
     }
 
