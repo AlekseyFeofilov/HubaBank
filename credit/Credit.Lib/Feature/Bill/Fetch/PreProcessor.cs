@@ -20,12 +20,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
 
     public async Task Process(Request request, CancellationToken cancellationToken)
     {
-        var circuitBreaker = await _mediator.Send(new CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
-
-        // if (circuitBreaker.LastUpdate.GetDifferenceInSeconds(DateTime.Now) > 10)
-        // {
-        //     await _mediator.Send(new CircuitBreaker.ResetStatistic.Request(circuitBreaker.Id), cancellationToken);
-        // }
+        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
 
         switch (circuitBreaker.CircuitBreakerStatus)
         {
@@ -47,7 +42,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
     {
         if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Now) > 10)
         {
-            await _mediator.Send(new CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.HalfOpen),
+            await _mediator.Send(new Utils.CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.HalfOpen),
                 cancellationToken);
         }
 
@@ -59,7 +54,7 @@ public class PreProcessor : IRequestPreProcessor<Request>
     {
         if (circuitBreaker.OpenTime.GetDifferenceInSeconds(DateTime.Now) > 30)
         {
-            await _mediator.Send(new CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.Closed),
+            await _mediator.Send(new Utils.CircuitBreaker.Update.Request(circuitBreaker.Id, CircuitBreakerStatus.Closed),
                 cancellationToken);
             return;
         }

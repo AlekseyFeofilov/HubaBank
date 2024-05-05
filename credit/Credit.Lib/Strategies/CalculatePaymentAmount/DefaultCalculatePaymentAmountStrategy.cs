@@ -11,11 +11,11 @@ public class DefaultCalculatePaymentAmountStrategy : ICalculatePaymentAmountStra
     private long MonthPayment { get; }
     
     [SuppressMessage("ReSharper", "PossibleLossOfFraction")]
-    public DefaultCalculatePaymentAmountStrategy(long principal, DateOnly completionDate)
+    public DefaultCalculatePaymentAmountStrategy(long principal, DateOnly completionDate, DateTime now)
     {
         Principal = principal;
         CompletionDate = completionDate;
-        MonthsToComplete = CompletionDate.GetDifferenceInMonths(DateTime.Now);
+        MonthsToComplete = CompletionDate.GetDifferenceInMonths(now);
         
         // todo если булет слишком маленький кредит, то он вырастет за счёт этой логике. Надо запретить делать такие маленькие кредиты
         MonthPayment = (long)Math.Ceiling(1.0 * Principal / MonthsToComplete / 10) * 10;

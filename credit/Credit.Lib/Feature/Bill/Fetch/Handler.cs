@@ -21,7 +21,7 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
 
     public async Task<BillDtoV2> Handle(Request request, CancellationToken cancellationToken)
     {
-        var circuitBreaker = await _mediator.Send(new CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
+        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
         
         for (var retry = 0; ; retry++)
         {
@@ -31,7 +31,7 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
 
                 if (circuitBreaker.CircuitBreakerStatus is CircuitBreakerStatus.HalfOpen)
                 {
-                    await _mediator.Send(new CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Closed), cancellationToken);
+                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Closed), cancellationToken);
                 }
                 
                 return bill;
@@ -41,16 +41,13 @@ public class Handler : IRequestHandler<Request, BillDtoV2>
                 var faultPercent = await _logServiceProvider.GetPercentInSecondsAsync(10, "core", cancellationToken);
                 
                 if (circuitBreaker.CircuitBreakerStatus is not CircuitBreakerStatus.HalfOpen && faultPercent > 0.7)
-                    // && circuitBreaker.ErrorCount + retry > 10
-                    // && 1.0 * circuitBreaker.ErrorCount / (circuitBreaker.SuccessCount + circuitBreaker.ErrorCount) > 0.7)
                 {
-                    await _mediator.Send(new CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Open), cancellationToken);
+                    await _mediator.Send(new Utils.CircuitBreaker.Update.Request(_providerId, CircuitBreakerStatus.Open), cancellationToken);
                     throw;
                 }
 
                 if (retry == 5)
                 {
-                    // await _mediator.Send(new CircuitBreaker.IncreaseErrorCount.Request(_providerId, retry), cancellationToken);
                     throw;
                 }
 

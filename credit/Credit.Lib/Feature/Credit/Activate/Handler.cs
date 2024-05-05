@@ -19,19 +19,21 @@ public class Handler : IRequestHandler<Request>
 
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
+        var now = (await _mediator.Send(new Utils.Day.Fetch.Request(), cancellationToken)).Now;
+        
         _logger.LogWarning("Trying to activate credit with id {creditId}", request.CreditId);
         var credit = await _mediator.Send(new Fetch.ById.Request(request.CreditId), cancellationToken);
-        var monthsToComplete = credit.CompletionDate.GetDifferenceInMonths(DateTime.Now);
+        var monthsToComplete = credit.CompletionDate.GetDifferenceInMonths(now);
         var payments = Array.Empty<Data.Requests.Payment.CreateRequest>().ToList();
         var calculatedStrategy =
-            new DefaultCalculatePaymentAmountStrategy(credit.Principal, credit.CompletionDate); 
+            new DefaultCalculatePaymentAmountStrategy(credit.Principal, credit.CompletionDate, now); 
         
         for (var monthsAfterToday = 1; monthsAfterToday <= monthsToComplete; monthsAfterToday++)
         {
             var payment = new Data.Requests.Payment.CreateRequest
             {
                 PaymentStatus = PaymentStatus.Scheduled,
-                PaymentDay = DateOnly.FromDateTime(DateTime.Now.AddMonths(monthsAfterToday)),
+                PaymentDay = DateOnly.FromDateTime(now.AddMonths(monthsAfterToday)),
                 PaymentAmount = calculatedStrategy.Calculate(monthsAfterToday),
                 CreditId = credit.Id,
                 Arrears = 0,

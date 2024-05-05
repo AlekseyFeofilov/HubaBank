@@ -1,6 +1,5 @@
 using Credit.Lib;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace Credit.Api.Middlewares;
 
@@ -14,7 +13,7 @@ public class RandomFaultMiddleware : IMiddleware
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         var randomFaultEnableSettingId = appSettings.RandomFaultEnableSettingId;
-        var randomFaultEnableSetting = mediator.Send(new Lib.Feature.Setting.Fetch.Request(randomFaultEnableSettingId)).Result;
+        var randomFaultEnableSetting = mediator.Send(new Lib.Feature.Utils.Setting.Fetch.Request(randomFaultEnableSettingId)).Result;
         _randomFaultEnable = randomFaultEnableSetting.Value == "true";
     }
 

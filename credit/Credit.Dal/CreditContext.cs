@@ -11,6 +11,7 @@ public class CreditContext : DbContext
     public DbSet<IdempotentRequest> IdempotentRequests { get; set; }
     public DbSet<Setting> Settings { get; set; }
     public DbSet<CircuitBreaker> CircuitBreakers { get; set; }
+    public DbSet<Day> Days { get; set; }
 
 #pragma warning disable CS8618
     public CreditContext(DbContextOptions<CreditContext> options) : base(options)
@@ -62,6 +63,11 @@ public class CreditContext : DbContext
         });
         
         modelBuilder.Entity<CircuitBreaker>(typeBuilder =>
+        {
+            typeBuilder.HasKey(x => x.Id);
+        });
+        
+        modelBuilder.Entity<Day>(typeBuilder =>
         {
             typeBuilder.HasKey(x => x.Id);
         });

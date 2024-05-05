@@ -31,7 +31,7 @@ public abstract class IdempotentHandlingMiddleware : IMiddleware
             return;
         }
 
-        var idempotentRequest = await _mediator.Send(new Lib.Feature.IdempotentRequest.Fetch.Request(idempotentKey));
+        var idempotentRequest = await _mediator.Send(new Lib.Feature.Utils.IdempotentRequest.Fetch.Request(idempotentKey));
         if (idempotentRequest == null)
         {
             await ResolveWithoutIdempotentRequestAsync(context, next, idempotentKey);
@@ -83,7 +83,7 @@ public abstract class IdempotentHandlingMiddleware : IMiddleware
             ConfirmationKeyHash = (await GetConfirmationKey(context)).GetHash(),
         };
 
-        await _mediator.Send(new Lib.Feature.IdempotentRequest.Create.Request(idempotentRequestCreateRequest));
+        await _mediator.Send(new Lib.Feature.Utils.IdempotentRequest.Create.Request(idempotentRequestCreateRequest));
         string responseBodyContent;
         var originalBody = context.Response.Body;
 
@@ -102,7 +102,7 @@ public abstract class IdempotentHandlingMiddleware : IMiddleware
         }
         catch (Exception _)
         {
-            await _mediator.Send(new Lib.Feature.IdempotentRequest.Delete.Request(idempotentRequestCreateRequest.Id));
+            await _mediator.Send(new Lib.Feature.Utils.IdempotentRequest.Delete.Request(idempotentRequestCreateRequest.Id));
             throw;
         }
         finally
@@ -110,7 +110,7 @@ public abstract class IdempotentHandlingMiddleware : IMiddleware
             context.Response.Body = originalBody;
         }
 
-        await _mediator.Send(new Lib.Feature.IdempotentRequest.Complete.Request(idempotentRequestCreateRequest.Id,
+        await _mediator.Send(new Lib.Feature.Utils.IdempotentRequest.Complete.Request(idempotentRequestCreateRequest.Id,
             responseBodyContent, (HttpStatusCode)context.Response.StatusCode));
     }
 }
