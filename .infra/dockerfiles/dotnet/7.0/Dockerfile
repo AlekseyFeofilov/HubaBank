@@ -4,7 +4,7 @@ WORKDIR /app
 COPY bin/publish .
 SHELL ["/bin/bash", "-c"]
 RUN apt update
-RUN apt -y install wget
+RUN apt -y install curl
 RUN echo "dotnet $DLL" >> entrypoint.sh
 EXPOSE 80
 ENTRYPOINT ["sh", "entrypoint.sh"]
