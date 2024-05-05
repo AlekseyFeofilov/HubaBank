@@ -1,5 +1,4 @@
-using Core.Provider;
-using Core.Provider.v1;
+using Credit.Lib.Feature.Utils.Setting.Seed;
 using Credit.Lib.Jobs;
 using Extensions.Hosting.AsyncInitialization;
 using MediatR;
@@ -31,7 +30,8 @@ public class JobsInitializer : IAsyncInitializer
 
     private async Task SeedData()
     {
-        await _mediator.Send(new Lib.Feature.Setting.Seed.Request());
-        await _mediator.Send(new Lib.Feature.CircuitBreaker.Seed.Request());
+        await _mediator.Send(new Request());
+        await _mediator.Send(new Lib.Feature.Utils.CircuitBreaker.Seed.Request());
+        await _mediator.Send(new Lib.Feature.Utils.Day.Seed.Request());
     }
 }

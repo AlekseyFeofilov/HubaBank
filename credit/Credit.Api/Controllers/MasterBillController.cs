@@ -17,7 +17,6 @@ public class MasterBillController : ControllerBase
         _mediator = mediator;
     }
     
-    /// <response code="404">Not Found</response>
     [HttpGet("balance")]
     public Task<long> FetchMasterBalance([FromHeader] Guid? requestId = null)
     {
@@ -26,5 +25,4 @@ public class MasterBillController : ControllerBase
             RequestId = HttpContext.GetXRequestId()
         }, HttpContext.RequestAborted);
     }
-    
 }

@@ -18,9 +18,10 @@ public class Handler : IRequestHandler<Request>
     public async Task Handle(Request request, CancellationToken cancellationToken)
     {
         _logger.LogWarning("Start enqueueing payments for today");
+        var now = (await _mediator.Send(new Utils.Day.Fetch.Request(), cancellationToken)).Now;
         
         var payments = await _mediator.Send(new Fetch.All.Request(
-            new PaymentDayPaymentSpecification(DateTime.Now)), cancellationToken);
+            new PaymentDayPaymentSpecification(now)), cancellationToken);
 
         foreach (var payment in payments)
         {
