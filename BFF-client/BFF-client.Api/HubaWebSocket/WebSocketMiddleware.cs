@@ -3,6 +3,7 @@ using BFF_client.Api.model;
 using BFF_client.Api.model.bill;
 using BFF_client.Api.Models;
 using BFF_client.Api.Models.bill;
+using BFF_client.Api.Patterns;
 using BFF_client.Api.Services.Bill;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -20,13 +21,15 @@ namespace BFF_client.Api.HubaWebSocket
         private readonly IWebSocketUserDb _socketUserDb;
         private readonly ConfigUrls _configUrls;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICircuitBreakerService _circuitBreakerService;
 
         public WebSocketMiddleware(
             RequestDelegate next, 
             ILogger<WebSocketMiddleware> logger, 
             IWebSocketUserDb socketUserDb, 
             IOptions<ConfigUrls> options, 
-            IHttpClientFactory clientFactory
+            IHttpClientFactory clientFactory,
+            ICircuitBreakerService circuitBreakerService
             )
         {
             _next = next;
@@ -34,6 +37,7 @@ namespace BFF_client.Api.HubaWebSocket
             _socketUserDb = socketUserDb;
             _configUrls = options.Value;
             _httpClientFactory = clientFactory;
+            _circuitBreakerService = circuitBreakerService;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -111,7 +115,7 @@ namespace BFF_client.Api.HubaWebSocket
             }
             httpContext.Request.Headers.TryGetValue("requestId", out var requestId);
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -131,7 +135,7 @@ namespace BFF_client.Api.HubaWebSocket
                 return false;
             }
 
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
@@ -147,7 +151,7 @@ namespace BFF_client.Api.HubaWebSocket
             var message = new HttpRequestMessage(HttpMethod.Get, oldHistoryUrl);
             headers.TryGetValue("requestId", out var requestId);
             message.Headers.Add("requestId", requestId.SingleOrDefault());
-            var response = await _httpClientFactory.CreateClient().SendAsync(message);
+            var response = await _httpClientFactory.CreateClient().SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CORE);
 
             if (response.IsSuccessStatusCode)
             {

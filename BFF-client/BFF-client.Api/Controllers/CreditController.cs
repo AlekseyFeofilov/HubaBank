@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json;
 using BFF_client.Api.Models.bill;
 using System.Text;
+using BFF_client.Api.Patterns;
 
 namespace BFF_client.Api.Controllers
 {
@@ -20,17 +21,15 @@ namespace BFF_client.Api.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigUrls _configUrls;
-        private readonly IConfiguration _configuration;
-        private readonly IBillService _billService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICircuitBreakerService _circuitBreakerService;
 
-        public CreditController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration, IBillService billService)
+        public CreditController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, ICircuitBreakerService circuitBreaker)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
-            _configuration = configuration;
-            _billService = billService;
             _httpClientFactory = httpClientFactory;
+            _circuitBreakerService = circuitBreaker;
         }
 
         [HttpGet("credit/{creditId:guid}")]
@@ -48,7 +47,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -57,7 +56,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.credit + "Credit/" + creditId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             if (response.IsSuccessStatusCode)
             {
@@ -87,7 +86,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -96,7 +95,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.credit + "Credit/users/" + userId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             return await this.GetResultFromResponse<List<CreditDto>>(response);
         }
@@ -116,7 +115,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -132,7 +131,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             return await this.GetResult(response);
         }
@@ -152,7 +151,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -161,7 +160,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.credit + "CreditTerms";
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             return await this.GetResultFromResponse<List<CreditTermsDto>>(response);
         }
@@ -181,7 +180,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -190,7 +189,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.credit + "Payment/" + creditId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             return await this.GetResultFromResponse<List<CreditPaymentDto>>(response);
         }
@@ -210,7 +209,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -219,7 +218,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.credit + "Credit/" + creditId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CREDIT);
 
             return await this.GetResult(response);
         }

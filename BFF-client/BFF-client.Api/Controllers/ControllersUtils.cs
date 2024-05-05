@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text.Json;
 using static BFF_client.Api.Controllers.ControllersUtils;
 using BFF_client.Api.model.bill;
+using BFF_client.Api.Patterns;
 
 namespace BFF_client.Api.Controllers
 {
@@ -102,8 +103,8 @@ namespace BFF_client.Api.Controllers
             string authHeader,
             ConfigUrls configUrls, 
             HttpClient client,
-            string? requestId
-            )
+            string? requestId,
+            ICircuitBreakerService circuitBreaker)
         {
             string profileUrl = configUrls.users + "users/my";
 
@@ -117,7 +118,7 @@ namespace BFF_client.Api.Controllers
             "Bearer", authHeader.Substring(6)
                 );
             message.Headers.Add("requestId", requestId);
-            var profileResponse = await client.SendAsync(message);
+            var profileResponse = await client.SendWithRetryAsync(message, circuitBreaker, UnstableService.USERS);
             if (profileResponse.IsSuccessStatusCode)
             {
                 var downstreamResponse = await profileResponse.Content.ReadAsStringAsync();
@@ -127,12 +128,12 @@ namespace BFF_client.Api.Controllers
             else { return null; }
         }
 
-        public static async Task<bool> IsBillBelongToUser(string userId, Guid billId, ConfigUrls configUrls, HttpClient client)
+        public static async Task<bool> IsBillBelongToUser(string userId, Guid billId, ConfigUrls configUrls, HttpClient client, ICircuitBreakerService circuitBreaker)
         {
             string downstreamUrl = configUrls.core + "bills/" + billId.ToString();
 
             var message = new HttpRequestMessage(HttpMethod.Get, downstreamUrl);
-            var response = await client.SendAsync(message);
+            var response = await client.SendWithRetryAsync(message, circuitBreaker, UnstableService.CORE);
             if (response.IsSuccessStatusCode)
             {
                 var downstreamResponse = await response.Content.ReadAsStringAsync();

@@ -16,6 +16,7 @@ using BFF_client.Api.Models;
 using RabbitMQ.Client;
 using System.Threading.Channels;
 using BFF_client.Api.Models.bill;
+using BFF_client.Api.Patterns;
 
 namespace BFF_client.Api.Controllers
 {
@@ -25,17 +26,21 @@ namespace BFF_client.Api.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigUrls _configUrls;
-        private readonly IConfiguration _configuration;
         private readonly IBillService _billService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICircuitBreakerService _circuitBreakerService;
 
-        public BillController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration, IBillService billService)
+        public BillController(
+            IHttpClientFactory httpClientFactory, 
+            IOptions<ConfigUrls> options,
+            IBillService billService,
+            ICircuitBreakerService circuitBreaker)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
-            _configuration = configuration;
             _billService = billService;
             _httpClientFactory = httpClientFactory;
+            _circuitBreakerService = circuitBreaker;
         }
 
         [HttpGet("")]
@@ -53,7 +58,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -66,7 +71,7 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.core + "users/" + userId + "/bills";
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CORE);
 
             var knownBills = await _billService.GetKnownUserBills(Guid.Parse(userId));
 
@@ -91,7 +96,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -110,7 +115,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CORE);
 
             return await this.GetResultFromResponse<ClientBillDto>(response);
         }
@@ -130,7 +135,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -143,11 +148,11 @@ namespace BFF_client.Api.Controllers
             string downstreamUrl = _configUrls.core + "bills/" + billId;
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CORE);
 
             if (response.IsSuccessStatusCode)
             {
-                var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
+                var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
                 if (IsBillBelongToUser == false)
                 {
                     return StatusCode(StatusCodes.Status403Forbidden);
@@ -175,12 +180,12 @@ namespace BFF_client.Api.Controllers
             }
 
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
             }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
@@ -206,7 +211,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -215,7 +220,7 @@ namespace BFF_client.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, billId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
@@ -225,8 +230,8 @@ namespace BFF_client.Api.Controllers
             var message = new HttpRequestMessage(new HttpMethod(Request.Method), downstreamUrl);
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
-            var response = await _httpClient.SendAsync(message);
-            
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.CORE);
+
             if (response.IsSuccessStatusCode)
             {
                 await _billService.DeleteBill(Guid.Parse(userId), billId);

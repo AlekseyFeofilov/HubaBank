@@ -16,6 +16,7 @@ using BFF_client.Api.Services.User;
 using static BFF_client.Api.Controllers.ControllersUtils;
 using Google.Apis.Auth.OAuth2;
 using FirebaseAdmin.Messaging;
+using BFF_client.Api.Patterns;
 
 namespace BFF_client.Api.Controllers
 {
@@ -27,13 +28,19 @@ namespace BFF_client.Api.Controllers
         private readonly ConfigUrls _configUrls;
         private readonly IUserService _userService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICircuitBreakerService _circuitBreakerService;
 
-        public UserController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IUserService userService)
+        public UserController(
+            IHttpClientFactory httpClientFactory, 
+            IOptions<ConfigUrls> options, 
+            IUserService userService,
+            ICircuitBreakerService circuitBreaker)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
             _userService = userService;
             _httpClientFactory = httpClientFactory;
+            _circuitBreakerService = circuitBreaker;
         }
 
         [HttpPost("login")]
@@ -48,7 +55,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.USERS);
 
             if (response.IsSuccessStatusCode)
             {
@@ -73,7 +80,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.USERS);
 
             var tokens = await this.GetResultFromResponse<TokensDto>(response);
 
@@ -95,7 +102,7 @@ namespace BFF_client.Api.Controllers
             messageRole.Headers.Add("requestId", requestId);
             messageRole.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             messageRole.Content = contentRole;
-            var responseRole = await _httpClient.SendAsync(messageRole);
+            var responseRole = await _httpClient.SendWithRetryAsync(messageRole, _circuitBreakerService, UnstableService.USERS);
 
             if (responseRole.IsSuccessStatusCode)
             {
@@ -117,7 +124,7 @@ namespace BFF_client.Api.Controllers
             message.Headers.Add("requestId", requestId);
             message.Headers.Add("idempotentKey", Guid.NewGuid().ToString());
             message.Content = content;
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.USERS);
 
             return await this.GetResultFromResponse<TokensDto>(response);
         }
@@ -143,7 +150,7 @@ namespace BFF_client.Api.Controllers
                 "Bearer", authHeader.Substring(6)
                 );
             message.Headers.Add("requestId", requestId);
-            var response = await _httpClient.SendAsync(message);
+            var response = await _httpClient.SendWithRetryAsync(message, _circuitBreakerService, UnstableService.USERS);
 
             var isDarkTheme = await _userService.GetIsDarkTheme(Guid.Parse(userId));
 
@@ -166,7 +173,7 @@ namespace BFF_client.Api.Controllers
             }
 
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();

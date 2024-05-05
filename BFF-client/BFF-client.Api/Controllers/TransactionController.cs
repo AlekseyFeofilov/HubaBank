@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text;
 using RabbitMQ.Client;
+using BFF_client.Api.Patterns;
 
 namespace BFF_client.Api.Controllers
 {
@@ -20,13 +21,15 @@ namespace BFF_client.Api.Controllers
         private readonly ConfigUrls _configUrls;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICircuitBreakerService _circuitBreakerService;
 
-        public TransactionController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration)
+        public TransactionController(IHttpClientFactory httpClientFactory, IOptions<ConfigUrls> options, IConfiguration configuration, ICircuitBreakerService circuitBreaker)
         {
             _httpClient = httpClientFactory.CreateClient();
             _configUrls = options.Value;
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
+            _circuitBreakerService = circuitBreaker;
         }
 
         [HttpPost("tobill")]
@@ -44,7 +47,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -53,7 +56,7 @@ namespace BFF_client.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.SourceBillId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.SourceBillId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
@@ -86,7 +89,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -95,7 +98,7 @@ namespace BFF_client.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.BillId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.BillId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
@@ -128,7 +131,7 @@ namespace BFF_client.Api.Controllers
                 return Unauthorized();
             }
             var profileWithPrivileges = await ControllersUtils.GetProfileWithPrivileges(
-                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId);
+                authHeader, _configUrls, _httpClientFactory.CreateClient(), requestId, _circuitBreakerService);
             if (profileWithPrivileges == null)
             {
                 return Unauthorized();
@@ -137,7 +140,7 @@ namespace BFF_client.Api.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
-            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.BillId, _configUrls, _httpClientFactory.CreateClient());
+            var IsBillBelongToUser = await ControllersUtils.IsBillBelongToUser(userId, transactionCreation.BillId, _configUrls, _httpClientFactory.CreateClient(), _circuitBreakerService);
             if (IsBillBelongToUser == false)
             {
                 return StatusCode(StatusCodes.Status403Forbidden);

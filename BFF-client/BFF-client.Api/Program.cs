@@ -61,10 +61,6 @@ builder.ConfigureAppServices();
 
 builder.Services.Configure<ConfigUrls>(builder.Configuration.GetRequiredSection("MicroserversUrls"));
 
-builder.Services.AddSingleton<IWebSocketUserDb, WebSocketUserDb>();
-
-builder.Services.AddHostedService<TransactionsListener>();
-
 var app = builder.Build();
 
 app.UseSwagger();
