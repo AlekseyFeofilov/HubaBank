@@ -13,13 +13,16 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class LogService {
     private final LogRepository logRepository;
     private final StackTraceRepository stackTraceRepository;
+    int limit = 4500;
     @Transactional
     public void publishLog(PublishLogDto dto) {
         LogEntity logEntity = logRepository.findById(dto.getRequestId()).orElse(null);
@@ -30,19 +33,19 @@ public class LogService {
         }
         StackTraceEntity stackTraceEntity = new StackTraceEntity();
         stackTraceEntity.setDate(LocalDateTime.now());
-        stackTraceEntity.setOtherInfo(dto.getOtherInfo());
+        stackTraceEntity.setOtherInfo(toLim(dto.getOtherInfo()));
         stackTraceEntity.setLogEntity(logEntity);
-        stackTraceEntity.setPublishService(dto.getPublishService());
+        stackTraceEntity.setPublishService(toLim(dto.getPublishService()));
 
         Request request = new Request();
-        request.setBody(dto.getRequest().getBody());
-        request.setUrl(dto.getRequest().getUrl());
-        request.setMethod(dto.getRequest().getMethod());
-        request.setHeaders(dto.getRequest().getHeaders());
+        request.setBody(toLim(dto.getRequest().getBody()));
+        request.setUrl(toLim(dto.getRequest().getUrl()));
+        request.setMethod(toLim(dto.getRequest().getMethod()));
+        request.setHeaders(toLimit(dto.getRequest().getHeaders()));
 
         Response response = new Response();
-        response.setBody(dto.getResponse().getBody());
-        response.setHeaders(dto.getResponse().getHeaders());
+        response.setBody(toLim(dto.getResponse().getBody()));
+        response.setHeaders(toLimit(dto.getResponse().getHeaders()));
         response.setStatus(dto.getResponse().getStatus());
 
         stackTraceEntity.setRequest(request);
@@ -73,5 +76,19 @@ public class LogService {
             return 0d;
         }
         return errors / (normal + errors);
+    }
+
+    private Map<String, String> toLimit(Map<String, String> headers) {
+        Map<String, String> headersNew = new HashMap<>();
+        for(String header:headers.keySet()) {
+            headersNew.put(toLim(header), toLim(headers.get(header)));
+        }
+        return headersNew;
+    }
+    private String toLim(String str) {
+        if(str.length() >= 5000) {
+            return str.substring(0, limit);
+        }
+        return str;
     }
 }

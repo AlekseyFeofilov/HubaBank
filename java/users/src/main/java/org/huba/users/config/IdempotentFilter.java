@@ -21,9 +21,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.UUID;
 
-@Order(Ordered.HIGHEST_PRECEDENCE + 2)
+@Order(Ordered.LOWEST_PRECEDENCE)
 @Component
-@WebFilter(filterName = "LogFilter", urlPatterns = "/*")
+@WebFilter(filterName = "IdempotentFilter", urlPatterns = "/*")
 @RequiredArgsConstructor
 public class IdempotentFilter extends OncePerRequestFilter {
     private final IdempotentRepository idempotentRepository;
