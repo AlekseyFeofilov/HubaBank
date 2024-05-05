@@ -16,6 +16,14 @@ services:
       RABBITMQ_VHOST: huba
     volumes:
       - ./gateway-client/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    healthcheck:
+      test: curl --fail http://localhost:8080/swagger/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -35,6 +43,14 @@ services:
       RABBITMQ_VHOST: huba
     volumes:
       - ./gateway-employer/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    healthcheck:
+      test: curl --fail http://localhost/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -59,6 +75,14 @@ services:
       CURRENCY_SERVICE_URL: https://api.currencyapi.com/v3/
       CURRENCY_API_KEY: ${CURRENCY_API_KEY}
       LOGGER_SERVICE_URL: http://hits-huba-logger:8080/log/api/v1/
+    healthcheck:
+      test: curl --fail http://localhost:8080/health || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -74,6 +98,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: users_service
+    healthcheck:
+      test: curl --fail http://localhost:8080/swagger-ui/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -94,6 +126,14 @@ services:
       RABBITMQ_VHOST: huba
     volumes:
       - ./credit/appsettings.Staging.json:/app/appsettings.Staging.json:ro
+    healthcheck:
+      test: curl --fail http://localhost:8080/swagger/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
@@ -109,6 +149,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASS: ${POSTGRES_PASSWORD}
       POSTGRES_SCHEMA: logger_service
+    healthcheck:
+      test: curl --fail http://localhost:8080/swagger-ui/index.html || exit 1
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 10s
+    labels:
+      io.portainer.accesscontrol.teams: hubabank
     networks:
       - 'hits-huba-network'
     restart: always
