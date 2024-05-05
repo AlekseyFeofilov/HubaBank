@@ -11,7 +11,8 @@ public class PreProcessor : IRequestPreProcessor<Request>
     private readonly IMediator _mediator;
 
     //todo cделать по-человечески
-    private readonly Guid _providerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    private readonly Guid _circuitBreakerId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6");
+    private readonly Guid _circuitBreakerSettingId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa5");
 
     public PreProcessor(IMediator mediator)
     {
@@ -20,7 +21,14 @@ public class PreProcessor : IRequestPreProcessor<Request>
 
     public async Task Process(Request request, CancellationToken cancellationToken)
     {
-        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_providerId), cancellationToken);
+        var circuitBreakerEnable =
+            await _mediator.Send(new Utils.Setting.Fetch.Request(_circuitBreakerSettingId), cancellationToken);
+        if (circuitBreakerEnable.Value == "false")
+        {
+            return;
+        }
+        
+        var circuitBreaker = await _mediator.Send(new Utils.CircuitBreaker.Fetch.Request(_circuitBreakerId), cancellationToken);
 
         switch (circuitBreaker.CircuitBreakerStatus)
         {
