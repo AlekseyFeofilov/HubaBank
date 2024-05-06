@@ -31,6 +31,7 @@ public class LoggerMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        var start = DateTime.Now;
         context.Request.EnableBuffering();
         var originalBody = context.Response.Body;
         var requestReader = new StreamReader(context.Request.Body);
@@ -52,6 +53,7 @@ public class LoggerMiddleware
             var logDto = new PublishLogDto
             {
                 RequestId = requestId,
+                PublishService = "gateway-employee",
                 Request = new RequestDto
                 {
                     Url = context.Request.GetDisplayUrl(),
@@ -64,7 +66,8 @@ public class LoggerMiddleware
                     Status = context.Response.StatusCode,
                     Headers = context.Response.Headers.ToDictionary(x => x.Key, a => string.Join(";", a.Value)),
                     Body = responseBody
-                }
+                },
+                otherInfo = (DateTime.Now - start).TotalSeconds.ToString()
             };
             try
             {
