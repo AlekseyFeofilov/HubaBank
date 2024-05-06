@@ -4,7 +4,7 @@ public class PublishLogDto
 {
     public string RequestId { get; set; }
 
-    public string PublishService { get; set; } = "bff-client";
+    public string PublishService { get; set; }
 
     public RequestDto Request { get; set; }
 
